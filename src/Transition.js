@@ -1,6 +1,5 @@
 import * as PropTypes from 'prop-types'
 import React from 'react'
-import ReactDOM from 'react-dom'
 
 const timeoutsShape =
   process.env.NODE_ENV !== 'production' ?
@@ -362,6 +361,9 @@ class Transition extends React.Component {
 
   captureRef = ref => {
     this.node = ref;
+    if (this.props.captureRef) {
+      this.props.captureRef(ref);
+    }
   };
 
   render() {
@@ -386,6 +388,8 @@ class Transition extends React.Component {
     delete childProps.onExit
     delete childProps.onExiting
     delete childProps.onExited
+
+    delete childProps.captureRef
 
     if (typeof children === 'function') {
       return children(status, childProps)

@@ -17,6 +17,7 @@ const isAuto = value => value === 'auto';
 const isPercent = value => typeof value === 'string' && value.endsWith('%');
 
 const toPx = v => (typeof v === 'number' ? `${v}px` : v);
+
 const needsCalculation = value => isAuto(value) || isPercent(value);
 
 export default class Expand extends React.Component {
@@ -27,58 +28,35 @@ export default class Expand extends React.Component {
   }
 
   enter = ({ node }) => {
-    return Promise.resolve({
-      ...styleFrom,
-      height: toPx(node.offsetHeight)
-    });
+    return this.resolveStyle(node, node.offsetHeight, styleFrom);
   };
 
   entering = ({ node }) => {
-    const to = toPx(this.props.to);
-
-    if (!needsCalculation(to)) {
-      return Promise.resolve({
-        ...styleTo,
-        height: to
-      });
-    }
-
-    return new Promise(resolve => {
-      const savedHeight = node.offsetHeight;
-      node.style.height = to; // TO HEIGHT
-
-      const destinationHeight = node.offsetHeight;
-      node.style.height = toPx(savedHeight);
-
-      requestAnimationFrame(() => {
-        resolve({
-          ...styleTo,
-          height: toPx(destinationHeight),
-        })
-      })
-    })
+    return this.resolveStyle(node, this.props.to, styleTo);
   };
 
   entered = ({ node }) => {
-    return Promise.resolve({
-      ...styleTo,
-      height: toPx(node.offsetHeight)
-    });
+    return this.resolveStyle(node, this.props.to, styleTo);
   };
 
   exit = ({ node }) => {
-    return Promise.resolve({
-      ...styleTo,
-      height: toPx(node.offsetHeight)
-    });
+    return this.resolveStyle(node, node.offsetHeight, styleTo);
   };
 
   exiting = ({ node }) => {
-    const from = toPx(this.props.from);
+    return this.resolveStyle(node, this.props.from, styleFrom);
+  }
+
+  exited = ({ node }) => {
+    return this.resolveStyle(node, this.props.from, styleFrom);
+  };
+
+  resolveStyle(node, value, baseStyle) {
+    const from = toPx(value);
 
     if (!needsCalculation(from)) {
       return Promise.resolve({
-        ...styleFrom,
+        ...baseStyle,
         height: from
       });
     }
@@ -92,19 +70,12 @@ export default class Expand extends React.Component {
 
       requestAnimationFrame(() => {
         resolve({
-          ...styleFrom,
+          ...baseStyle,
           height: toPx(destinationHeight)
         })
       })
     });
   }
-
-  exited = ({ node }) => {
-    return Promise.resolve({
-      ...styleFrom,
-      height: toPx(node.offsetHeight)
-    });
-  };
 
   render() {
     return (
@@ -119,6 +90,14 @@ export default class Expand extends React.Component {
           exit: this.exit,
           exiting: this.exiting,
           exited: this.exited
+        }}
+
+        onEntered={({ node }) => {
+          node.style.height = toPx(this.props.to);
+        }}
+
+        onExited={({ node }) => {
+          node.style.height = toPx(this.props.from);
         }}
       >
         <div>

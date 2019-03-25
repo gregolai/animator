@@ -2,6 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Transition from './Transition';
 
+const noop = () => {};
+
 const EasingPropTypes = PropTypes.oneOfType([
   PropTypes.oneOf(['linear', 'ease', 'ease-in', 'ease-out', 'ease-in-out']),
   PropTypes.arrayOf(PropTypes.number) // [x0, y0, x1, y1]
@@ -98,58 +100,83 @@ export default class StyleTransition extends React.Component {
   static defaultProps = {
     delay: 0,
     duration: 1000,
-    easing: 'linear'
+    easing: 'linear',
+
+    onEnter: noop,
+    onEntering: noop,
+    onEntered: noop,
+    onExit: noop,
+    onExiting: noop,
+    onExited: noop
   };
 
-  phase = 'exited';
-  style = {};
+  phase = '';
   timeout = null;
+
+  componentDidMount() {
+    if (this.props.in) {
+      this.handleEntered(this.node);
+    } else {
+      this.handleExited(this.node);
+    }
+  }
 
   componentWillUnmount() {
     this.removeEndListener();
   }
 
   handleEnter = (node, appearing) => {
-    return this.updateState(node, 'enter', appearing);
+    return this.updateState(this.node, 'enter', this.props.onEnter);
   };
 
   handleEntering = (node, appearing) => {
-    return this.updateState(node, 'entering', appearing);
+    return this.updateState(this.node, 'entering', this.props.onEntering);
   };
 
   handleEntered = (node, appearing) => {
-    return this.updateState(node, 'entered', appearing);
+    return this.updateState(this.node, 'entered', this.props.onEntered);
   };
 
   handleExit = node => {
-    return this.updateState(node, 'exit');
+    return this.updateState(this.node, 'exit', this.props.onExit);
   };
 
   handleExiting = node => {
-    return this.updateState(node, 'exiting');
+    return this.updateState(this.node, 'exiting', this.props.onExiting);
   };
 
   handleExited = node => {
-    return this.updateState(node, 'exited');
+    return this.updateState(this.node, 'exited', this.props.onExited);
   };
 
-  async updateState(node, phase, appearing) {
+  delayFrame() {
+    return new Promise(resolve => requestAnimationFrame(resolve));
+  }
+
+  async updateState(node, phase, callback) {
     this.removeEndListener();
 
-    const isTransitioning =
+    const isInterrupted =
       (this.phase === 'entering' && phase === 'exit') ||
       (this.phase === 'exiting' && phase === 'enter');
 
     const style = await this.getComputedStyle(node, phase);
-    console.log(phase, isTransitioning, style);
+    console.log(phase, isInterrupted, style);
     
-    if(!isTransitioning) {
+    // If interrupted during entering or exiting, prevent the from/to
+    // reset style from getting applied.
+    if(!isInterrupted) {
       node.style = '';
       Object.assign(node.style, style);
     }
 
+    callback({ node });
+    await this.delayFrame();
+    
+    // Firefox and Safari require a second delay. Chrome only requires one.
+    await this.delayFrame();
+
     this.phase = phase;
-    this.style = style;
   }
 
   async getComputedStyle(node, phase) {
@@ -214,12 +241,17 @@ export default class StyleTransition extends React.Component {
     }
   }
 
+  captureRef = ref => {
+    this.node = ref;
+  }
 
   render() {
     return (
       <Transition
         in={this.props.in}
         
+        captureRef={this.captureRef}
+
         // callbacks
         //timeout={this.props.duration}
         addEndListener={this.addEndListener}
@@ -231,8 +263,6 @@ export default class StyleTransition extends React.Component {
         onExit={this.handleExit}
         onExiting={this.handleExiting}
         onExited={this.handleExited}
-
-        //style={this.props.styles[this.phase]}
       >
         {this.props.children}
       </Transition>
