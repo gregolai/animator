@@ -29,25 +29,26 @@ export default class Expand extends React.Component {
   enter = ({ node }) => {
     return Promise.resolve({
       ...styleFrom,
-      height: `${node.offsetHeight}px`
+      height: toPx(node.offsetHeight)
     });
   };
 
   entering = ({ node }) => {
-    return new Promise(resolve => {
-      if (!needsCalculation(this.props.to)) {
-        resolve({
-          ...styleTo,
-          height: toPx(this.props.to)
-        });
-        return;
-      }
+    const to = toPx(this.props.to);
 
+    if (!needsCalculation(to)) {
+      return Promise.resolve({
+        ...styleTo,
+        height: to
+      });
+    }
+
+    return new Promise(resolve => {
       const savedHeight = node.offsetHeight;
-      node.style.height = toPx(this.props.to); // TO HEIGHT
+      node.style.height = to; // TO HEIGHT
 
       const destinationHeight = node.offsetHeight;
-      node.style.height = `${savedHeight}px`;
+      node.style.height = toPx(savedHeight);
 
       requestAnimationFrame(() => {
         resolve({
@@ -61,37 +62,38 @@ export default class Expand extends React.Component {
   entered = ({ node }) => {
     return Promise.resolve({
       ...styleTo,
-      height: `${node.offsetHeight}px`
+      height: toPx(node.offsetHeight)
     });
   };
 
   exit = ({ node }) => {
     return Promise.resolve({
       ...styleTo,
-      height: `${node.offsetHeight}px`
+      height: toPx(node.offsetHeight)
     });
   };
 
   exiting = ({ node }) => {
-    return new Promise(resolve => {
-      if (!needsCalculation(this.props.from)) {
-        resolve({
-          ...styleFrom,
-          height: toPx(this.props.from)
-        });
-        return;
-      }
+    const from = toPx(this.props.from);
 
+    if (!needsCalculation(from)) {
+      return Promise.resolve({
+        ...styleFrom,
+        height: from
+      });
+    }
+
+    return new Promise(resolve => {
       const savedHeight = node.offsetHeight;
-      node.style.height = toPx(this.props.from); // FROM HEIGHT
+      node.style.height = from; // FROM HEIGHT
 
       const destinationHeight = node.offsetHeight;
-      node.style.height = `${savedHeight}px`;
+      node.style.height = toPx(savedHeight);
 
       requestAnimationFrame(() => {
         resolve({
           ...styleFrom,
-          height: `${destinationHeight}px`
+          height: toPx(destinationHeight)
         })
       })
     });
@@ -100,7 +102,7 @@ export default class Expand extends React.Component {
   exited = ({ node }) => {
     return Promise.resolve({
       ...styleFrom,
-      height: `${node.offsetHeight}px`
+      height: toPx(node.offsetHeight)
     });
   };
 
