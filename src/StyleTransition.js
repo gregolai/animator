@@ -160,22 +160,21 @@ export default class StyleTransition extends React.Component {
       (this.phase === 'entering' && phase === 'exit') ||
       (this.phase === 'exiting' && phase === 'enter');
 
-    const style = await this.getComputedStyle(node, phase);
-    console.log(phase, isInterrupted, style);
     
     // If interrupted during entering or exiting, prevent the from/to
     // reset style from getting applied.
     if(!isInterrupted) {
+      const style = await this.getComputedStyle(node, phase);
+      console.log(phase, style);
+
       node.style = '';
       Object.assign(node.style, style);
+      await this.delayFrame();
     }
 
     callback({ node });
     await this.delayFrame();
     
-    // Firefox and Safari require a second delay. Chrome only requires one.
-    await this.delayFrame();
-
     this.phase = phase;
   }
 
