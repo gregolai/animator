@@ -247,15 +247,11 @@ export default class StyleTransition extends React.Component {
   render() {
     return (
       <Transition
-        in={this.props.in}
-        
         captureRef={this.captureRef}
+        in={this.props.in}
 
         // callbacks
-        //timeout={this.props.duration}
         addEndListener={this.addEndListener}
-
-
         onEnter={this.handleEnter}
         onEntering={this.handleEntering}
         onEntered={this.handleEntered}
