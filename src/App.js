@@ -3,7 +3,9 @@ import React, { Component } from 'react';
 const INIT_AVAILABLE_TWEENS = [
   {
     id: 'left',
+    fromTime: 0,
     fromValue: 0,
+    toTime: 1,
     toValue: 100,
     min: 0,
     max: 500,
@@ -11,7 +13,9 @@ const INIT_AVAILABLE_TWEENS = [
   },
   {
     id: 'top',
+    fromTime: 0,
     fromValue: 0,
+    toTime: 1,
     toValue: 100,
     min: 0,
     max: 500,
@@ -40,7 +44,17 @@ class Store extends React.Component {
       this.state.tweensAdded.push(toAdd);
       this.forceUpdate();
     }
-  }
+  };
+
+  removeTween = id => {
+    const index = this.state.tweensAdded.findIndex(t => t.id === id);
+    if (index !== -1) {
+      const [toRemove] = this.state.tweensAdded.splice(index, 1);
+      this.state.tweensAvailable.push(toRemove);
+      this.forceUpdate();
+    }
+  };
+
 
   onChange = nextState => this.setState(nextState);
 
@@ -50,6 +64,7 @@ class Store extends React.Component {
         value={{
           ...this.state,
           addTween: this.addTween,
+          removeTween: this.removeTween,
           onChange: this.onChange
         }}
       >
@@ -87,144 +102,83 @@ class Hover extends React.Component {
   }
 }
 
-
-
-const CSS_PROPS = [
-  {
-    id: 'left',
-    init: [0, 100],
-    min: 0,
-    max: 500,
-    type: 'number'
-  },
-  {
-    id: 'top',
-    init: [0, 100],
-    min: 0,
-    max: 500,
-    type: 'number'
-  }
-];
-
-class Terminal extends React.Component {
-  render() {
-    const { onChange, propKey, time, value } = this.props;
-    const { min, max, type } = CSS_PROPS.find(p => p.id === propKey);
-
-    return (
-      <div>
-        {time === 0 ? 'from' : 'to'}
-        <input
-          max={max}
-          min={min}
-          onChange={e => onChange(parseFloat(e.target.value))}
-          style={{ display: 'block', width: 100 }}
-          type={type}
-          value={value}
-        />
-      </div>
-    )
-  }
-}
-
-class PropList extends React.Component {
-  render() {
-    const {
-      exclude,
-      list,
-      onSelect,
-      selected
-    } = this.props;
-
-    const resolvedList = list.filter(id => exclude.indexOf(id) === -1);
-
-    return (
-      <div style={{ flex: 1, border: '1px solid black', backgroundColor: 'white', width: 100 }}>
-        {resolvedList.map(id => (
-          <Hover>
-            {({ ref, isHovering }) => (
-              <button
-                key={id}
-                ref={ref}
-                onClick={() => onSelect(id)}
-                style={{
-                  width: '100%',
-                  display: 'block',
-                  border: id === selected ? '4px solid black' : '4px solid transparent',
-                  backgroundColor: isHovering ? 'orange' : 'white'
-                }}
-              >{id}</button>
-            )}
-          </Hover>
-        ))}
-      </div>
-    )
-  }
-}
-
 const TweenList = props => (
   <div>
-    {props.tweens.map(tween => (
-      <Hover>
-        {({ ref, isHovering }) => (
-          <div
-            key={tween.id}
-            ref={ref}
-            style={{ position: 'relative' }}
-          >
-            <span>{tween.id}</span>
-            {isHovering && props.renderHover(tween.id)}
-          </div>
-        )}
-      </Hover>
-    ))}
+    <h3>{props.label}</h3>
+    <div style={{ backgroundColor: '#dedede', width: 200 }}>
+      {props.tweens.map(tween => (
+        <Hover key={tween.id}>
+          {({ ref, isHovering }) => (
+            <div
+              key={tween.id}
+              ref={ref}
+              style={{
+                position: 'relative',
+                padding: 8,
+                backgroundColor: isHovering ? '#ffffff' : undefined
+              }}
+            >
+              <span style={{ display: 'block', textAlign: 'center' }}>{tween.id}</span>
+              {isHovering && props.renderHover(tween.id)}
+            </div>
+          )}
+        </Hover>
+      ))}
+    </div>
   </div>
 );
 
-class Tween extends React.Component {
-  render() {
-    const {
-      id,
-      leftRatio,
-      rightRatio
-    } = this.props;
+const TimelineLabel = props => (
+  <div style={{ width: 100, backgroundColor: '#dedede', ...props.style }}>
+    {props.children}
+  </div>
+)
 
-    const widthRatio = rightRatio - leftRatio;
+const TweenHandle = props => (
+  <div
+    style={{
+      position: 'absolute',
+      top: 0,
+      left: props.index === 0 ? -10 : undefined,
+      right: props.index === 1 ? -10 : undefined,
+      width: 20,
+      height: '100%',
+      backgroundColor: 'red'
+    }}
+  ></div>
+);
 
-    return (
-      <div style={{
-        position: 'relative',
-        display: 'flex',
-        alignItems: 'center',
-        backgroundColor: 'white',
-        height: 30,
-        borderBottom: '1px solid black'
-      }}>
-        <div style={{
-          height: '100%',
-          width: 100,
-          textAlign: 'right'
-        }}>{id}</div>
-        <div style={{
-          borderLeft: '1px solid black',
-          flex: 1,
-          height: '100%',
-          position: 'relative',
-          display: 'flex',
-          alignItems: 'center'
-        }}>
-          <div style={{
-            position: 'relative',
-            backgroundColor: 'black',
-            left: `${leftRatio * 100}%`,
-            width: `${widthRatio * 100}%`,
+const TweenTimeline = props => (
+  <div style={{
+    position: 'relative',
+    height: 20,
+    backgroundColor: '#ffffff',
+    ...props.style
+  }}>
+    <Hover>
+      {({ ref, isHovering }) => (
+        <div
+          ref={ref}
+          style={{
+            position: 'absolute',
+            backgroundColor: isHovering ? '#333333' : 'black',
+            top: 0,
+            left: `${props.fromTime * 100}%`,
+            right: `${(1 - props.toTime) * 100}%`,
             height: '100%'
-          }} />
+          }}
+        >
+          {isHovering && (
+            <TweenHandle id={props.id} index={0} />
+          )}
+          {isHovering && (
+            <TweenHandle id={props.id} index={1} />
+          )}
         </div>
-      </div>
-    )
-  }
-}
+      )}
+    </Hover>
+  </div>
+);
 
 const Playhead = props => (
   <Store.Consumer>
@@ -274,6 +228,7 @@ const AvailableTweens = props => (
   <Store.Consumer>
     {({ addTween, tweensAvailable }) => (
       <TweenList
+        label="Available"
         renderHover={(id) => (
           <button
             style={{ position: 'absolute', right: 0, top: 0, height: '100%' }}
@@ -286,116 +241,64 @@ const AvailableTweens = props => (
   </Store.Consumer>
 )
 
+const AddedTweens = props => (
+  <Store.Consumer>
+    {({ removeTween, tweensAdded }) => (
+      <TweenList
+        label="Added"
+        renderHover={(id) => (
+          <button
+            style={{ position: 'absolute', left: 0, top: 0, height: '100%' }}
+            onClick={() => removeTween(id)}
+          >&lt;&lt;</button>
+        )}
+        tweens={tweensAdded}
+      />
+    )}
+  </Store.Consumer>
+)
+
 class App extends Component {
-
-  state = {
-    selectedProp: 'left',
-    tweens: [
-      ['left', 20, 80],
-      //top: [20, 160]
-    ]
-  }
-
   render() {
-    const {
-      selectedProp,
-      tweens
-    } = this.state;
-
-    const selectedTween = selectedProp ?
-      tweens.find(t => t[0] === selectedProp) :
-      null;
-
     return (
       <div>
 
         <div style={{ display: 'flex', height: 400 }}>
-
-          <div style={{ height: '100%' }}>
-            <div style={{ display: 'flex', height: 200 }}>
-              <PropList
-                exclude={tweens.map(v => v[0])}
-                list={CSS_PROPS.map(p => p.id)}
-                onSelect={id => {
-                  const prop = CSS_PROPS.find(p => p.id === id);
-
-                  this.setState({
-                    tweens: [
-                      ...tweens,
-                      [id, prop.init[0], prop.init[1]]
-                    ]
-                  })
-                }}
-                selected={null}
-              />
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <PropList
-                  exclude={[]}
-                  list={tweens.map(v => v[0])}
-                  onSelect={id => this.setState({ selectedProp: id })}
-                  selected={selectedProp}
-                />
-                <button
-                  onClick={() => {
-                    tweens.splice(
-                      tweens.findIndex(t => t[0] === selectedProp),
-                      1
-                    );
-                    this.forceUpdate();
-                  }}
-                  style={{ width: '100%' }}
-                >&lt;&lt;</button>
-              </div>
-
-            </div>
-
-            <div>
-              {selectedTween && (
-                <div>
-                  <Terminal
-                    onChange={v => {
-                      selectedTween[1] = v;
-                      this.forceUpdate();
-                    }}
-                    propKey={selectedProp}
-                    time={0}
-                    value={selectedTween[1]}
-                  />
-                  <Terminal
-                    onChange={v => {
-                      selectedTween[2] = v;
-                      this.forceUpdate();
-                    }}
-                    propKey={selectedProp}
-                    time={1}
-                    value={selectedTween[2]}
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-
 
           <div style={{ position: 'relative', height: '100%', backgroundColor: 'white' }}>
             <AnimTarget />
           </div>
         </div>
 
-        {tweens.map(tween => (
-          <Tween
-            id={tween[0]}
-            leftRatio={0.2}
-            rightRatio={0.8}
-          />
-        ))}
+        <Store.Consumer>
+          {({ tweensAdded }) => (
+            <div>
+              {tweensAdded.map(tween => (
+                <div key={tween.id} style={{ display: 'flex' }}>
+                  <TimelineLabel>
+                    <span>{tween.id}</span>
+                  </TimelineLabel>
+                  <TweenTimeline
+                    key={tween.id}
+                    id={tween.id}
+                    fromTime={tween.fromTime}
+                    toTime={tween.toTime}
+                    style={{ flex: 1 }}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+        </Store.Consumer>
 
         <div style={{ display: 'flex', marginLeft: 100, }}>
           <PlayheadTime style={{ textAlign: 'center', width: 100 }} />
           <Playhead style={{ flex: 1 }} />
         </div>
 
-        <div style={{ width: 200 }}>
+        <div style={{ display: 'flex' }}>
           <AvailableTweens />
+          <AddedTweens />
         </div>
       </div>
     );
