@@ -1,4 +1,28 @@
-import React, { Component } from 'react';
+import React from 'react';
+
+const getEasingArray = (() => {
+  /**
+   * Cubic bezier equivalents:
+   * https://www.w3.org/TR/css-easing-1/#typedef-cubic-bezier-timing-function
+   */
+  const EASING_MAP = {
+    linear: [0.5, 0.5, 0.5, 0.5],
+    ease: [0.25, 0.1, 0.25, 1],
+    'ease-in': [0.42, 0, 1, 1],
+    'ease-out': [0, 0, 0.58, 1],
+    'ease-in-out': [0.42, 0, 0.58, 1]
+  };
+
+  return (easing) => {
+    return Array.isArray(easing) ?
+      easing :
+      EASING_MAP[easing] || EASING_MAP.linear;
+  };
+})();
+
+const clamp = (v, min, max) => Math.max(Math.min(v, max), min);
+
+const MIN_TIME_DIFF = 0.01;
 
 const INIT_AVAILABLE_TWEENS = [
   {
@@ -13,9 +37,9 @@ const INIT_AVAILABLE_TWEENS = [
   },
   {
     id: 'top',
-    fromTime: 0,
+    fromTime: 0.4,
     fromValue: 0,
-    toTime: 1,
+    toTime: 0.8,
     toValue: 100,
     min: 0,
     max: 500,
@@ -55,6 +79,33 @@ class Store extends React.Component {
     }
   };
 
+  setTweenFromTime = (id, fromTime) => {
+    const tween = this.state.tweensAdded.find(t => t.id === id);
+    if (tween) {
+      tween.fromTime = clamp(fromTime, 0, tween.toTime - MIN_TIME_DIFF);
+      this.forceUpdate();
+    }
+  };
+
+  setTweenToTime = (id, toTime) => {
+    const tween = this.state.tweensAdded.find(t => t.id === id);
+    if (tween) {
+      tween.toTime = clamp(toTime, tween.fromTime + MIN_TIME_DIFF, 1);
+      this.forceUpdate();
+    }
+  };
+
+  setTweenPosition = (id, fromTime) => {
+    const tween = this.state.tweensAdded.find(t => t.id === id);
+    if (tween) {
+      const diff = tween.toTime - tween.fromTime;
+      fromTime = clamp(fromTime, 0, 1 - diff);
+
+      tween.fromTime = fromTime;
+      tween.toTime = fromTime + diff;
+      this.forceUpdate();
+    }
+  }
 
   onChange = nextState => this.setState(nextState);
 
@@ -65,11 +116,85 @@ class Store extends React.Component {
           ...this.state,
           addTween: this.addTween,
           removeTween: this.removeTween,
-          onChange: this.onChange
+          onChange: this.onChange,
+          setTweenFromTime: this.setTweenFromTime,
+          setTweenToTime: this.setTweenToTime,
+          setTweenPosition: this.setTweenPosition
         }}
       >
         {this.props.children}
       </StoreContext.Provider>
+    );
+  }
+}
+
+const DragContext = React.createContext();
+class Drag extends React.Component {
+  static Consumer = DragContext.Consumer;
+
+  state = {
+    isDragging: false,
+    target: null,
+  }
+
+  onDragStart = (e, onUpdate) => {
+    if (this.state.isDragging) return;
+
+    const { pageX, pageY, target } = e;
+    this.setState({
+      onUpdate,
+      isDragging: true,
+      deltaX: 0,
+      deltaY: 0,
+      startX: pageX,
+      startY: pageY,
+      pageX,
+      pageY,
+      target: target
+    }, () => {
+      document.addEventListener('mousemove', this.onMouseMove, false);
+      document.addEventListener('mouseup', this.onMouseUp, false);
+    });
+  };
+
+  onMouseMove = e => {
+    if (!this.state.isDragging) return;
+
+    const { pageX, pageY } = e;
+    const { onUpdate, startX, startY } = this.state;
+
+    const nextState = {
+      pageX,
+      pageY,
+      deltaX: pageX - startX,
+      deltaY: pageY - startY
+    }
+
+    onUpdate({ ...this.state, ...nextState })
+    this.setState(nextState);
+  }
+
+  onMouseUp = e => {
+    if (!this.state.isDragging) return;
+
+    document.removeEventListener('mousemove', this.onMouseMove, false);
+    document.removeEventListener('mouseup', this.onMouseUp, false);
+    this.setState({
+      onUpdate: null,
+      isDragging: false,
+      target: null
+    });
+  }
+
+  render() {
+    return (
+      <DragContext.Provider
+        value={{
+          onDragStart: (e, onUpdate) => this.onDragStart(e, onUpdate)
+        }}
+      >
+        {this.props.children}
+      </DragContext.Provider>
     );
   }
 }
@@ -88,7 +213,7 @@ class Hover extends React.Component {
   }
 
   componentWillUnmount() {
-    if(this.ref) {
+    if (this.ref) {
       this.ref.removeEventListener('mouseenter', this.onMouseEnter, false);
       this.ref.removeEventListener('mouseleave', this.onMouseLeave, false);
     }
@@ -96,22 +221,22 @@ class Hover extends React.Component {
 
   render() {
     return this.props.children({
-      ref: this.captureRef,
+      captureRef: this.captureRef,
       isHovering: this.state.isHovering
     })
   }
 }
 
-const TweenList = props => (
+const TweenList = ({ label, tweens, renderHover }) => (
   <div>
-    <h3>{props.label}</h3>
+    <h3>{label}</h3>
     <div style={{ backgroundColor: '#dedede', width: 200 }}>
-      {props.tweens.map(tween => (
+      {tweens.map(tween => (
         <Hover key={tween.id}>
-          {({ ref, isHovering }) => (
+          {({ captureRef, isHovering }) => (
             <div
               key={tween.id}
-              ref={ref}
+              ref={captureRef}
               style={{
                 position: 'relative',
                 padding: 8,
@@ -119,7 +244,7 @@ const TweenList = props => (
               }}
             >
               <span style={{ display: 'block', textAlign: 'center' }}>{tween.id}</span>
-              {isHovering && props.renderHover(tween.id)}
+              {isHovering && renderHover(tween.id)}
             </div>
           )}
         </Hover>
@@ -128,57 +253,159 @@ const TweenList = props => (
   </div>
 );
 
-const TimelineLabel = props => (
-  <div style={{ width: 100, backgroundColor: '#dedede', ...props.style }}>
-    {props.children}
+const TimelineLabel = ({ children, style }) => (
+  <div style={{ width: 100, backgroundColor: '#dedede', ...style }}>
+    {children}
   </div>
 )
 
-const TweenHandle = props => (
-  <div
-    style={{
-      position: 'absolute',
-      top: 0,
-      left: props.index === 0 ? -10 : undefined,
-      right: props.index === 1 ? -10 : undefined,
-      width: 20,
-      height: '100%',
-      backgroundColor: 'red'
-    }}
-  ></div>
+const TweenContainer = React.forwardRef(
+  ({ children, style }, ref) => (
+    <div
+      ref={ref}
+      style={{
+        position: 'relative',
+        height: 20,
+        backgroundColor: '#ffffff',
+        ...style
+      }}
+    >
+      {children}
+    </div>
+  )
 );
 
-const TweenTimeline = props => (
-  <div style={{
-    position: 'relative',
-    height: 20,
-    backgroundColor: '#ffffff',
-    ...props.style
-  }}>
-    <Hover>
-      {({ ref, isHovering }) => (
-        <div
-          ref={ref}
-          style={{
-            position: 'absolute',
-            backgroundColor: isHovering ? '#333333' : 'black',
-            top: 0,
-            left: `${props.fromTime * 100}%`,
-            right: `${(1 - props.toTime) * 100}%`,
-            height: '100%'
-          }}
-        >
-          {isHovering && (
-            <TweenHandle id={props.id} index={0} />
-          )}
-          {isHovering && (
-            <TweenHandle id={props.id} index={1} />
-          )}
-        </div>
-      )}
-    </Hover>
-  </div>
+const TweenHandle = ({ index, onMouseDown }) => (
+  <Store.Consumer>
+    {({ setTweenFromTime, setTweenToTime }) => (
+      <Drag.Consumer>
+        {({ isDragging }) => (
+          <div
+            onMouseDown={onMouseDown}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: index === 0 ? -0 : undefined,
+              right: index === 1 ? -0 : undefined,
+              width: 8,
+              height: '100%',
+              cursor: 'col-resize',
+              backgroundColor: isDragging ? 'red' : 'dodgerblue'
+            }}
+          ></div>
+        )}
+      </Drag.Consumer>
+    )}
+  </Store.Consumer>
 );
+
+const TweenBar = React.forwardRef(
+  ({ children, fromTime, onMouseDown, toTime }, ref) => (
+    <div
+      ref={ref}
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: `${fromTime * 100}%`,
+        right: `${(1 - toTime) * 100}%`,
+        height: '100%'
+      }}
+      onMouseDown={onMouseDown}
+    >
+      <Hover>
+        {({ captureRef, isHovering }) => (
+          <div
+            ref={captureRef}
+            style={{
+              height: '100%',
+              backgroundColor: isHovering ? '#333333' : 'black',
+            }}
+          />
+        )}
+      </Hover>
+      {children}
+    </div>
+  )
+);
+
+class TweenTimeline extends React.Component {
+  captureRef = ref => {
+    this.containerRef = ref;
+  };
+
+  captureBarRef = ref => {
+    this.barRef = ref;
+  }
+
+  renderHandle(index, onDragStart) {
+    const { id } = this.props;
+
+    return (
+      <Store.Consumer>
+        {({ setTweenFromTime, setTweenToTime }) => (
+          <TweenHandle
+            index={index}
+            onMouseDown={e => {
+              if (!this.containerRef) return;
+
+              const rect = this.containerRef.getBoundingClientRect();
+
+              onDragStart(e, ({ pageX }) => {
+                const ratio = clamp((pageX - rect.left) / rect.width, 0, 1);
+
+                const setHandleTime = index === 0 ? setTweenFromTime : setTweenToTime;
+                setHandleTime(id, ratio);
+              })
+            }}
+          />
+        )}
+      </Store.Consumer>
+    );
+  }
+
+  render() {
+    const {
+      fromTime,
+      toTime,
+      id,
+      style
+    } = this.props;
+
+    return (
+      <TweenContainer style={style} ref={this.captureRef}>
+        <Store.Consumer>
+          {({ setTweenPosition }) => (
+            <Drag.Consumer>
+              {({ onDragStart }) => (
+                <TweenBar
+                  ref={this.captureBarRef}
+                  fromTime={fromTime}
+                  toTime={toTime}
+                  onMouseDown={e => {
+                    if (!this.containerRef || !this.barRef) return;
+
+                    const rect = this.containerRef.getBoundingClientRect();
+                    const barRect = this.barRef.getBoundingClientRect();
+
+                    const initRatio = (barRect.left - rect.left) / rect.width;
+
+                    onDragStart(e, ({ deltaX }) => {
+                      const ratio = clamp(initRatio + deltaX / rect.width, 0, 1);
+                      setTweenPosition(id, ratio);
+                    })
+                  }}
+                >
+                  {this.renderHandle(0, onDragStart)}
+                  {this.renderHandle(1, onDragStart)}
+                </TweenBar>
+              )}
+            </Drag.Consumer>
+          )}
+        </Store.Consumer>
+      </TweenContainer>
+    );
+  }
+}
 
 const Playhead = props => (
   <Store.Consumer>
@@ -190,7 +417,7 @@ const Playhead = props => (
         onChange={
           e => onChange({ playhead: parseFloat(e.target.value) })
         }
-        step={0.01}
+        step={MIN_TIME_DIFF}
         type="range"
         value={playhead}
       />
@@ -215,8 +442,29 @@ const AnimTarget = props => (
         height: 30,
         backgroundColor: 'blue',
         ...tweensAdded.reduce((style, tween) => {
-          const { id, fromValue, toValue } = tween;
-          style[id] = fromValue + (toValue - fromValue) * playhead;
+          const {
+            id,
+            fromTime,
+            fromValue,
+            toTime,
+            toValue
+          } = tween;
+
+          let value;
+          if (playhead <= fromTime) {
+            value = fromValue;
+          } else if (playhead >= toTime) {
+            value = toValue;
+          } else {
+            // interpolate
+            const totalTime = toTime - fromTime;
+            const deltaTime = playhead - fromTime;
+            const ratio = deltaTime / totalTime;
+            value = fromValue + (ratio * (toValue - fromValue));
+          }
+
+          //style[id] = fromValue + (toValue - fromValue) * playhead; // lerp
+          style[id] = value;
           return style;
         }, {})
       }}></div>
@@ -258,7 +506,7 @@ const AddedTweens = props => (
   </Store.Consumer>
 )
 
-class App extends Component {
+class App extends React.Component {
   render() {
     return (
       <div>
@@ -291,7 +539,7 @@ class App extends Component {
           )}
         </Store.Consumer>
 
-        <div style={{ display: 'flex', marginLeft: 100, }}>
+        <div style={{ display: 'flex' }}>
           <PlayheadTime style={{ textAlign: 'center', width: 100 }} />
           <Playhead style={{ flex: 1 }} />
         </div>
@@ -307,6 +555,8 @@ class App extends Component {
 
 export default props => (
   <Store>
-    <App {...props} />
+    <Drag>
+      <App {...props} />
+    </Drag>
   </Store>
 );
