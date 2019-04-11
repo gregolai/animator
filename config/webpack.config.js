@@ -1,4 +1,4 @@
-'use strict';
+
 
 const fs = require('fs');
 const path = require('path');
@@ -445,6 +445,20 @@ module.exports = function(webpackEnv) {
                 'sass-loader'
               ),
             },
+
+            {
+              test: /\.less$/,
+              loader: [
+                'style-loader',
+                'css-loader?localIdentName=[name]-[local]-[hash:base64:5]&importLoaders=1',
+                //'postcss-loader',
+                'less-loader'
+              ],
+              include: [
+                path.join(__dirname, '../node_modules', '@sqs/core-components'),
+              ]
+            },
+
             // "file" loader makes sure those assets get served by WebpackDevServer.
             // When you `import` an asset, you get its (virtual) filename.
             // In production, they would get copied to the `build` folder.

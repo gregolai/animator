@@ -8,57 +8,131 @@ import {
   MAX_DURATION_MS
 } from './constants';
 
+import ContextField from '@sqs/core-components/fields/ContextField';
+import Button from '@sqs/core-components/fields/ButtonField';
+import BooleanField from '@sqs/core-components/fields/BooleanField';
+import Disclosure from '@sqs/core-components/fields/DisclosureField';
+import NumberField from '@sqs/core-components/fields/NumberField';
+
+const immutable = {
+  updateAtIndex: (array, index, item) => ([
+    ...array.slice(0, index),
+    item,
+    ...array.slice(index + 1)
+  ]),
+  push: (array, item) => ([
+    ...array,
+    item
+  ]),
+  removeAtIndex: (array, index) => ([
+    ...array.slice(0, index),
+    ...array.slice(index + 1)
+  ])
+}
+
+
+const GRID_PX = 11;
+const BORDER_RADIUS_PX = 4;
+
+const BG_COLOR = '#f2f2f2';
+
+const STAGE_BG_COLOR = 'white';
+const STAGE_BORDER_COLOR = '#d0d0d0';
+
+const CONTROLS_BG_COLOR = 'white';
+const CONTROLS_BORDER_COLOR = '#d0d0d0';
+
+const ANIMATIONS_BG_COLOR = 'white';
+const ANIMATIONS_BORDER_COLOR = '#d0d0d0';
+
+const PLAYHEAD_BG_COLOR = 'white';
+const PLAYHEAD_BORDER_COLOR = '#d0d0d0';
+
+const TIMELINE_LABEL_PX = 160;
+
+const createTween = ({
+  id,
+  from,
+  to,
+  type,
+  ...extra
+}) => ({
+  id,
+  easing: 'linear',
+  fromTime: 0,
+  fromValue: from,
+  toTime: 1,
+  toValue: to,
+  type,
+  ...extra
+})
+
 const INIT_AVAILABLE_TWEENS = [
-  {
+  createTween({
     id: 'backgroundColor',
-    easing: 'ease-in-out',
-    fromTime: 0,
-    fromValue: '#000000',
     type: 'color',
-    toTime: 1,
+    fromValue: '#000000',
     toValue: '#ffffff',
     min: '#000000',
-    max: '#ffffff',
-  },
-  {
+    max: '#ffffff'
+  }),
+  createTween({
     id: 'left',
-    easing: 'linear',
-    fromTime: 0,
-    fromValue: 0,
     type: 'number',
-    toTime: 1,
-    toValue: 100,
+    fromValue: 0,
+    toValue: 200,
     min: 0,
     max: 500
-  },
-  {
+  }),
+  createTween({
     id: 'top',
-    easing: 'ease-in-out',
-    fromTime: 0.4,
-    fromValue: 0,
     type: 'number',
-    toTime: 0.8,
-    toValue: 100,
+    fromValue: 0,
+    toValue: 200,
     min: 0,
     max: 500
-  }
+  })
+
+
+  // BorderColor,
+  // BorderWidth,
+  // Color,
+  // ExpandHeight,
+  // FontSize,
+  // Margin,
+  // Opacity,
+  // Padding,
+  // Rotate,
+  // Scale,
+  // Translate,
+  // Transform
 ]
 const INIT_TWEENS_ADDED = [
-  INIT_AVAILABLE_TWEENS.pop()
+  //INIT_AVAILABLE_TWEENS.pop()
 ];
 
 const StoreContext = React.createContext();
 class Store extends React.Component {
   state = {
     duration: 3000,
-    isLooping: false,
+    isLooping: true,
     isPlaying: false,
     isReversed: false,
     tweensAvailable: INIT_AVAILABLE_TWEENS,
     tweensAdded: INIT_TWEENS_ADDED,
-    selectedTween: null,
     playhead: 0,
+
+    animations: [
+      {
+        id: 9999999,
+        baseStyle: {},
+        tweens: [...INIT_TWEENS_ADDED]
+      }
+    ],
+    selectedAnimation: null,
   }
+
+  nextAnimationId = 1000;
 
   static Consumer = StoreContext.Consumer;
 
@@ -133,21 +207,30 @@ class Store extends React.Component {
     })();
   }
 
+  _findAnimation = animId => {
+    const index = this.state.animations.findIndex(a => a.id === animId);
+    return [this.state.animations[index] || null, index];
+  };
+
   addTween = id => {
-    const index = this.state.tweensAvailable.findIndex(t => t.id === id);
+    const { tweensAdded, tweensAvailable } = this.state;
+    const index = tweensAvailable.findIndex(t => t.id === id);
     if (index !== -1) {
-      const [toAdd] = this.state.tweensAvailable.splice(index, 1);
-      this.state.tweensAdded.push(toAdd);
-      this.forceUpdate();
+      this.setState({
+        tweensAdded: immutable.push(tweensAdded, tweensAvailable[index]),
+        //tweensAvailable: immutable.removeAtIndex(tweensAvailable, index)
+      });
     }
   };
 
   removeTween = id => {
-    const index = this.state.tweensAdded.findIndex(t => t.id === id);
+    const { tweensAdded, tweensAvailable } = this.state;
+    const index = tweensAdded.findIndex(t => t.id === id);
     if (index !== -1) {
-      const [toRemove] = this.state.tweensAdded.splice(index, 1);
-      this.state.tweensAvailable.push(toRemove);
-      this.forceUpdate();
+      this.setState({
+        tweensAdded: immutable.removeAtIndex(tweensAdded, index),
+        //tweensAvailable: immutable.push(tweensAvailable, tweensAdded[index])
+      })
     }
   };
 
@@ -177,6 +260,11 @@ class Store extends React.Component {
     this.playControls.stop();
   };
 
+  setPlayhead = playhead => {
+    playhead = clamp(playhead, 0, 1);
+    this.setState({ playhead });
+  }
+
   setTweenFromTime = (id, fromTime) => {
     const tween = this.state.tweensAdded.find(t => t.id === id);
     if (tween) {
@@ -205,7 +293,80 @@ class Store extends React.Component {
     }
   }
 
-  onChange = nextState => this.setState(nextState);
+  addAnimation = () => {
+    const id = this.nextAnimationId++;
+
+    const { animations } = this.state;
+    this.setState({
+      animations: immutable.push(animations, {
+        id,
+        baseStyle: {
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: 100,
+          height: 100,
+          backgroundColor: 'blue'
+        },
+        tweens: []
+      })
+    });
+  }
+
+  removeAnimation = animId => {
+    const [anim, index] = this._findAnimation(animId);
+    if (anim) {
+      const { animations, selectedAnimation } = this.state;
+      this.setState({
+        animations: immutable.removeAtIndex(animations, index),
+        selectedAnimation: selectedAnimation === anim ?
+          animations[index] || null :
+          selectedAnimation
+      })
+    }
+  }
+
+  setSelectedAnimation = animId => {
+    const [anim, index] = this._findAnimation(animId);
+    if (anim) {
+      this.setState({ selectedAnimation: anim })
+    }
+  }
+
+  getUnusedTweensForAnimation = animId => {
+    const [anim, index] = this._findAnimation(animId);
+
+    let tweensUnused = INIT_AVAILABLE_TWEENS;
+    if (anim) {
+      tweensUnused = tweensUnused.filter(
+        t1 => !anim.tweens.find(t2 => t2.id === t1.id)
+      );
+    }
+
+    return tweensUnused;
+  }
+
+
+  addTweenToAnimation = (animId, tweenId) => {
+    const [anim, index] = this._findAnimation(animId);
+    if (anim) {
+      const { animations } = this.state;
+
+      const tween = {
+        ...INIT_AVAILABLE_TWEENS.find(t => t.id === tweenId)
+      };
+
+      animations[index].tweens.push(tween);
+      this.forceUpdate();
+
+      // this.setState({
+      //   animations: immutable.updateAtIndex(animations, index, {
+      //     ...animations[index],
+      //     tweens: immutable.push(animations[index].tweens, tween)
+      //   })
+      // })
+    }
+  }
 
   render() {
     return (
@@ -214,7 +375,6 @@ class Store extends React.Component {
           ...this.state,
           addTween: this.addTween,
           removeTween: this.removeTween,
-          onChange: this.onChange,
           setTweenFromTime: this.setTweenFromTime,
           setTweenToTime: this.setTweenToTime,
           setTweenPosition: this.setTweenPosition,
@@ -223,7 +383,15 @@ class Store extends React.Component {
           setReversed: this.setReversed,
           setPlaying: this.setPlaying,
           setPaused: this.setPaused,
-          setStopped:  this.setStopped
+          setStopped:  this.setStopped,
+
+          setPlayhead: this.setPlayhead,
+
+          addAnimation: this.addAnimation,
+          removeAnimation: this.removeAnimation,
+          setSelectedAnimation: this.setSelectedAnimation,
+          getUnusedTweensForAnimation: this.getUnusedTweensForAnimation,
+          addTweenToAnimation: this.addTweenToAnimation
         }}
       >
         {this.props.children}
@@ -331,34 +499,35 @@ class Hover extends React.Component {
   }
 }
 
-const TweenList = ({ label, tweens, renderHover }) => (
-  <div>
-    <h3>{label}</h3>
-    <div style={{ backgroundColor: '#dedede', width: 200 }}>
+const TweenList = ({ label, leftArrow, onClick, style, tweens }) => (
+  <div style={{ ...style }}>
+    <ContextField label={label} fieldIndex={0} />
+    <div style={{ backgroundColor: 'white' }}>
       {tweens.map(tween => (
-        <Hover key={tween.id}>
-          {({ captureRef, isHovering }) => (
-            <div
-              key={tween.id}
-              ref={captureRef}
-              style={{
-                position: 'relative',
-                padding: 8,
-                backgroundColor: isHovering ? '#ffffff' : undefined
-              }}
-            >
-              <span style={{ display: 'block', textAlign: 'center' }}>{tween.id}</span>
-              {isHovering && renderHover(tween.id)}
+        <Disclosure
+          key={tween.id}
+          hoverable
+          accessoryReducer={Accessory => (
+            <div style={leftArrow ? { transform: 'scaleX(-1)' } : undefined}>
+              <Accessory />
             </div>
           )}
-        </Hover>
+          label={tween.id}
+          onClick={() => onClick(tween.id)}
+        />
       ))}
     </div>
   </div>
 );
 
 const TimelineLabel = ({ children, style }) => (
-  <div style={{ width: 100, backgroundColor: '#dedede', ...style }}>
+  <div
+    style={{
+      width: TIMELINE_LABEL_PX,
+      backgroundColor: '#dedede',
+      ...style
+    }}
+  >
     {children}
   </div>
 )
@@ -414,11 +583,11 @@ const TweenBar = React.forwardRef(
       <Hover>
         {({ captureRef, isHovering }) => (
           <div
-          ref={r => {
-            captureRef(r);
-            ref(r);
-          }}
-          style={{
+            ref={r => {
+              captureRef(r);
+              ref(r);
+            }}
+            style={{
               height: '100%',
               backgroundColor: isHovering ? '#333333' : 'black',
             }}
@@ -512,14 +681,12 @@ class TweenTimeline extends React.Component {
 
 const Playhead = props => (
   <Store.Consumer>
-    {({ playhead, onChange }) => (
+    {({ playhead, setPlayhead }) => (
       <input
         {...props}
         min={0}
         max={1}
-        onChange={
-          e => onChange({ playhead: parseFloat(e.target.value) })
-        }
+        onChange={e => setPlayhead(parseFloat(e.target.value))}
         step={MIN_TIME_DIFF}
         type="range"
         value={playhead}
@@ -539,8 +706,9 @@ const PlayheadTime = props => (
 const Stage = ({ children, style }) => (
   <div style={{
     position: 'relative',
-    border: '1px solid black',
-    backgroundColor: 'white',
+    border: `1px solid ${STAGE_BORDER_COLOR}`,
+    backgroundColor: STAGE_BG_COLOR,
+    borderRadius: BORDER_RADIUS_PX,
     height: 500,
     ...style
   }}>
@@ -548,15 +716,15 @@ const Stage = ({ children, style }) => (
   </div>
 )
 
-const AnimTarget = props => (
+const AnimTarget = ({ anim }) => (
   <Store.Consumer>
-    {({ playhead, tweensAdded }) => (
+    {({ playhead }) => (
       <div style={{
         position: 'absolute',
         width: 30,
         height: 30,
         backgroundColor: 'blue',
-        ...tweensAdded.reduce((style, tween) => {
+        ...anim.tweens.reduce((style, tween) => {
           const {
             id,
             fromTime,
@@ -576,7 +744,7 @@ const AnimTarget = props => (
             const [_, curvedTime] = getPointAtTime(scaledTime, tween.easing);
             value = lerp(fromValue, toValue, curvedTime, tween.type);
           }
-
+          
           style[id] = value;
           return style;
         }, {})
@@ -585,98 +753,233 @@ const AnimTarget = props => (
   </Store.Consumer>
 )
 
-const AvailableTweens = props => (
+// PLAY PAUSE CONTROLS
+const MediaControls = props => (
   <Store.Consumer>
-    {({ addTween, tweensAvailable }) => (
-      <TweenList
-        label="Available"
-        renderHover={(id) => (
-          <button
-            style={{ position: 'absolute', right: 0, top: 0, height: '100%' }}
-            onClick={() => addTween(id)}
-          >&gt;&gt;</button>
-        )}
-        tweens={tweensAvailable}
-      />
+    {({ duration, isLooping, isReversed, isPlaying, playhead, setDuration, setLooping, setReversed, setPaused, setPlaying, setStopped }) => (
+      <div
+        style={{
+          backgroundColor: CONTROLS_BG_COLOR,
+          border: `1px solid ${CONTROLS_BORDER_COLOR}`,
+          borderRadius: BORDER_RADIUS_PX,
+          paddingTop: GRID_PX
+        }}
+      >
+        <div style={{ display: 'flex' }}>
+          <div style={{ flex: 1 }}>
+            <Button
+              inverted
+              size="small"
+              isDisabled={isPlaying}
+              label="Play"
+              onClick={setPlaying}
+            />
+          </div>
+          <div style={{ flex: 1 }}>
+            <Button
+              inverted
+              size="small"
+              isDisabled={!isPlaying}
+              label="Pause"
+              onClick={setPaused}
+            />
+          </div>
+          <div style={{ flex: 1 }}>
+            <Button
+              inverted
+              size="small"
+              isDisabled={playhead === 0}
+              label="Stop"
+              onClick={setStopped}
+            />
+          </div>
+        </div>
+
+        <NumberField
+          label="Duration"
+          min={MIN_DURATION_MS}
+          max={MAX_DURATION_MS}
+          onChange={setDuration}
+          value={duration}
+        />
+
+        <div style={{ display: 'flex' }}>
+          <div style={{ flex: 1, marginRight: GRID_PX }}>
+            <BooleanField
+              label="Loop"
+              onChange={setLooping}
+              value={isLooping}
+              underlined={false}
+            />
+          </div>
+          <div style={{ flex: 1 }}>
+            <BooleanField
+              label="Reverse"
+              onChange={setReversed}
+              value={isReversed}
+              underlined={false}
+            />
+          </div>
+        </div>
+      </div>
     )}
   </Store.Consumer>
 )
 
-const AddedTweens = props => (
-  <Store.Consumer>
-    {({ removeTween, tweensAdded }) => (
-      <TweenList
-        label="Added"
-        renderHover={(id) => (
-          <button
-            style={{ position: 'absolute', left: 0, top: 0, height: '100%' }}
-            onClick={() => removeTween(id)}
-          >&lt;&lt;</button>
-        )}
-        tweens={tweensAdded}
-      />
-    )}
-  </Store.Consumer>
-)
+/*
+
+*/
 
 class App extends React.Component {
   render() {
     return (
-      <div>
+      <div
+        style={{
+          backgroundColor: BG_COLOR,
+          height: '100%',
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column'
+        }}
+      >
         <div>
-          <div style={{ display: 'flex' }}>
+          <div style={{ display: 'flex', padding: GRID_PX }}>
 
-            <div style={{ display: 'flex' }}>
-              <AvailableTweens />
-              <AddedTweens />
+            {/* LEFT OF STAGE */}
+            <div style={{ width: 600, paddingRight: GRID_PX, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+
+              <div style={{ display: 'flex' }}>
+                <Store.Consumer>
+                  {({ selectedAnimation, getUnusedTweensForAnimation, addTweenToAnimation, addTween, removeTween, tweensAvailable, tweensAdded }) =>
+                    selectedAnimation && (console.log('redraw', selectedAnimation.tweens) || (
+                      <>
+                        <TweenList
+                          label="Available"
+                          onClick={id => addTweenToAnimation(selectedAnimation.id, id)}
+                          tweens={getUnusedTweensForAnimation(selectedAnimation.id)}
+                          style={{ flex: 1, marginRight: GRID_PX }}
+                        />
+                        <TweenList
+                          label="Added"
+                          leftArrow={true}
+                          onClick={id => removeTween(id)}
+                          tweens={selectedAnimation.tweens}
+                          style={{ flex: 1 }}
+                        />
+                      </>
+                    ))
+                  }
+                </Store.Consumer>
+              </div>
+
+              <MediaControls />
+
             </div>
 
-            <Stage style={{ flex: 1 }}>
-              <AnimTarget />
-            </Stage>
+            {/* STAGE AREA */}
+            <div style={{ flex: 1 }}>
+              <Store.Consumer>
+                {({ animations }) => (
+                  <Stage>
+                    {animations.map(anim => (
+                      <AnimTarget
+                        key={anim.id}
+                        anim={anim}
+                      />
+                    ))}
+                  </Stage>
+                )}
+              </Store.Consumer>
+              
+              <div style={{ paddingTop: GRID_PX }}>
+                <Store.Consumer>
+                  {({ addAnimation }) => (
+                    <Button
+                      inverted
+                      flush
+                      size="small"
+                      label="Add Animation"
+                      onClick={addAnimation}
+                    />
+                  )}
+                </Store.Consumer>
+              </div>
+            </div>
 
           </div>
+        </div>
 
-          {/* PLAY PAUSE CONTROLS */}
+        <div
+          style={{
+            position: 'relative',
+            flex: 1,
+            overflowY: 'scroll',
+            overflowX: 'hidden',
+            backgroundColor: ANIMATIONS_BG_COLOR,
+            borderTop: `1px solid ${ANIMATIONS_BORDER_COLOR}`
+          }}
+        >
           <Store.Consumer>
-            {({ duration, isLooping, isReversed, isPlaying, playhead, setDuration, setLooping, setReversed, setPaused, setPlaying, setStopped }) => (
-              <div>
-                <label>Duration <input onChange={e => setDuration(parseInt(e.target.value, 10))} min={MIN_DURATION_MS} max={MAX_DURATION_MS} type="number" value={duration} /> ms</label>
-                <label>Loop <input onChange={() => setLooping(!isLooping)} type="checkbox" checked={isLooping} /></label>
-                <label>Reverse <input onChange={() => setReversed(!isReversed)} type="checkbox" value={isReversed} /></label>
-                <div>
-                  <button disabled={isPlaying} style={{ fontSize: 16 }} onClick={() => setPlaying()}>PLAY</button>
-                  <button disabled={!isPlaying} style={{ fontSize: 16 }} onClick={() => setPaused()}>PAUSE</button>
-                  <button disabled={playhead === 0} style={{ fontSize: 16 }} onClick={() => setStopped()}>STOP</button>
+            {({ animations, playhead, setSelectedAnimation, selectedAnimation }) => (
+              <>
+                <div style={{ position: 'absolute', left: TIMELINE_LABEL_PX, right: 0, top: 0, bottom: 0 }}>
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      bottom: 0,
+                      width: 1,
+                      backgroundColor: 'black',
+                      left: `${playhead * 100}%`
+                    }}
+                  />
                 </div>
-              </div>
+
+                {animations.map(anim => (
+                  <div
+                    key={anim.id}
+                    style={{
+                      backgroundColor: anim === selectedAnimation ? 'yellow' : undefined
+                    }}
+                    onClick={() => setSelectedAnimation(anim.id)}
+                  >
+                    <ContextField label={`Animation #${anim.id}`} />
+                    {anim.tweens.map(tween => (
+                      <div
+                        key={tween.id}
+                        style={{
+                          display: 'flex'
+                        }}
+                      >
+                        <TimelineLabel>
+                          <span>{tween.id}</span>
+                        </TimelineLabel>
+                        <TweenTimeline
+                          key={tween.id}
+                          id={tween.id}
+                          fromTime={tween.fromTime}
+                          toTime={tween.toTime}
+                          style={{ flex: 1 }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </>
             )}
           </Store.Consumer>
         </div>
 
-        <Store.Consumer>
-          {({ tweensAdded }) => (
-            <div>
-              {tweensAdded.map(tween => (
-                <div key={tween.id} style={{ display: 'flex' }}>
-                  <TimelineLabel>
-                    <span>{tween.id}</span>
-                  </TimelineLabel>
-                  <TweenTimeline
-                    key={tween.id}
-                    id={tween.id}
-                    fromTime={tween.fromTime}
-                    toTime={tween.toTime}
-                    style={{ flex: 1 }}
-                  />
-                </div>
-              ))}
-            </div>
-          )}
-        </Store.Consumer>
-
-        <div style={{ display: 'flex' }}>
-          <PlayheadTime style={{ textAlign: 'center', width: 100 }} />
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            height: 40,
+            backgroundColor: PLAYHEAD_BG_COLOR,
+            borderTop: `1px solid ${PLAYHEAD_BORDER_COLOR}`
+          }}
+        >
+          <PlayheadTime style={{ textAlign: 'center', width: TIMELINE_LABEL_PX, overflow: 'hidden' }} />
           <Playhead style={{ flex: 1 }} />
         </div>
 
