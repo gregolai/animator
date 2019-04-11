@@ -1,49 +1,46 @@
 import React from 'react';
-
-const getEasingArray = (() => {
-  /**
-   * Cubic bezier equivalents:
-   * https://www.w3.org/TR/css-easing-1/#typedef-cubic-bezier-timing-function
-   */
-  const EASING_MAP = {
-    linear: [0.5, 0.5, 0.5, 0.5],
-    ease: [0.25, 0.1, 0.25, 1],
-    'ease-in': [0.42, 0, 1, 1],
-    'ease-out': [0, 0, 0.58, 1],
-    'ease-in-out': [0.42, 0, 0.58, 1]
-  };
-
-  return (easing) => {
-    return Array.isArray(easing) ?
-      easing :
-      EASING_MAP[easing] || EASING_MAP.linear;
-  };
-})();
-
-const clamp = (v, min, max) => Math.max(Math.min(v, max), min);
-
-const MIN_TIME_DIFF = 0.01;
+import clamp from 'lodash/clamp';
+import { lerp } from './utils/interpolate';
+import { getPointAtTime } from './utils/easing';
+import {
+  MIN_TIME_DIFF,
+  MIN_DURATION_MS,
+  MAX_DURATION_MS
+} from './constants';
 
 const INIT_AVAILABLE_TWEENS = [
   {
+    id: 'backgroundColor',
+    easing: 'ease-in-out',
+    fromTime: 0,
+    fromValue: '#000000',
+    type: 'color',
+    toTime: 1,
+    toValue: '#ffffff',
+    min: '#000000',
+    max: '#ffffff',
+  },
+  {
     id: 'left',
+    easing: 'linear',
     fromTime: 0,
     fromValue: 0,
+    type: 'number',
     toTime: 1,
     toValue: 100,
     min: 0,
-    max: 500,
-    type: 'number'
+    max: 500
   },
   {
     id: 'top',
+    easing: 'ease-in-out',
     fromTime: 0.4,
     fromValue: 0,
+    type: 'number',
     toTime: 0.8,
     toValue: 100,
     min: 0,
-    max: 500,
-    type: 'number'
+    max: 500
   }
 ]
 const INIT_TWEENS_ADDED = [
@@ -53,6 +50,10 @@ const INIT_TWEENS_ADDED = [
 const StoreContext = React.createContext();
 class Store extends React.Component {
   state = {
+    duration: 3000,
+    isLooping: false,
+    isPlaying: false,
+    isReversed: false,
     tweensAvailable: INIT_AVAILABLE_TWEENS,
     tweensAdded: INIT_TWEENS_ADDED,
     selectedTween: null,
@@ -60,6 +61,77 @@ class Store extends React.Component {
   }
 
   static Consumer = StoreContext.Consumer;
+
+  constructor(props) {
+    super(props);
+
+    this.playControls = (() => {
+
+      let raf = null;
+      let prevTime;
+
+      const loop = () => {
+        const curTime = Date.now();
+
+        const timeStep = (curTime - prevTime) * (1 / this.state.duration);
+
+        let stop = false;
+        let nextPlayhead = this.state.playhead + (this.state.isReversed ? -timeStep : timeStep);
+  
+        if (nextPlayhead >= 1) {
+          if (this.state.isLooping) {
+            nextPlayhead -= 1; // loop
+          } else {
+            nextPlayhead = 1; // clamp
+            stop = true;
+          }
+        } else if(nextPlayhead < 0) {
+          if (this.state.isLooping) {
+            nextPlayhead += 1; // loop
+          } else {
+            nextPlayhead = 0;
+            stop = true;
+          }
+        }
+  
+        this.setState({ playhead: nextPlayhead, isPlaying: !stop });
+  
+        if (!stop) {
+          // continue playing
+          prevTime = curTime;
+          raf = requestAnimationFrame(loop);
+        }
+      }
+  
+      return {
+        play: () => {
+          if (this.state.isPlaying) return;
+
+          let { playhead } = this.state;
+          
+          // reset if necessary
+          if (!this.state.isReversed && playhead === 1) {
+            playhead = 0;
+          } else if(this.state.isReversed && playhead === 0) {
+            playhead = 1;
+          }
+
+          this.setState({ isPlaying: true, playhead }, () => {
+            prevTime = Date.now();
+            raf = requestAnimationFrame(loop);
+          });
+        },
+        pause: () => {
+          cancelAnimationFrame(raf);
+          this.setState({ isPlaying: false });
+        },
+        stop: () => {
+          cancelAnimationFrame(raf);
+          this.setState({ isPlaying: false, playhead: 0 });
+        }
+      }
+    })();
+  }
 
   addTween = id => {
     const index = this.state.tweensAvailable.findIndex(t => t.id === id);
@@ -77,6 +149,32 @@ class Store extends React.Component {
       this.state.tweensAvailable.push(toRemove);
       this.forceUpdate();
     }
+  };
+
+  setDuration = (duration) => {
+    if (duration >= MIN_DURATION_MS && duration <= MAX_DURATION_MS) {
+      this.setState({ duration })
+    }
+  }
+
+  setLooping = (isLooping) => {
+    this.setState({ isLooping })
+  }
+
+  setReversed = (isReversed) => {
+    this.setState({ isReversed })
+  }
+
+  setPlaying = () => {
+    this.playControls.play();
+  };
+
+  setPaused = () => {
+    this.playControls.pause();
+  };
+
+  setStopped = () => {
+    this.playControls.stop();
   };
 
   setTweenFromTime = (id, fromTime) => {
@@ -119,7 +217,13 @@ class Store extends React.Component {
           onChange: this.onChange,
           setTweenFromTime: this.setTweenFromTime,
           setTweenToTime: this.setTweenToTime,
-          setTweenPosition: this.setTweenPosition
+          setTweenPosition: this.setTweenPosition,
+          setDuration: this.setDuration,
+          setLooping: this.setLooping,
+          setReversed: this.setReversed,
+          setPlaying: this.setPlaying,
+          setPaused: this.setPaused,
+          setStopped:  this.setStopped
         }}
       >
         {this.props.children}
@@ -276,47 +380,45 @@ const TweenContainer = React.forwardRef(
 );
 
 const TweenHandle = ({ index, onMouseDown }) => (
-  <Store.Consumer>
-    {({ setTweenFromTime, setTweenToTime }) => (
-      <Drag.Consumer>
-        {({ isDragging }) => (
-          <div
-            onMouseDown={onMouseDown}
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: index === 0 ? -0 : undefined,
-              right: index === 1 ? -0 : undefined,
-              width: 8,
-              height: '100%',
-              cursor: 'col-resize',
-              backgroundColor: isDragging ? 'red' : 'dodgerblue'
-            }}
-          ></div>
-        )}
-      </Drag.Consumer>
+  <Drag.Consumer>
+    {({ isDragging }) => (
+      <div
+        onMouseDown={onMouseDown}
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: index === 0 ? -0 : undefined,
+          right: index === 1 ? -0 : undefined,
+          width: 8,
+          height: '100%',
+          cursor: 'col-resize',
+          backgroundColor: isDragging ? 'red' : 'dodgerblue'
+        }}
+      ></div>
     )}
-  </Store.Consumer>
+  </Drag.Consumer>
 );
 
 const TweenBar = React.forwardRef(
   ({ children, fromTime, onMouseDown, toTime }, ref) => (
     <div
-      ref={ref}
-      style={{
-        position: 'absolute',
-        top: 0,
-        left: `${fromTime * 100}%`,
-        right: `${(1 - toTime) * 100}%`,
-        height: '100%'
-      }}
+    style={{
+      position: 'absolute',
+      top: 0,
+      left: `${fromTime * 100}%`,
+      right: `${(1 - toTime) * 100}%`,
+      height: '100%'
+    }}
       onMouseDown={onMouseDown}
-    >
+      >
       <Hover>
         {({ captureRef, isHovering }) => (
           <div
-            ref={captureRef}
-            style={{
+          ref={r => {
+            captureRef(r);
+            ref(r);
+          }}
+          style={{
               height: '100%',
               backgroundColor: isHovering ? '#333333' : 'black',
             }}
@@ -382,6 +484,7 @@ class TweenTimeline extends React.Component {
                   fromTime={fromTime}
                   toTime={toTime}
                   onMouseDown={e => {
+                    if (e.target !== this.barRef) return;
                     if (!this.containerRef || !this.barRef) return;
 
                     const rect = this.containerRef.getBoundingClientRect();
@@ -433,6 +536,18 @@ const PlayheadTime = props => (
   </Store.Consumer>
 )
 
+const Stage = ({ children, style }) => (
+  <div style={{
+    position: 'relative',
+    border: '1px solid black',
+    backgroundColor: 'white',
+    height: 500,
+    ...style
+  }}>
+    {children}
+  </div>
+)
+
 const AnimTarget = props => (
   <Store.Consumer>
     {({ playhead, tweensAdded }) => (
@@ -457,13 +572,11 @@ const AnimTarget = props => (
             value = toValue;
           } else {
             // interpolate
-            const totalTime = toTime - fromTime;
-            const deltaTime = playhead - fromTime;
-            const ratio = deltaTime / totalTime;
-            value = fromValue + (ratio * (toValue - fromValue));
+            const scaledTime = (playhead - fromTime) / (toTime - fromTime);
+            const [_, curvedTime] = getPointAtTime(scaledTime, tween.easing);
+            value = lerp(fromValue, toValue, curvedTime, tween.type);
           }
 
-          //style[id] = fromValue + (toValue - fromValue) * playhead; // lerp
           style[id] = value;
           return style;
         }, {})
@@ -510,12 +623,35 @@ class App extends React.Component {
   render() {
     return (
       <div>
+        <div>
+          <div style={{ display: 'flex' }}>
 
-        <div style={{ display: 'flex', height: 400 }}>
+            <div style={{ display: 'flex' }}>
+              <AvailableTweens />
+              <AddedTweens />
+            </div>
 
-          <div style={{ position: 'relative', height: '100%', backgroundColor: 'white' }}>
-            <AnimTarget />
+            <Stage style={{ flex: 1 }}>
+              <AnimTarget />
+            </Stage>
+
           </div>
+
+          {/* PLAY PAUSE CONTROLS */}
+          <Store.Consumer>
+            {({ duration, isLooping, isReversed, isPlaying, playhead, setDuration, setLooping, setReversed, setPaused, setPlaying, setStopped }) => (
+              <div>
+                <label>Duration <input onChange={e => setDuration(parseInt(e.target.value, 10))} min={MIN_DURATION_MS} max={MAX_DURATION_MS} type="number" value={duration} /> ms</label>
+                <label>Loop <input onChange={() => setLooping(!isLooping)} type="checkbox" checked={isLooping} /></label>
+                <label>Reverse <input onChange={() => setReversed(!isReversed)} type="checkbox" value={isReversed} /></label>
+                <div>
+                  <button disabled={isPlaying} style={{ fontSize: 16 }} onClick={() => setPlaying()}>PLAY</button>
+                  <button disabled={!isPlaying} style={{ fontSize: 16 }} onClick={() => setPaused()}>PAUSE</button>
+                  <button disabled={playhead === 0} style={{ fontSize: 16 }} onClick={() => setStopped()}>STOP</button>
+                </div>
+              </div>
+            )}
+          </Store.Consumer>
         </div>
 
         <Store.Consumer>
@@ -544,10 +680,7 @@ class App extends React.Component {
           <Playhead style={{ flex: 1 }} />
         </div>
 
-        <div style={{ display: 'flex' }}>
-          <AvailableTweens />
-          <AddedTweens />
-        </div>
+
       </div>
     );
   }
