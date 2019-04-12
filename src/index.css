@@ -25,3 +25,8 @@ code {
 #root {
   height: 100%;
 }
+
+/* default is "cursor: default" */
+label {
+  cursor: inherit;
+}
