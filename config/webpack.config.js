@@ -456,6 +456,7 @@ module.exports = function(webpackEnv) {
               ],
               include: [
                 path.join(__dirname, '../node_modules', '@sqs/core-components'),
+                path.join(__dirname, '../node_modules', '@sqs/experimental-components'),
               ]
             },
 

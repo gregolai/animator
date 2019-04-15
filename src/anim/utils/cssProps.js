@@ -1,0 +1,59 @@
+import color from 'color';
+
+const types = {
+  color: 'color',
+  number: 'number'
+}
+
+const lerps = {
+  color: (from, to, t) => {
+    from = color(from);
+    to = color(to);
+    return from.mix(to, t).rgb().string();
+  },
+  number: (from, to, t) => {
+    return from + t * (to - from);
+  }
+}
+
+const asMap = (map => {
+  // APPLY NAMES
+  Object.keys(map).forEach(name => map[name].name = name);
+  return map;
+})({
+  backgroundColor: {
+    cssName: 'background-color',
+    lerp: lerps.color,
+    parse: v => v,
+    format: v => v,
+    type: types.color
+  },
+  left: {
+    cssName: 'left',
+    lerp: lerps.number,
+    parse: v => parseFloat(v),
+    format: v => `${v}px`,
+    type: types.number
+  },
+  top: {
+    cssName: 'top',
+    lerp: lerps.number,
+    parse: v => parseFloat(v),
+    format: v => `${v}px`,
+    type: types.number
+  }
+})
+
+const asArray = Object.keys(asMap)
+    .map(name => asMap[name])
+    .sort((a, b) => a.name < b.name ? -1 : 1);
+
+const reverseLookup = Object.keys(asMap).reduce((map, name) => {
+  const entry = asMap[name];
+  map[entry.cssName] = entry;
+  return map;
+}, {});
+
+export const getPropDefinitionFromName = name => asMap[name];
+export const getPropDefinitionFromCSSName = name => reverseLookup[name];
+export const getPropDefinitionList = () => asArray;

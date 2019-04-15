@@ -1,5 +1,13 @@
 import React from 'react';
 import clamp from 'lodash/clamp';
+import last from 'lodash/last';
+import cssbeautify from 'cssbeautify';
+import importAnimations from './utils/importAnimations';
+
+import {
+  getPropDefinitionFromName,
+  getPropDefinitionList
+} from './utils/cssProps';
 
 const immutable = {
   updateAtIndex: (array, index, item) => ([
@@ -17,191 +25,26 @@ const immutable = {
   ])
 }
 
-const createTween = ({
-  id,
-  from,
-  to,
-  type,
-  ...extra
-}) => ({
-  id,
-  easing: 'linear',
-  fromTime: 0,
-  fromValue: from,
-  toTime: 1,
-  toValue: to,
-  type,
-  ...extra
-})
-
-const INIT_AVAILABLE_TWEENS = [
-  createTween({
-    id: 'backgroundColor',
-    type: 'color',
-    fromValue: '#000000',
-    toValue: '#ffffff',
-    min: '#000000',
-    max: '#ffffff'
-  }),
-  createTween({
-    id: 'left',
-    type: 'number',
-    fromValue: 0,
-    toValue: 200,
-    min: 0,
-    max: 500
-  }),
-  createTween({
-    id: 'top',
-    type: 'number',
-    fromValue: 0,
-    toValue: 200,
-    min: 0,
-    max: 500
-  })
-
-
-  // BorderColor,
-  // BorderWidth,
-  // Color,
-  // ExpandHeight,
-  // FontSize,
-  // Margin,
-  // Opacity,
-  // Padding,
-  // Rotate,
-  // Scale,
-  // Translate,
-  // Transform
-]
-
-
-const StoreContext = React.createContext();
+const Context = React.createContext();
 export default class Store extends React.Component {
   state = {
-    duration: 3000,
-    isLooping: true,
-    isPlaying: false,
-    isReversed: false,
-    playhead: 0,
-
     animations: [],
     selectedAnimId: -1
   }
 
   nextAnimationId = 1000;
 
-  static Consumer = StoreContext.Consumer;
-
-  constructor(props) {
-    super(props);
-
-    this.playControls = (() => {
-
-      let raf = null;
-      let prevTime;
-
-      const loop = () => {
-        const curTime = Date.now();
-
-        const timeStep = (curTime - prevTime) * (1 / this.state.duration);
-
-        let stop = false;
-        let nextPlayhead = this.state.playhead + (this.state.isReversed ? -timeStep : timeStep);
-  
-        if (nextPlayhead >= 1) {
-          if (this.state.isLooping) {
-            nextPlayhead -= 1; // loop
-          } else {
-            nextPlayhead = 1; // clamp
-            stop = true;
-          }
-        } else if(nextPlayhead < 0) {
-          if (this.state.isLooping) {
-            nextPlayhead += 1; // loop
-          } else {
-            nextPlayhead = 0;
-            stop = true;
-          }
-        }
-  
-        this.setState({ playhead: nextPlayhead, isPlaying: !stop });
-  
-        if (!stop) {
-          // continue playing
-          prevTime = curTime;
-          raf = requestAnimationFrame(loop);
-        }
-      }
-  
-      return {
-        play: () => {
-          if (this.state.isPlaying) return;
-
-          let { playhead } = this.state;
-          
-          // reset if necessary
-          if (!this.state.isReversed && playhead === 1) {
-            playhead = 0;
-          } else if(this.state.isReversed && playhead === 0) {
-            playhead = 1;
-          }
-
-          this.setState({ isPlaying: true, playhead }, () => {
-            prevTime = Date.now();
-            raf = requestAnimationFrame(loop);
-          });
-        },
-        pause: () => {
-          cancelAnimationFrame(raf);
-          this.setState({ isPlaying: false });
-        },
-        stop: () => {
-          cancelAnimationFrame(raf);
-          this.setState({ isPlaying: false, playhead: 0 });
-        }
-      }
-    })();
-  }
+  static Consumer = Context.Consumer;
 
   _findAnimation = animId => {
     const index = this.state.animations.findIndex(a => a.id === animId);
     return [this.state.animations[index] || null, index];
   };
 
-  _findTween = (anim, tweenId) => {
-    const index = anim.tweens.findIndex(t => t.id === tweenId);
+  _findTween = (anim, definitionName) => {
+    const index = anim.tweens.findIndex(t => t.definition.name === definitionName);
     return [anim.tweens[index] || null, index];
   };
-
-  setDuration = (duration) => {
-    this.setState({ duration })
-  }
-
-  setLooping = (isLooping) => {
-    this.setState({ isLooping })
-  }
-
-  setReversed = (isReversed) => {
-    this.setState({ isReversed })
-  }
-
-  setPlaying = () => {
-    this.playControls.play();
-  };
-
-  setPaused = () => {
-    this.playControls.pause();
-  };
-
-  setStopped = () => {
-    this.playControls.stop();
-  };
-
-  setPlayhead = playhead => {
-    playhead = clamp(playhead, 0, 1);
-    this.setState({ playhead });
-  }
 
   addAnimation = () => {
     const id = this.nextAnimationId++;
@@ -216,14 +59,6 @@ export default class Store extends React.Component {
       selectedAnimId,
       animations: immutable.push(animations, {
         id,
-        baseStyle: {
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: 100,
-          height: 100,
-          backgroundColor: 'blue'
-        },
         tweens: []
       })
     });
@@ -254,37 +89,48 @@ export default class Store extends React.Component {
     }
   }
 
-  getUnusedTweens = animId => {
+  getUsedPropDefinitions = animId => {
     const [anim, _] = this._findAnimation(animId);
-
-    let tweensUnused = INIT_AVAILABLE_TWEENS;
     if (anim) {
-      tweensUnused = tweensUnused.filter(
-        t1 => !anim.tweens.find(t2 => t2.id === t1.id)
+      return anim.tweens.map(tween => tween.definition);
+    }
+    return [];
+  }
+
+  getUnusedPropDefinitions = animId => {
+    const [anim, _] = this._findAnimation(animId);
+    if (anim) {
+      return getPropDefinitionList().filter(
+        def => !anim.tweens.find(tween => tween.definition.name === def.name)
       );
     }
-
-    return tweensUnused;
+    return [];
   }
 
-  addTweenToAnimation = (animId, tweenId) => {
-    const [anim, index] = this._findAnimation(animId);
-    if (anim) {
-      const { animations } = this.state;
-
-      const tween = {
-        ...INIT_AVAILABLE_TWEENS.find(t => t.id === tweenId)
-      };
-
-      animations[index].tweens.push(tween);
-      this.forceUpdate();
-    }
-  }
-
-  removeTweenFromAnimation = (animId, tweenId) => {
+  addTween = (animId, definitionName) => {
     const [anim, _] = this._findAnimation(animId);
     if (anim) {
-      const [tween, index] = this._findTween(anim, tweenId);
+      const [tween, _] = this._findTween(anim, definitionName);
+      if (!tween) {
+        const definition = getPropDefinitionFromName(definitionName);
+        if (definition) {
+          const tween = {
+            definition,
+            easing: 'linear',
+            handles: []
+          };
+          anim.tweens.push(tween);
+          this.forceUpdate();
+        }
+      }
+    }
+    
+  }
+
+  removeTween = (animId, definitionName) => {
+    const [anim, _] = this._findAnimation(animId);
+    if (anim) {
+      const [tween, index] = this._findTween(anim, definitionName);
       if (tween) {
         anim.tweens.splice(index, 1);
         this.forceUpdate();
@@ -292,68 +138,106 @@ export default class Store extends React.Component {
     }
   }
 
-  setTweenHandle = (animId, tweenId, handleIndex, value) => {
+  setTweenHandle = (animId, definitionName, handleIndex, value) => {
     const [anim, _] = this._findAnimation(animId);
     if (anim) {
-      const [tween, _] = this._findTween(anim, tweenId);
+      const [tween, _] = this._findTween(anim, definitionName);
       if (tween) {
-        
-        if (handleIndex === 0) {
-          tween.fromTime = value;
-        } else {
-          tween.toTime = value;
+        const handle = tween.handles[handleIndex];
+        handle.time = value;
+
+        // TODO: clamp between prev and next handle
+
+        this.forceUpdate();
+      }
+    }
+  }
+
+  setTweenPosition = (animId, definitionName, value) => {
+    const [anim, _] = this._findAnimation(animId);
+    if (anim) {
+      const [tween, _] = this._findTween(anim, definitionName);
+      if (tween) {
+        const firstHandle = tween.handles[0];
+        if (firstHandle) {
+          console.log('value in:', value);
+
+          const time0 = firstHandle.time;
+
+          const diff = last(tween.handles).time - firstHandle.time;
+          value = clamp(value, 0, 1 - diff);
+
+          tween.handles.forEach(handle => {
+            handle.time = value + (handle.time - time0);
+          });
+
+          this.forceUpdate();
         }
-        this.forceUpdate();
       }
     }
   }
 
-  setTweenPosition = (animId, tweenId, value) => {
-    const [anim, _] = this._findAnimation(animId);
-    if (anim) {
-      const [tween, _] = this._findTween(anim, tweenId);
-      if (tween) {
-        const diff = tween.toTime - tween.fromTime;
-        value = clamp(value, 0, 1 - diff);
+  getCss = () => {
+    const css = this.state.animations.map(anim => {
+      if (anim.tweens.length === 0) return '';
   
-        tween.fromTime = value;
-        tween.toTime = value + diff;
-        this.forceUpdate();
+      const percentGroups = {};
+  
+      const pushTimestamp = (name, time, value) => {
+        const percent = Math.floor(time * 100);
+        (percentGroups[percent] = percentGroups[percent] || []).push({ name, value });
       }
-    }
+  
+      anim.tweens.forEach(tween => {
+        tween.handles.forEach(h => pushTimestamp(tween.cssName, h.time, h.value));
+      });
+  
+      const sorted = Object.entries(percentGroups)
+        .sort((a, b) => parseFloat(a[0]) - parseFloat(b[0]));
+  
+      const writeProp = ({ name, value }) => `${name}: ${value};`;
+  
+      const writePercentGroup = (percent, group) => `${percent}% { ${group.map(writeProp).join(' ') } }`;
+  
+      return `@keyframes anim_${anim.id} { ${sorted.map(([percent, group]) => writePercentGroup(percent, group)).join(' ') } }`;
+    }).join(' ');
+  
+    return cssbeautify(css, {
+      indent: '  ',
+      autosemicolon: true
+    });
   }
 
-  getAnimation = (animId) => {
-    const [anim, _] = this._findAnimation(animId);
-    return anim;
+  importCss = cssString => {
+    const animations = importAnimations(cssString);
+    this.setState({
+      animations,
+      selectedAnimId: -1
+    });
   }
 
   render() {
     return (
-      <StoreContext.Provider
+      <Context.Provider
         value={{
           ...this.state,
-          setDuration: this.setDuration,
-          setLooping: this.setLooping,
-          setReversed: this.setReversed,
-          setPlaying: this.setPlaying,
-          setPaused: this.setPaused,
-          setStopped:  this.setStopped,
-          setPlayhead: this.setPlayhead,
-          
+
           addAnimation: this.addAnimation,
           removeAnimation: this.removeAnimation,
           setSelectedAnimation: this.setSelectedAnimation,
-          getUnusedTweens: this.getUnusedTweens,
-          addTweenToAnimation: this.addTweenToAnimation,
-          removeTweenFromAnimation: this.removeTweenFromAnimation,
+          getUsedPropDefinitions: this.getUsedPropDefinitions,
+          getUnusedPropDefinitions: this.getUnusedPropDefinitions,
+          addTween: this.addTween,
+          removeTween: this.removeTween,
           setTweenHandle: this.setTweenHandle,
           setTweenPosition: this.setTweenPosition,
-          getAnimation: this.getAnimation
+
+          getCss: this.getCss,
+          importCss: this.importCss
         }}
       >
         {this.props.children}
-      </StoreContext.Provider>
+      </Context.Provider>
     );
   }
 }
