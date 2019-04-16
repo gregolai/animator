@@ -82,6 +82,57 @@ export default class MediaStore extends React.Component {
     })();
   }
 
+  onKeyDown = e => {
+    console.log(e, e.code);
+    switch(e.code) {
+      case 'Enter':
+      case 'Space':
+        this.state.isPlaying ? this.setPaused() : this.setPlaying();
+        break;
+      case 'Backspace':
+        this.setStopped();
+        break;
+      case 'ArrowRight':
+        this.setPlayhead(e.metaKey ? 1 : this.state.playhead + 0.01);
+        break;
+      case 'ArrowLeft':
+        this.setPlayhead(e.metaKey ? 0 : this.state.playhead - 0.01);
+        break;
+      case 'End':
+        this.setPlayhead(1)
+        break;
+      case 'Home':
+        this.setPlayhead(0);
+        break;
+      case 'KeyR':
+        this.setReversed(!this.state.isReversed);
+        break;
+      case 'KeyL':
+        this.setLooping(!this.state.isLooping);
+        break;
+      case 'Digit1':
+      case 'Digit2':
+      case 'Digit3':
+      case 'Digit4':
+      case 'Digit5':
+      case 'Digit6':
+      case 'Digit7':
+      case 'Digit8':
+      case 'Digit9':
+        this.setPlayhead(parseInt(e.code.replace('Digit', '')) * 0.1);
+        break;
+      default:
+    }
+  }
+
+  componentDidMount() {
+    document.addEventListener('keydown', this.onKeyDown);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.onKeyDown)
+  }
+
   setDuration = (duration) => {
     this.setState({ duration })
   }

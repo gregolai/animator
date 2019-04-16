@@ -9,21 +9,7 @@ import {
   getPropDefinitionList
 } from './utils/cssProps';
 
-const immutable = {
-  updateAtIndex: (array, index, item) => ([
-    ...array.slice(0, index),
-    item,
-    ...array.slice(index + 1)
-  ]),
-  push: (array, item) => ([
-    ...array,
-    item
-  ]),
-  removeAtIndex: (array, index) => ([
-    ...array.slice(0, index),
-    ...array.slice(index + 1)
-  ])
-}
+import { imap, iarray } from './utils/immutable';
 
 const Context = React.createContext();
 export default class Store extends React.Component {
@@ -57,7 +43,7 @@ export default class Store extends React.Component {
 
     this.setState({
       selectedAnimId,
-      animations: immutable.push(animations, {
+      animations: iarray.push(animations, {
         id,
         tweens: []
       })
@@ -76,7 +62,7 @@ export default class Store extends React.Component {
       }
 
       this.setState({
-        animations: immutable.removeAtIndex(animations, index),
+        animations: iarray.remove(animations, index),
         selectedAnimId
       })
     }
@@ -115,6 +101,7 @@ export default class Store extends React.Component {
         const definition = getPropDefinitionFromName(definitionName);
         if (definition) {
           const tween = {
+            animId,
             definition,
             easing: 'linear',
             handles: []

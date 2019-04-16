@@ -1,6 +1,11 @@
 import color from 'color';
 
-const types = {
+const parsers = {
+  color: v => color(v).rgb().string(),
+  number: v => v => parseFloat(v)
+}
+
+const inputTypes = {
   color: 'color',
   number: 'number'
 }
@@ -24,23 +29,23 @@ const asMap = (map => {
   backgroundColor: {
     cssName: 'background-color',
     lerp: lerps.color,
-    parse: v => v,
+    parse: parsers.color,
     format: v => v,
-    type: types.color
+    type: inputTypes.color
   },
   left: {
     cssName: 'left',
     lerp: lerps.number,
-    parse: v => parseFloat(v),
+    parse: parsers.number,
     format: v => `${v}px`,
-    type: types.number
+    type: inputTypes.number
   },
   top: {
     cssName: 'top',
     lerp: lerps.number,
-    parse: v => parseFloat(v),
+    parse: parsers.number,
     format: v => `${v}px`,
-    type: types.number
+    type: inputTypes.number
   }
 })
 
