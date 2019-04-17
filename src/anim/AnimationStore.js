@@ -2,6 +2,7 @@ import React from 'react';
 import rework from 'rework';
 import last from 'lodash/last';
 import clamp from 'lodash/clamp';
+import difference from 'lodash/difference';
 import {
   getPropDefinitionFromCSSName,
   getPropDefinitionFromName,
@@ -27,12 +28,16 @@ const createTween = ({ animId, definition, easing = 'linear' }) => {
     id,
     definition,
     easing,
-    handles: []
+    keyframes: []
   }
 }
 
-const createHandle = ({ time, value }) => {
-  return { time, value };
+const createKeyframe = ({ time, value }) => {
+  return {
+    id: uid(8),
+    time,
+    value
+  };
 }
 
 const fromCSSString = cssString => {
@@ -90,21 +95,21 @@ const fromCSSString = cssString => {
             }
 
             times.forEach(time => {
-              let handle = tween.handles.find(h => h.time === time);
-              if (!handle) {
-                handle = {
+              let keyframe = tween.keyframes.find(h => h.time === time);
+              if (!keyframe) {
+                keyframe = {
                   time,
                   value
                 };
-                tween.handles.push(handle);
+                tween.keyframes.push(keyframe);
               }
             });
           })
         });
 
-        // sort handles by time
+        // sort keyframes by time
         tweens.forEach(tween => {
-          tween.handles.sort((a, b) => a.time - b.time);
+          tween.keyframes.sort((a, b) => a.time - b.time);
         })
       }
     });
@@ -140,24 +145,24 @@ export default class AnimationStore extends React.Component {
     };
   }
 
-  _getHandle = (tweenId, handleIndex) => {
+  _getKeyframe = (tweenId, keyframeIndex) => {
     const { tween, tweenIndex } = this._getTween(tweenId);
     return {
       tween,
       tweenIndex,
-      handle: tween ? (tween.handles[handleIndex] || null) : null
+      keyframe: tween ? (tween.keyframes[keyframeIndex] || null) : null
     }
   }
   
-  _getHandleAtTime = (tweenId, time) => {
+  _getKeyframeAtTime = (tweenId, time) => {
     const { tween, tweenIndex } = this._getTween(tweenId);
-    const handles = tween ? tween.handles : [];
-    const handleIndex = handles.findIndex(h => h.time === time);
+    const keyframes = tween ? tween.keyframes : [];
+    const keyframeIndex = keyframes.findIndex(h => h.time === time);
     return {
       tween,
       tweenIndex,
-      handleIndex,
-      handle: handles[handleIndex] || null
+      keyframeIndex,
+      keyframe: keyframes[keyframeIndex] || null
     };
   }
 
@@ -236,57 +241,58 @@ export default class AnimationStore extends React.Component {
     })
   }
 
-  addTweenHandle = (tweenId, time, value, updateIfExists = true) => {
+  addKeyframe = (tweenId, time, value, updateIfExists = true) => {
     const { tween, tweenIndex } = this._getTween(tweenId);
     if (!tween) return;
 
     // Check existing
     {
-      const { handle, handleIndex } = this._getHandleAtTime(tweenId, time);
-      if (handle) {
+      const { keyframe, keyframeIndex } = this._getKeyframeAtTime(tweenId, time);
+      if (keyframe) {
         if (updateIfExists) {
-          this.setHandleValue(tweenId, handleIndex, value);
+          this.setKeyframeValue(tweenId, keyframeIndex, value);
         }
         return;
       }
     }
 
     // Insert at correct time
-    const spliceIndex = tween.handles.filter(h => h.time < time).length;
+    const spliceIndex = tween.keyframes.filter(h => h.time < time).length;
 
     const { tweens } = this.state;
     this.setState({
       tweens: update(tweens, {
         [tweenIndex]: {
-          handles: { $splice: [[createHandle({ time, value }), 0, spliceIndex]] }
+          keyframes: { $splice: [[createKeyframe({ time, value }), 0, spliceIndex]] }
         }
       })
     })
   }
 
-  setHandleTime = (tweenId, handleIndex, time) => {
-    const { handle, tweenIndex } = this._getHandle(tweenId, handleIndex);
-    if (!handle) return;
+  setKeyframeTime = (tweenId, keyframeIndex, time) => {
+    const { keyframe, tweenIndex } = this._getKeyframe(tweenId, keyframeIndex);
+    if (!keyframe) return;
+
     this.setState({
       tweens: update(this.state.tweens, {
         [tweenIndex]: {
-          handles: {
-            [handleIndex]: { $merge: { time } }
+          keyframes: {
+            [keyframeIndex]: { $merge: { time } }
           }
         }
       })
     })
   }
 
-  setHandleValue = (tweenId, handleIndex, value) => {
-    const { handle, tweenIndex } = this._getHandle(tweenId, handleIndex);
-    if (!handle) return;
+  setKeyframeValue = (tweenId, keyframeIndex, value) => {
+    const { keyframe, tweenIndex } = this._getKeyframe(tweenId, keyframeIndex);
+    if (!keyframe) return;
 
     this.setState({
       tweens: update(this.state.tweens, {
         [tweenIndex]: {
-          handles: {
-            [handleIndex]: { $merge: { value } }
+          keyframes: {
+            [keyframeIndex]: { $merge: { value } }
           }
         }
       })
@@ -297,21 +303,21 @@ export default class AnimationStore extends React.Component {
     const { tween, tweenIndex } = this._getTween(tweenId);
     if (!tween) return;
     
-    const { handles } = tween;
+    const { keyframes } = tween;
 
-    const time0 = handles[0].time;
+    const time0 = keyframes[0].time;
 
-    const diff = last(handles).time - handles[0].time;
+    const diff = last(keyframes).time - keyframes[0].time;
 
     const clampedTime = clamp(time, 0, 1 - diff);
 
     this.setState({
       tweens: update(this.state.tweens, {
         [tweenIndex]: {
-          handles: {
-            $set: handles.map(handle => ({
-              ...handle,
-              time: clampedTime + (handle.time - time0)
+          keyframes: {
+            $set: keyframes.map(keyframe => ({
+              ...keyframe,
+              time: clampedTime + (keyframe.time - time0)
             }))
           }
         }
@@ -321,6 +327,17 @@ export default class AnimationStore extends React.Component {
 
   getTweens = (animId) => {
     return this.state.tweens.filter(t => t.animId === animId);
+  }
+
+  getUsedPropDefinitions = animId => {
+    return this.getTweens(animId).map(t => t.definition);
+  }
+
+  getUnusedPropDefinitions = (animId) => {
+    return difference(
+      getPropDefinitionList(),
+      this.getUsedPropDefinitions(animId)
+    );
   }
 
   render() {
@@ -339,14 +356,17 @@ export default class AnimationStore extends React.Component {
           addTween: this.addTween,
           removeTween: this.removeTween,
 
-          addTweenHandle: this.addTweenHandle,
+          addKeyframe: this.addKeyframe,
           
-          setHandleTime: this.setHandleTime,
-          setHandleValue: this.setHandleValue,
+          setKeyframeTime: this.setKeyframeTime,
+          setKeyframeValue: this.setKeyframeValue,
 
           setTweenPosition: this.setTweenPosition,
 
-          getTweens: this.getTweens
+          getTweens: this.getTweens,
+
+          getUsedPropDefinitions: this.getUsedPropDefinitions,
+          getUnusedPropDefinitions: this.getUnusedPropDefinitions
         }}
       >
         {this.props.children}

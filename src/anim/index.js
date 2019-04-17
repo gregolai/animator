@@ -27,95 +27,24 @@ import Disclosure from '@sqs/core-components/fields/DisclosureField';
 import NumberField from '@sqs/core-components/fields/NumberField';
 import TextareaField from '@sqs/core-components/fields/TextareaField';
 
+import Icon from '@sqs/core-components/primitives/Icon';
+import IconButton from '@sqs/core-components/primitives/IconButton';
+
 import ButtonPrimitive from '@sqs/core-components/primitives/Button';
 import ErrorText from '@sqs/core-components/primitives/ErrorText';
-import {Modal} from '@sqs/experimental-components';
+import { Modal } from '@sqs/experimental-components';
 
 import AnimationStore from './AnimationStore';
 import MediaStore from './MediaStore';
 
 import Stage from './components/Stage';
+import Drag from './components/shared/Drag';
 
 import tmpStyle from './tmp.scss';
 
-import {CSSLint} from 'csslint';
+import { CSSLint } from 'csslint';
 
-const TIMELINE_LABEL_PX = 160;
-
-const DragContext = React.createContext();
-class Drag extends React.Component {
-  static Consumer = DragContext.Consumer;
-
-  state = {
-    isDragging: false,
-    target: null,
-  }
-
-  onDragStart = (e, onUpdate) => {
-    if (this.state.isDragging) return;
-
-    const { pageX, pageY, target } = e;
-    this.setState({
-      onUpdate,
-      isDragging: true,
-      deltaX: 0,
-      deltaY: 0,
-      startX: pageX,
-      startY: pageY,
-      pageX,
-      pageY,
-      target: target
-    }, () => {
-      document.addEventListener('mousemove', this.onMouseMove, false);
-      document.addEventListener('mouseup', this.onMouseUp, false);
-    });
-  };
-
-  onMouseMove = e => {
-    if (!this.state.isDragging) return;
-
-    const { pageX, pageY } = e;
-    const { onUpdate, startX, startY } = this.state;
-
-    const nextState = {
-      pageX,
-      pageY,
-      deltaX: pageX - startX,
-      deltaY: pageY - startY
-    }
-
-    onUpdate({ ...this.state, ...nextState })
-    this.setState(nextState);
-  }
-
-  onMouseUp = e => {
-    if (!this.state.isDragging) return;
-
-    document.removeEventListener('mousemove', this.onMouseMove, false);
-    document.removeEventListener('mouseup', this.onMouseUp, false);
-    this.setState({
-      onUpdate: null,
-      isDragging: false,
-      target: null
-    });
-  }
-
-  captureRef = ref => {
-    this.ref = ref;
-  }
-
-  render() {
-    return (
-      <DragContext.Provider
-        value={{
-          onDragStart: (e, onUpdate) => this.onDragStart(e, onUpdate)
-        }}
-      >
-        {this.props.children}
-      </DragContext.Provider>
-    );
-  }
-}
+const TIMELINE_LABEL_PX = 260;
 
 const PropDefinitionList = ({ definitions, label, leftArrow, onClick, style }) => (
   <div style={{ backgroundColor: COLOR_BG_0, ...style }}>
@@ -138,23 +67,35 @@ const PropDefinitionList = ({ definitions, label, leftArrow, onClick, style }) =
   </div>
 );
 
-const TimelineLabel = ({ onClick, label, style }) => (
-  <div
-    style={{
-      width: TIMELINE_LABEL_PX,
-      backgroundColor: 'white',
-      textAlign: 'right',
-      ...style
-    }}
-  >
-    <ButtonField
-      flush
-      alignment="right"
-      label={label}
-      onClick={onClick}
-      size="small"
-    />
-  </div>
+const TimelineLabel = ({ style, tween }) => (
+  <AnimationStore.Consumer>
+    {({ removeTween }) => (
+      <div
+        style={{
+          display: 'flex',
+          width: TIMELINE_LABEL_PX,
+          backgroundColor: 'white',
+          ...style
+        }}
+      >
+
+        <IconButton className={tmpStyle.btnDeleteTween} onClick={() => removeTween(tween.id)}>
+          <Icon name="close" />
+        </IconButton>
+        <ButtonField
+          flush
+          alignment="right"
+          className={tmpStyle.btnExpandTween}
+          label={tween.definition.name}
+          onClick={() => { }}
+          size="small"
+        />
+        <IconButton className={tmpStyle.btnKeyframeLock}>
+          <Icon name="lock" />
+        </IconButton>
+      </div>
+    )}
+  </AnimationStore.Consumer>
 )
 
 const TweenContainer = React.forwardRef(
@@ -173,38 +114,34 @@ const TweenContainer = React.forwardRef(
   )
 );
 
-const TweenHandle = ({ index, onMouseDown }) => (
-  <Drag.Consumer>
-    {({ isDragging }) => (
-      <div
-        onMouseDown={onMouseDown}
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: index === 0 ? -0 : undefined,
-          right: index === 1 ? -0 : undefined,
-          width: 8,
-          height: '100%',
-          cursor: 'col-resize',
-          backgroundColor: isDragging ? 'red' : 'dodgerblue'
-        }}
-      ></div>
-    )}
-  </Drag.Consumer>
+const TweenKeyframe = ({ index, isDragging, onMouseDown }) => (
+  <div
+    onMouseDown={onMouseDown}
+    style={{
+      position: 'absolute',
+      top: 0,
+      left: index === 0 ? -0 : undefined,
+      right: index === 1 ? -0 : undefined,
+      width: 8,
+      height: '100%',
+      cursor: 'col-resize',
+      backgroundColor: isDragging ? 'red' : 'dodgerblue'
+    }}
+  ></div>
 );
 
 const TweenBar = React.forwardRef(
-  ({ children, handles, onMouseDown }, ref) => handles.length && (
+  ({ children, keyframes, onMouseDown }, ref) => keyframes.length && (
     <div
       style={{
         position: 'absolute',
         top: 0,
-        left: `${handles[0].time * 100}%`,
-        right: `${(1 - handles[handles.length-1].time) * 100}%`,
+        left: `${keyframes[0].time * 100}%`,
+        right: `${(1 - keyframes[keyframes.length - 1].time) * 100}%`,
         height: '100%'
       }}
       onMouseDown={onMouseDown}
-      >
+    >
       <div
         ref={ref}
         style={{ height: '100%' }}
@@ -224,24 +161,31 @@ class TweenTimeline extends React.Component {
     this.barRef = ref;
   }
 
-  renderHandle(index, onDragStart) {
+  renderKeyframe(index) {
     const { tween } = this.props;
+
     return (
       <AnimationStore.Consumer>
-        {({ setHandleTime }) => (
-          <TweenHandle
-            index={index}
-            onMouseDown={e => {
-              if (!this.containerRef) return;
+        {({ setKeyframeTime }) => (
+          <Drag>
+            {({ isDragging, onDragStart }) => (
+              <TweenKeyframe
+                index={index}
+                isDragging={isDragging}
+                onMouseDown={e => {
+                  if (!this.containerRef) return;
+                  if (e.button !== 0) return;
 
-              const rect = this.containerRef.getBoundingClientRect();
+                  const rect = this.containerRef.getBoundingClientRect();
 
-              onDragStart(e, ({ pageX }) => {
-                const time = clamp((pageX - rect.left) / rect.width, 0, 1);
-                setHandleTime(tween.id, index, time);
-              })
-            }}
-          />
+                  onDragStart(e, ({ pageX }) => {
+                    const time = clamp((pageX - rect.left) / rect.width, 0, 1);
+                    setKeyframeTime(tween.id, index, time);
+                  })
+                }}
+              />
+            )}
+          </Drag>
         )}
       </AnimationStore.Consumer>
     );
@@ -257,11 +201,11 @@ class TweenTimeline extends React.Component {
       <TweenContainer style={style} ref={this.captureRef}>
         <AnimationStore.Consumer>
           {({ setTweenPosition }) => (
-            <Drag.Consumer>
+            <Drag>
               {({ onDragStart }) => (
                 <TweenBar
                   ref={this.captureBarRef}
-                  handles={tween.handles}
+                  keyframes={tween.keyframes}
                   onMouseDown={e => {
                     if (e.target !== this.barRef) return;
                     if (!this.containerRef || !this.barRef) return;
@@ -277,11 +221,11 @@ class TweenTimeline extends React.Component {
                     })
                   }}
                 >
-                  {this.renderHandle(0, onDragStart)}
-                  {this.renderHandle(1, onDragStart)}
+                  {this.renderKeyframe(0)}
+                  {this.renderKeyframe(1)}
                 </TweenBar>
               )}
-            </Drag.Consumer>
+            </Drag>
           )}
         </AnimationStore.Consumer>
       </TweenContainer>
@@ -316,8 +260,8 @@ const PlayheadTime = props => (
 const AnimTarget = ({ anim, tweens }) => (
   <AnimationStore.Consumer>
     {({ setAnimationOffset }) => (
-      <Drag.Consumer>
-        {({ onDragStart }) => (
+      <Drag>
+        {({ isDragging, onDragStart }) => (
           <MediaStore.Consumer>
             {({ playhead }) => (
               <div
@@ -329,6 +273,8 @@ const AnimTarget = ({ anim, tweens }) => (
               >
                 <div
                   onMouseDown={e => {
+                    if (e.button !== 0) return;
+
                     const init = anim.offset;
                     onDragStart(e, ({ deltaX, deltaY }) => {
                       setAnimationOffset(anim.id, {
@@ -338,43 +284,44 @@ const AnimTarget = ({ anim, tweens }) => (
                     })
                   }}
                   style={{
+                    border: isDragging ? '10px solid yellow' : undefined,
                     width: 30,
                     height: 30,
                     backgroundColor: 'blue',
                     ...tweens.reduce((style, tween) => {
                       const {
                         definition,
-                        handles
+                        keyframes
                       } = tween;
 
-                      // early exit if no handles
-                      if (!handles.length) return style;
+                      // early exit if no keyframes
+                      if (!keyframes.length) return style;
 
                       let value;
-                      if (playhead <= handles[0].time) {
-                        value = handles[0].value;
-                      } else if (playhead >= last(handles).time) {
-                        value = last(handles).value;
+                      if (playhead <= keyframes[0].time) {
+                        value = keyframes[0].value;
+                      } else if (playhead >= last(keyframes).time) {
+                        value = last(keyframes).value;
                       } else {
                         // interpolate
-                        const [handle0, handle1] = handles.reduce((arr, handle) => {
-                          if (handle.time <= playhead) {
-                            arr[0] = handle;
+                        const [keyframe0, keyframe1] = keyframes.reduce((arr, keyframe) => {
+                          if (keyframe.time <= playhead) {
+                            arr[0] = keyframe;
                           }
-                          if (arr[0] && !arr[1] && handle.time >= playhead) {
-                            arr[1] = handle;
+                          if (arr[0] && !arr[1] && keyframe.time >= playhead) {
+                            arr[1] = keyframe;
                           }
                           return arr;
                         }, []);
 
-                        const { time: fromTime, value: fromValue } = handle0;
-                        const { time: toTime, value: toValue } = handle1;
+                        const { time: fromTime, value: fromValue } = keyframe0;
+                        const { time: toTime, value: toValue } = keyframe1;
                         // interpolate
                         const scaledTime = (playhead - fromTime) / (toTime - fromTime);
                         const [_, curvedTime] = getPointAtTime(scaledTime, tween.easing);
                         value = definition.lerp(fromValue, toValue, curvedTime);
                       }
-                      
+
                       style[definition.name] = value;
                       return style;
                     }, {})
@@ -384,7 +331,7 @@ const AnimTarget = ({ anim, tweens }) => (
             )}
           </MediaStore.Consumer>
         )}
-      </Drag.Consumer>
+      </Drag>
     )}
   </AnimationStore.Consumer>
 )
@@ -520,10 +467,10 @@ class ImportCssModal extends React.Component {
   state = {
     replace: false,
     linted: this.lint(this.props.initValue),
-    value:  this.props.initValue
+    value: this.props.initValue
   }
 
-  handleChange = value => {
+  onChange = value => {
     this.setState({
       linted: this.lint(value),
       value
@@ -562,7 +509,7 @@ class ImportCssModal extends React.Component {
                       fieldIndex={0}
                       className={tmpStyle.monospace}
                       label="Paste Here"
-                      onChange={this.handleChange}
+                      onChange={this.onChange}
                       value={value}
                     />
                     {errorMessages.map((msg, i) => {
@@ -610,36 +557,36 @@ class App extends React.Component {
     showImportModal: false
   }
 
-  getCss = animations => {
-    const css = this.state.animations.map(anim => {
-      if (anim.tweens.length === 0) return '';
-  
-      const percentGroups = {};
-  
-      const pushTimestamp = (name, time, value) => {
-        const percent = Math.floor(time * 100);
-        (percentGroups[percent] = percentGroups[percent] || []).push({ name, value });
-      }
-  
-      anim.tweens.forEach(tween => {
-        tween.handles.forEach(h => pushTimestamp(tween.cssName, h.time, h.value));
-      });
-  
-      const sorted = Object.entries(percentGroups)
-        .sort((a, b) => parseFloat(a[0]) - parseFloat(b[0]));
-  
-      const writeProp = ({ name, value }) => `${name}: ${value};`;
-  
-      const writePercentGroup = (percent, group) => `${percent}% { ${group.map(writeProp).join(' ') } }`;
-  
-      return `@keyframes anim_${anim.id} { ${sorted.map(([percent, group]) => writePercentGroup(percent, group)).join(' ') } }`;
-    }).join(' ');
-  
-    return cssbeautify(css, {
-      indent: '  ',
-      autosemicolon: true
-    });
-  }
+  // getCss = animations => {
+  //   const css = this.state.animations.map(anim => {
+  //     if (anim.tweens.length === 0) return '';
+
+  //     const percentGroups = {};
+
+  //     const pushTimestamp = (name, time, value) => {
+  //       const percent = Math.floor(time * 100);
+  //       (percentGroups[percent] = percentGroups[percent] || []).push({ name, value });
+  //     }
+
+  //     anim.tweens.forEach(tween => {
+  //       tween.keyframes.forEach(h => pushTimestamp(tween.cssName, h.time, h.value));
+  //     });
+
+  //     const sorted = Object.entries(percentGroups)
+  //       .sort((a, b) => parseFloat(a[0]) - parseFloat(b[0]));
+
+  //     const writeProp = ({ name, value }) => `${name}: ${value};`;
+
+  //     const writePercentGroup = (percent, group) => `${percent}% { ${group.map(writeProp).join(' ') } }`;
+
+  //     return `@keyframes anim_${anim.id} { ${sorted.map(([percent, group]) => writePercentGroup(percent, group)).join(' ') } }`;
+  //   }).join(' ');
+
+  //   return cssbeautify(css, {
+  //     indent: '  ',
+  //     autosemicolon: true
+  //   });
+  // }
 
   render() {
     const { selectedAnimId } = this.state;
@@ -654,7 +601,7 @@ class App extends React.Component {
           flexDirection: 'column'
         }}
       >
-      
+
         {/* IMPORT DIALOGUE */}
         {this.state.showImportModal && (
           <ImportCssModal
@@ -662,7 +609,7 @@ class App extends React.Component {
             onClose={() => this.setState({ showImportModal: false })}
           />
         )}
-        
+
         {/* TOP REGION */}
         <div>
           <div style={{ display: 'flex', padding: GRID_PX }}>
@@ -697,11 +644,11 @@ class App extends React.Component {
                           size="small"
                           label="Remove Animation"
                           onClick={() => {
-                            const {anim, animIndex} = removeAnimation(selectedAnimId);
+                            const { anim, animIndex } = removeAnimation(selectedAnimId);
 
                             // if removing selected, apply new selected
                             if (anim.id === selectedAnimId) {
-                              const nextAnim = animations[animIndex+1] || animations[animIndex-1];
+                              const nextAnim = animations[animIndex + 1] || animations[animIndex - 1];
                               this.setState({
                                 selectedAnimId: nextAnim ? nextAnim.id : ''
                               });
@@ -717,22 +664,22 @@ class App extends React.Component {
               {/* TWEEN LISTS */}
               <div style={{ display: 'flex', flex: 1, paddingTop: GRID_PX }}>
                 <AnimationStore.Consumer>
-                  {({ addTween, removeTween }) =>
+                  {({ addTween, removeTween, getUnusedPropDefinitions }) =>
                     selectedAnimId && (
                       <>
                         <PropDefinitionList
-                          definitions={[]}
+                          definitions={getUnusedPropDefinitions(selectedAnimId)}
                           label="Available"
                           onClick={propName => addTween(selectedAnimId, propName)}
                           style={{ flex: 1, marginRight: GRID_PX }}
                         />
-                        <PropDefinitionList
-                          definitions={[]}
+                        {/* <PropDefinitionList
+                          definitions={getUsedPropDefinitions(selectedAnimId)}
                           label="Added"
                           leftArrow={true}
                           onClick={propName => removeTween(selectedAnimId, propName)}
                           style={{ flex: 1 }}
-                        />
+                        /> */}
                       </>
                     )
                   }
@@ -756,7 +703,7 @@ class App extends React.Component {
                   </Stage>
                 )}
               </AnimationStore.Consumer>
-              
+
               <MediaControls style={{ marginTop: GRID_PX }} />
 
             </div>
@@ -766,7 +713,7 @@ class App extends React.Component {
 
         {/* BOTTOM REGION */}
         <div style={{ flex: 1, display: 'flex' }}>
-          
+
           {/* LEFT BOTTOM REGION */}
           <div
             style={{
@@ -831,8 +778,7 @@ class App extends React.Component {
                               }}
                             >
                               <TimelineLabel
-                                label={tween.definition.name}
-                                onClick={() => {}}
+                                tween={tween}
                               />
                               <TweenTimeline
                                 tween={tween}
@@ -851,7 +797,7 @@ class App extends React.Component {
             </div>
 
           </div>
-          
+
           <div style={{ width: 300, display: 'flex', flexDirection: 'column' }}>
             {/* IMPORT CSS */}
             <ButtonField
@@ -881,9 +827,7 @@ class App extends React.Component {
 export default props => (
   <AnimationStore>
     <MediaStore>
-      <Drag>
-        <App {...props} />
-      </Drag>
+      <App {...props} />
     </MediaStore>
   </AnimationStore>
 );

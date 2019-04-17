@@ -2,6 +2,8 @@ import React from 'react';
 import BooleanField from '@sqs/core-components/fields/BooleanField';
 import NumberField from '@sqs/core-components/fields/NumberField';
 
+import Canvas from './shared/Canvas';
+
 import styles from './Stage.scss';
 
 const LINE_WIDTH = 1;
@@ -9,47 +11,17 @@ const GRID_COLOR = '#f2f2f2';
 
 export default class Stage extends React.Component {
   state = {
-    height: 0,
-    width: 0,
     gridSize: 22,
     showGrid: true,
   };
 
-  captureContainer = ref => {
-    this.container = ref;
-  }
+  drawGrid = ({ cvs, ctx }) => {
+    ctx.clearRect(0, 0, cvs.width, cvs.height);
 
-  captureCvs = ref => {
-    this.cvs = ref;
-  }
-
-  componentDidMount() {
-    const observer = new ResizeObserver(els => {
-      const { width, height } = els[0].contentRect;
-      this.setState({ width, height });
-    })
-    observer.observe(this.container);
-  }
-
-  componentDidUpdate() {
-    this.clearGrid();
-
-    if (this.state.showGrid) {
-      this.drawGrid();
-    }
-  }
-
-  clearGrid() {
-    const ctx = this.cvs.getContext('2d');
-    ctx.clearRect(0, 0, this.cvs.width, this.cvs.height);
-  }
-
-  drawGrid() {
     const { gridSize } = this.state;
     
-    const ctx = this.cvs.getContext('2d');
-    const width = this.cvs.clientWidth;
-    const height = this.cvs.clientHeight;
+    const width = cvs.width;
+    const height = cvs.height;
     
     const halfLineWidth = LINE_WIDTH / 2;
 
@@ -76,17 +48,10 @@ export default class Stage extends React.Component {
   }
 
   render() {
-    const { width, height, gridSize, showGrid } = this.state;
+    const { gridSize, showGrid } = this.state;
     return (
-      <div
-        ref={this.captureContainer}
-        className={styles.container}
-      >
-        <canvas
-          ref={this.captureCvs}
-          height={height}
-          width={width}
-        ></canvas>
+      <div className={styles.container}>
+        <Canvas onResize={this.drawGrid} />
         {this.props.children}
         <div className={styles.controls}>
           <BooleanField
@@ -102,6 +67,7 @@ export default class Stage extends React.Component {
             value={gridSize}
           />
         </div>
+
       </div>
     )
   }

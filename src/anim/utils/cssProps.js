@@ -21,12 +21,9 @@ const lerps = {
   }
 }
 
-const asMap = (map => {
-  // APPLY NAMES
-  Object.keys(map).forEach(name => map[name].name = name);
-  return map;
-})({
+const asMap = {
   backgroundColor: {
+    name: 'backgroundColor',
     cssName: 'background-color',
     lerp: lerps.color,
     parse: parsers.color,
@@ -34,6 +31,7 @@ const asMap = (map => {
     type: inputTypes.color
   },
   left: {
+    name: 'left',
     cssName: 'left',
     lerp: lerps.number,
     parse: parsers.number,
@@ -41,13 +39,14 @@ const asMap = (map => {
     type: inputTypes.number
   },
   top: {
+    name: 'top',
     cssName: 'top',
     lerp: lerps.number,
     parse: parsers.number,
     format: v => `${v}px`,
     type: inputTypes.number
   }
-})
+};
 
 const asArray = Object.keys(asMap)
     .map(name => asMap[name])
