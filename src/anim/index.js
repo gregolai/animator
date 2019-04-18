@@ -46,24 +46,21 @@ import { CSSLint } from 'csslint';
 
 const TIMELINE_LABEL_PX = 260;
 
-const PropDefinitionList = ({ definitions, label, leftArrow, onClick, style }) => (
+const PropDefinitionList = ({ definitions, leftArrow, onClick, style }) => (
   <div style={{ backgroundColor: COLOR_BG_0, ...style }}>
-    <ContextField label={label} fieldIndex={0} />
-    <div>
-      {definitions.map(def => (
-        <Disclosure
-          key={def.name}
-          hoverable
-          accessoryReducer={Accessory => (
-            <div style={leftArrow ? { transform: 'scaleX(-1)' } : undefined}>
-              <Accessory />
-            </div>
-          )}
-          label={def.name}
-          onClick={() => onClick(def.name)}
-        />
-      ))}
-    </div>
+    {definitions.map(def => (
+      <Disclosure
+        key={def.name}
+        hoverable
+        accessoryReducer={Accessory => (
+          <div style={leftArrow ? { transform: 'scaleX(-1)' } : undefined}>
+            <Accessory />
+          </div>
+        )}
+        label={def.name}
+        onClick={() => onClick(def.name)}
+      />
+    ))}
   </div>
 );
 
@@ -78,7 +75,6 @@ const TimelineLabel = ({ style, tween }) => (
           ...style
         }}
       >
-
         <IconButton className={tmpStyle.btnDeleteTween} onClick={() => removeTween(tween.id)}>
           <Icon name="close" />
         </IconButton>
@@ -86,7 +82,7 @@ const TimelineLabel = ({ style, tween }) => (
           flush
           alignment="right"
           className={tmpStyle.btnExpandTween}
-          label={tween.definition.name}
+          label={tween.name}
           onClick={() => { }}
           size="small"
         />
@@ -114,15 +110,14 @@ const TweenContainer = React.forwardRef(
   )
 );
 
-const TweenKeyframe = ({ index, isDragging, onMouseDown }) => (
+const TweenKeyframe = ({ keyframe, isDragging, onMouseDown }) => (
   <div
     onMouseDown={onMouseDown}
     style={{
       position: 'absolute',
       top: 0,
-      left: index === 0 ? -0 : undefined,
-      right: index === 1 ? -0 : undefined,
       width: 8,
+      left: `${keyframe.time * 100}%`,
       height: '100%',
       cursor: 'col-resize',
       backgroundColor: isDragging ? 'red' : 'dodgerblue'
@@ -161,16 +156,16 @@ class TweenTimeline extends React.Component {
     this.barRef = ref;
   }
 
-  renderKeyframe(index) {
+  renderKeyframe(keyframe) {
     const { tween } = this.props;
 
     return (
-      <AnimationStore.Consumer>
+      <AnimationStore.Consumer key={keyframe.id}>
         {({ setKeyframeTime }) => (
           <Drag>
             {({ isDragging, onDragStart }) => (
               <TweenKeyframe
-                index={index}
+                keyframe={keyframe}
                 isDragging={isDragging}
                 onMouseDown={e => {
                   if (!this.containerRef) return;
@@ -180,7 +175,7 @@ class TweenTimeline extends React.Component {
 
                   onDragStart(e, ({ pageX }) => {
                     const time = clamp((pageX - rect.left) / rect.width, 0, 1);
-                    setKeyframeTime(tween.id, index, time);
+                    //setKeyframeTime(tween.id, index, time);
                   })
                 }}
               />
@@ -200,33 +195,35 @@ class TweenTimeline extends React.Component {
     return (
       <TweenContainer style={style} ref={this.captureRef}>
         <AnimationStore.Consumer>
-          {({ setTweenPosition }) => (
-            <Drag>
-              {({ onDragStart }) => (
-                <TweenBar
-                  ref={this.captureBarRef}
-                  keyframes={tween.keyframes}
-                  onMouseDown={e => {
-                    if (e.target !== this.barRef) return;
-                    if (!this.containerRef || !this.barRef) return;
+          {({ getKeyframes, setKeyframeTime, setTweenPosition }) => {
+            const keyframes = getKeyframes(tween.id)
+            return (
+              <Drag>
+                {({ onDragStart }) => (
+                  <TweenBar
+                    ref={this.captureBarRef}
+                    keyframes={keyframes}
+                    onMouseDown={e => {
+                      if (e.target !== this.barRef) return;
+                      if (!this.containerRef || !this.barRef) return;
 
-                    const rect = this.containerRef.getBoundingClientRect();
-                    const barRect = this.barRef.getBoundingClientRect();
+                      const rect = this.containerRef.getBoundingClientRect();
+                      const barRect = this.barRef.getBoundingClientRect();
 
-                    const initRatio = (barRect.left - rect.left) / rect.width;
+                      const initRatio = (barRect.left - rect.left) / rect.width;
 
-                    onDragStart(e, ({ deltaX }) => {
-                      const time = clamp(initRatio + deltaX / rect.width, 0, 1);
-                      setTweenPosition(tween.id, time);
-                    })
-                  }}
-                >
-                  {this.renderKeyframe(0)}
-                  {this.renderKeyframe(1)}
-                </TweenBar>
-              )}
-            </Drag>
-          )}
+                      onDragStart(e, ({ deltaX }) => {
+                        const time = clamp(initRatio + deltaX / rect.width, 0, 1);
+                        setTweenPosition(tween.id, time);
+                      })
+                    }}
+                  >
+                    {keyframes.map(keyframe => this.renderKeyframe(keyframe))}
+                  </TweenBar>
+                )}
+              </Drag>
+            );
+          }}
         </AnimationStore.Consumer>
       </TweenContainer>
     );
@@ -259,7 +256,7 @@ const PlayheadTime = props => (
 
 const AnimTarget = ({ anim, tweens }) => (
   <AnimationStore.Consumer>
-    {({ setAnimationOffset }) => (
+    {({ getKeyframes, setAnimationOffset }) => (
       <Drag>
         {({ isDragging, onDragStart }) => (
           <MediaStore.Consumer>
@@ -272,6 +269,7 @@ const AnimTarget = ({ anim, tweens }) => (
                 }}
               >
                 <div
+                  className={tmpStyle.animTarget}
                   onMouseDown={e => {
                     if (e.button !== 0) return;
 
@@ -291,8 +289,11 @@ const AnimTarget = ({ anim, tweens }) => (
                     ...tweens.reduce((style, tween) => {
                       const {
                         definition,
-                        keyframes
+                        name,
+                        lerp
                       } = tween;
+
+                      const keyframes = getKeyframes(tween.id);
 
                       // early exit if no keyframes
                       if (!keyframes.length) return style;
@@ -319,10 +320,10 @@ const AnimTarget = ({ anim, tweens }) => (
                         // interpolate
                         const scaledTime = (playhead - fromTime) / (toTime - fromTime);
                         const [_, curvedTime] = getPointAtTime(scaledTime, tween.easing);
-                        value = definition.lerp(fromValue, toValue, curvedTime);
+                        value = lerp(fromValue, toValue, curvedTime);
                       }
 
-                      style[definition.name] = value;
+                      style[name] = value;
                       return style;
                     }, {})
                   }}
@@ -611,104 +612,118 @@ class App extends React.Component {
         )}
 
         {/* TOP REGION */}
-        <div>
-          <div style={{ display: 'flex', padding: GRID_PX }}>
+        <div style={{ display: 'flex', padding: GRID_PX, height: 600 }}>
 
-            {/* LEFT OF STAGE */}
-            <div style={{ width: 600, paddingRight: GRID_PX, display: 'flex', flexDirection: 'column' }}>
+          {/* LEFT OF STAGE */}
+          <div style={{
+            width: 500,
+            paddingRight: GRID_PX,
+            display: 'flex',
+            flexDirection: 'column'
+          }}>
 
-              {/* ADD + REMOVE ANIMATION */}
-              <div style={{ display: 'flex' }}>
-                <AnimationStore.Consumer>
-                  {({ animations, addAnimation, removeAnimation }) => (
-                    <>
-                      <div style={{ flex: 1, paddingRight: GRID_PX }}>
-                        <ButtonField
-                          flush
-                          inverted
-                          size="small"
-                          label="Add Animation"
-                          onClick={() => {
-                            const entry = addAnimation();
-                            this.setState({
-                              selectedAnimId: entry.id
-                            })
-                          }}
-                        />
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <ButtonField
-                          flush
-                          inverted
-                          isDisabled={!selectedAnimId}
-                          size="small"
-                          label="Remove Animation"
-                          onClick={() => {
-                            const { anim, animIndex } = removeAnimation(selectedAnimId);
-
-                            // if removing selected, apply new selected
-                            if (anim.id === selectedAnimId) {
-                              const nextAnim = animations[animIndex + 1] || animations[animIndex - 1];
-                              this.setState({
-                                selectedAnimId: nextAnim ? nextAnim.id : ''
-                              });
-                            }
-                          }}
-                        />
-                      </div>
-                    </>
-                  )}
-                </AnimationStore.Consumer>
-              </div>
-
-              {/* TWEEN LISTS */}
-              <div style={{ display: 'flex', flex: 1, paddingTop: GRID_PX }}>
-                <AnimationStore.Consumer>
-                  {({ addTween, removeTween, getUnusedPropDefinitions }) =>
-                    selectedAnimId && (
-                      <>
-                        <PropDefinitionList
-                          definitions={getUnusedPropDefinitions(selectedAnimId)}
-                          label="Available"
-                          onClick={propName => addTween(selectedAnimId, propName)}
-                          style={{ flex: 1, marginRight: GRID_PX }}
-                        />
-                        {/* <PropDefinitionList
-                          definitions={getUsedPropDefinitions(selectedAnimId)}
-                          label="Added"
-                          leftArrow={true}
-                          onClick={propName => removeTween(selectedAnimId, propName)}
-                          style={{ flex: 1 }}
-                        /> */}
-                      </>
-                    )
-                  }
-                </AnimationStore.Consumer>
-              </div>
-
-            </div>
-
-            {/* STAGE AREA */}
-            <div style={{ flex: 1 }}>
+            {/* ADD + REMOVE ANIMATION */}
+            <div style={{ display: 'flex' }}>
               <AnimationStore.Consumer>
-                {({ animations, getTweens }) => (
-                  <Stage>
-                    {animations.map(anim => (
-                      <AnimTarget
-                        key={anim.id}
-                        anim={anim}
-                        tweens={getTweens(anim.id)}
+                {({ animations, addAnimation, removeAnimation }) => (
+                  <>
+                    <div style={{ flex: 1, paddingRight: GRID_PX }}>
+                      <ButtonField
+                        flush
+                        inverted
+                        size="small"
+                        label="Add Animation"
+                        onClick={() => {
+                          const { anim } = addAnimation();
+                          this.setState({
+                            selectedAnimId: anim.id
+                          })
+                        }}
                       />
-                    ))}
-                  </Stage>
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <ButtonField
+                        flush
+                        inverted
+                        isDisabled={!selectedAnimId}
+                        size="small"
+                        label="Remove Animation"
+                        onClick={() => {
+                          const { anim, animIndex } = removeAnimation(selectedAnimId);
+
+                          // if removing selected, apply new selected
+                          if (anim.id === selectedAnimId) {
+                            const nextAnim = animations[animIndex + 1] || animations[animIndex - 1];
+                            this.setState({
+                              selectedAnimId: nextAnim ? nextAnim.id : ''
+                            });
+                          }
+                        }}
+                      />
+                    </div>
+                  </>
                 )}
               </AnimationStore.Consumer>
+            </div>
 
-              <MediaControls style={{ marginTop: GRID_PX }} />
-
+            {/* TWEEN LISTS */}
+            <div
+              style={{
+                display: 'flex',
+                flex: 1,
+                paddingTop: GRID_PX,
+                overflow: 'hidden'
+              }}
+            >
+              <AnimationStore.Consumer>
+                {({ addTween, removeTween, getUsedPropDefinitions, getUnusedPropDefinitions }) =>
+                  selectedAnimId && (
+                    <>
+                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                        <ContextField label="Available" fieldIndex={0} />
+                        <PropDefinitionList
+                          definitions={getUnusedPropDefinitions(selectedAnimId)}
+                          onClick={propName => addTween(selectedAnimId, propName)}
+                          style={{ overflowY: 'scroll' }}
+                        />
+                      </div>
+                      {/* <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                        <ContextField label="Added" fieldIndex={0} />
+                        <PropDefinitionList
+                          definitions={getUsedPropDefinitions(selectedAnimId)}
+                          leftArrow={true}
+                          onClick={propName => removeTween(selectedAnimId, propName)}
+                          style={{ overflowY: 'scroll' }}
+                        />
+                      </div> */}
+                    </>
+                  )
+                }
+              </AnimationStore.Consumer>
             </div>
 
           </div>
+
+          {/* STAGE AREA */}
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+            <AnimationStore.Consumer>
+              {({ animations, getTweens }) => (
+                <Stage style={{ flex: 1 }}>
+                  {animations.map(anim => (
+                    <AnimTarget
+                      key={anim.id}
+                      anim={anim}
+                      tweens={getTweens(anim.id)}
+                    />
+                  ))}
+                </Stage>
+              )}
+            </AnimationStore.Consumer>
+
+            <MediaControls style={{ marginTop: GRID_PX }} />
+
+          </div>
+
         </div>
 
         {/* BOTTOM REGION */}

@@ -1,7 +1,5 @@
 import React from 'react';
 import rework from 'rework';
-import last from 'lodash/last';
-import clamp from 'lodash/clamp';
 import difference from 'lodash/difference';
 import {
   getPropDefinitionFromCSSName,
@@ -9,31 +7,35 @@ import {
   getPropDefinitionList
 } from './utils/cssProps';
 
-import update from 'immutability-helper';
 import uid from 'uid';
+import { uniqueNamesGenerator } from 'unique-names-generator';
+
+import db from './utils/db';
 
 const createAnimation = ({ name = undefined, offset = { x: 0, y: 0 } }) => {
-  const id = uid(8);
   return {
-    id,
-    name: name || `Animation ${id}`,
-    offset
+    name: name || uniqueNamesGenerator('-', true),
+    offset,
+    cssPropGroups: []
   }
 }
 
-const createTween = ({ animId, definition, easing = 'linear' }) => {
+const createTween = ({ animId, definition, easing = 'linear', lerp, name }) => {
   const id = uid(8);
   return {
     animId,
     id,
     definition,
     easing,
-    keyframes: []
+    lerp,
+    name
   }
 }
 
-const createKeyframe = ({ time, value }) => {
+const createKeyframe = ({ animId, tweenId, time, value }) => {
   return {
+    animId,
+    tweenId,
     id: uid(8),
     time,
     value
@@ -41,9 +43,11 @@ const createKeyframe = ({ time, value }) => {
 }
 
 const fromCSSString = cssString => {
+  // mutable lists
   const animations = [];
+  const keyframes = [];
   const tweens = [];
-  
+
   rework(cssString, {
     parseAtrulePrelude: true,
     parseRulePrelude: true,
@@ -54,9 +58,7 @@ const fromCSSString = cssString => {
 
       if (rule.keyframes) {
 
-        const anim = createAnimation({ name: rule.name });
-
-        animations.push(anim);
+        const anim = db.createOne(animations, createAnimation({ name: rule.name }), true).item;
 
         // each percent declaration
         rule.keyframes.forEach(keyframe => {
@@ -65,11 +67,11 @@ const fromCSSString = cssString => {
           const times = keyframe
             .values
             .map(v => {
-              if(v === 'from') return 0;
-              if(v === 'to') return 1;
+              if (v === 'from') return 0;
+              if (v === 'to') return 1;
               return parseFloat(v) / 100;
             });
-          
+
           // each "prop: value" pair
           keyframe.declarations.forEach(decl => {
 
@@ -81,41 +83,42 @@ const fromCSSString = cssString => {
               console.warn(`Definition for CSS prop not yet supported: ${cssName}`);
               return; // EARLY EXIT
             }
-            
+
             // e.g. 100px => 100
             const value = definition.parse(decl.value);
 
-            let tween = tweens.find(t => t.definition === definition);
+            // get tween with definition
+            let tween = db.getOne(tweens, t => t.definition === definition).item;
             if (!tween) {
-              tween = createTween({
+              // create tween with definition
+              tween = db.createOne(tweens, createTween({
                 animId: anim.id,
-                definition
-              });
-              tweens.push(tween);
+                definition,
+                // TODO
+                name: definition.name,
+                lerp: definition.lerp
+              }), true).item;
             }
 
             times.forEach(time => {
-              let keyframe = tween.keyframes.find(h => h.time === time);
+
+              let keyframe = db.getOne(keyframes, kf => kf.tweenId === tween.id && kf.time === time).item
               if (!keyframe) {
-                keyframe = {
+                keyframe = db.createOne(keyframes, createKeyframe({
+                  animId: anim.id,
+                  tweenId: tween.id,
                   time,
                   value
-                };
-                tween.keyframes.push(keyframe);
+                }), true).item;
               }
             });
           })
         });
-
-        // sort keyframes by time
-        tweens.forEach(tween => {
-          tween.keyframes.sort((a, b) => a.time - b.time);
-        })
       }
     });
   });
-  
-  return { animations, tweens };
+
+  return { animations, keyframes, tweens };
 }
 
 const Context = React.createContext();
@@ -124,209 +127,191 @@ export default class AnimationStore extends React.Component {
 
   state = {
     animations: [],
+    keyframes: [],
     tweens: []
   }
 
-  _getAnimation = animId => {
-    const { animations } = this.state;
-    const animIndex = animations.findIndex(a => a.id === animId);
-    return {
-      anim: animations[animIndex] || null,
-      animIndex
-    };
-  };
-
-  _getTween = tweenId => {
-    const { tweens } = this.state;
-    const tweenIndex = tweens.findIndex(t => t.id === tweenId);
-    return {
-      tween: tweens[tweenIndex] || null,
-      tweenIndex
-    };
-  }
-
-  _getKeyframe = (tweenId, keyframeIndex) => {
-    const { tween, tweenIndex } = this._getTween(tweenId);
-    return {
-      tween,
-      tweenIndex,
-      keyframe: tween ? (tween.keyframes[keyframeIndex] || null) : null
-    }
-  }
-  
-  _getKeyframeAtTime = (tweenId, time) => {
-    const { tween, tweenIndex } = this._getTween(tweenId);
-    const keyframes = tween ? tween.keyframes : [];
-    const keyframeIndex = keyframes.findIndex(h => h.time === time);
-    return {
-      tween,
-      tweenIndex,
-      keyframeIndex,
-      keyframe: keyframes[keyframeIndex] || null
-    };
-  }
-
   importAnimations = (cssString, replace = false) => {
-    let { animations, tweens } = fromCSSString(cssString);
+    let { animations, keyframes, tweens } = fromCSSString(cssString);
+    console.log({ animations, keyframes, tweens })
     if (!replace) {
       animations = [...this.state.animations, ...animations];
+      keyframes = [...this.state.keyframes, ...keyframes];
       tweens = [...this.state.tweens, ...tweens];
     }
-    this.setState({ animations, tweens });
+    this.setState({ animations, keyframes, tweens });
   }
 
+  // CREATE - Animation
   addAnimation = () => {
-    const anim = createAnimation({
+    const { list: animations, item, index } = db.createOne(this.state.animations, createAnimation({
       offset: { x: 0, y: 0 }
-    });
-    this.setState({
-      animations: [...this.state.animations, anim]
-    });
-    return anim;
+    }));
+
+    this.setState({ animations });
+
+    return {
+      anim: item,
+      animIndex: index
+    }
   }
 
+  // DELETE - Animation
   removeAnimation = (animId) => {
-    const { anim, animIndex } = this._getAnimation(animId);
-    if (!anim) return;
+    const { list: animations, item, index } = db.deleteOne(this.state.animations, animId);
+    const { list: tweens } = db.deleteMany(this.state.tweens, tween => tween.animId === animId);
+    const { list: keyframes } = db.deleteMany(this.state.keyframes, kf => kf.animId === animId);
 
-    const { animations, tweens } = this.state;
     this.setState({
-      animations: update(animations, { $splice: [[animIndex, 1]] }),
-      tweens: tweens.filter(t => t.animId !== animId)
+      animations,
+      tweens,
+      keyframes
     });
-    return { anim, animIndex };
+
+    return {
+      anim: item,
+      animIndex: index
+    };
   }
 
   setAnimationOffset = (animId, offset = { x: 0, y: 0 }) => {
-    const { anim, animIndex } = this._getAnimation(animId);
-    if (!anim) return;
-    
-    const { animations } = this.state;
-    this.setState({
-      animations: update(animations, {
-        [animIndex]: {
-          offset: { $set: offset }
-        }
-      })
-    })
+    const { list: animations, item, index } = db.setOne(this.state.animations, animId, { offset });
+
+    this.setState({ animations });
+
+    return {
+      anim: item,
+      animIndex: index
+    };
   }
 
+  // CREATE - Tween
   addTween = (animId, propName) => {
-    const { anim } = this._getAnimation(animId);
-    if (!anim) return;
 
     const definition = getPropDefinitionFromName(propName);
-    if (!definition) return;
 
-    const { tweens } = this.state;
+    // ensure definition and prevent duplicates
+    if (
+      !definition ||
+      db.getOne(this.state.tweens, t => t.definition === definition).item
+    ) {
+      return {
+        tween: null,
+        tweenIndex: -1
+      };
+    }
 
-    // prevent duplicates
-    if (tweens.find(t => t.definition === definition)) return;
+    const { list: tweens, item, index } = db.createOne(this.state.tweens, createTween({
+      animId,
+      definition,
+      name: definition.name,
+      lerp: definition.lerp
+    }))
 
-    this.setState({
-      tweens: [
-        ...tweens,
-        createTween({ animId, definition })
-      ]
-    })
+    this.setState({ tweens });
+
+    return {
+      tween: item,
+      tweenIndex: index
+    };
   }
 
+  // DELETE - Tween
   removeTween = (tweenId) => {
-    const { tween, tweenIndex } = this._getTween(tweenId);
-    if (!tween) return;
+    const { list: tweens, item, index } = db.deleteOne(this.state.tweens, tweenId);
+    const { list: keyframes } = db.deleteMany(this.state.keyframes, kf => kf.tweenId === tweenId);
 
-    const { tweens } = this.state;
-    this.setState({
-      tweens: update(tweens, { $splice: [[tweenIndex, 1]] })
-    })
+    this.setState({ keyframes, tweens });
+
+    return {
+      tween: item,
+      tweenIndex: index
+    }
   }
 
-  addKeyframe = (tweenId, time, value, updateIfExists = true) => {
-    const { tween, tweenIndex } = this._getTween(tweenId);
-    if (!tween) return;
+  addKeyframe = (tweenId, time, value) => {
 
-    // Check existing
-    {
-      const { keyframe, keyframeIndex } = this._getKeyframeAtTime(tweenId, time);
-      if (keyframe) {
-        if (updateIfExists) {
-          this.setKeyframeValue(tweenId, keyframeIndex, value);
-        }
-        return;
+    const { item: tween } = db.getOne(this.state.tweens, tweenId);
+
+    // ensure tween and prevent duplicate keyframe time
+    if (
+      !tween ||
+      db.getOne(this.state.keyframes,
+        kf => kf.tweenId === tweenId && kf.time === time
+      ).item
+    ) {
+      return {
+        keyframe: null,
+        keyframeIndex: -1
       }
     }
 
-    // Insert at correct time
-    const spliceIndex = tween.keyframes.filter(h => h.time < time).length;
+    const { list: keyframes, item, index } = db.createOne(this.state.keyframes, createKeyframe({
+      animId: tween.animId,
+      tweenId,
+      time,
+      value
+    }))
 
-    const { tweens } = this.state;
-    this.setState({
-      tweens: update(tweens, {
-        [tweenIndex]: {
-          keyframes: { $splice: [[createKeyframe({ time, value }), 0, spliceIndex]] }
-        }
-      })
-    })
+    this.setState({ keyframes });
+
+    return {
+      keyframe: item,
+      keyframeIndex: index
+    };
   }
 
-  setKeyframeTime = (tweenId, keyframeIndex, time) => {
-    const { keyframe, tweenIndex } = this._getKeyframe(tweenId, keyframeIndex);
-    if (!keyframe) return;
+  setKeyframeTime = (keyframeId, time) => {
+    const { list: keyframes, item, index } = db.setOne(this.state.keyframes, keyframeId, { time });
 
-    this.setState({
-      tweens: update(this.state.tweens, {
-        [tweenIndex]: {
-          keyframes: {
-            [keyframeIndex]: { $merge: { time } }
-          }
-        }
-      })
-    })
+    this.setState({ keyframes });
+
+    return {
+      keyframe: item,
+      keyframeIndex: index
+    };
   }
 
-  setKeyframeValue = (tweenId, keyframeIndex, value) => {
-    const { keyframe, tweenIndex } = this._getKeyframe(tweenId, keyframeIndex);
-    if (!keyframe) return;
+  setKeyframeValue = (keyframeId, value) => {
+    const { list: keyframes, item, index } = db.setOne(this.state.keyframes, keyframeId, { value });
 
-    this.setState({
-      tweens: update(this.state.tweens, {
-        [tweenIndex]: {
-          keyframes: {
-            [keyframeIndex]: { $merge: { value } }
-          }
-        }
-      })
-    });
+    this.setState({ keyframes });
+
+    return {
+      keyframe: item,
+      keyframeIndex: index
+    };
   }
 
   setTweenPosition = (tweenId, time) => {
-    const { tween, tweenIndex } = this._getTween(tweenId);
-    if (!tween) return;
-    
-    const { keyframes } = tween;
+    return;
+    // const keyframes = this._getKeyframes(tweenId);
 
-    const time0 = keyframes[0].time;
+    // const time0 = keyframes[0].time;
 
-    const diff = last(keyframes).time - keyframes[0].time;
+    // const diff = last(keyframes).time - keyframes[0].time;
 
-    const clampedTime = clamp(time, 0, 1 - diff);
+    // const clampedTime = clamp(time, 0, 1 - diff);
 
-    this.setState({
-      tweens: update(this.state.tweens, {
-        [tweenIndex]: {
-          keyframes: {
-            $set: keyframes.map(keyframe => ({
-              ...keyframe,
-              time: clampedTime + (keyframe.time - time0)
-            }))
-          }
-        }
-      })
-    });
+    // this.setState({
+    //   keyframes: {
+    //     $set: this.state.keyframes.map(keyframe => {
+
+    //     })
+    //   }
+    // });
   }
 
   getTweens = (animId) => {
     return this.state.tweens.filter(t => t.animId === animId);
+  }
+
+  /**
+   * Get keyframes for tween, sorted by time
+   */
+  getKeyframes = (tweenId) => {
+    const { items } = db.getMany(this.state.keyframes, kf => kf.tweenId === tweenId);
+    return items.sort((a, b) => a.time < b.time ? -1 : 1);
   }
 
   getUsedPropDefinitions = animId => {
@@ -357,13 +342,14 @@ export default class AnimationStore extends React.Component {
           removeTween: this.removeTween,
 
           addKeyframe: this.addKeyframe,
-          
+
           setKeyframeTime: this.setKeyframeTime,
           setKeyframeValue: this.setKeyframeValue,
 
           setTweenPosition: this.setTweenPosition,
 
           getTweens: this.getTweens,
+          getKeyframes: this.getKeyframes,
 
           getUsedPropDefinitions: this.getUsedPropDefinitions,
           getUnusedPropDefinitions: this.getUnusedPropDefinitions
