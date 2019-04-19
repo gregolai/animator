@@ -6,8 +6,11 @@ import Icon from '@sqs/core-components/primitives/Icon';
 import IconButton from '@sqs/core-components/primitives/IconButton';
 
 import AnimationStore from '../../../stores/AnimationStore';
+import UIStore from '../../../stores/UIStore';
+
 import Drag from '../../shared/Drag';
 import TweenLabel from './TweenLabel';
+import ValueEditor from './ValueEditor';
 
 import styles from './Animation.scss';
 
@@ -115,7 +118,7 @@ class TweenTimeline extends React.Component {
     return (
       <TweenContainer style={style} ref={this.captureRef}>
         <AnimationStore.Consumer>
-          {({ getKeyframes, setKeyframeTime, setTweenPosition }) => {
+          {({ getKeyframes, setTweenPosition }) => {
             const keyframes = getKeyframes(tween.id);
             if (keyframes.length === 0) return null;
 
@@ -167,30 +170,39 @@ class TweenTimeline extends React.Component {
 
 
 const Head = ({ anim }) => (
-  <div className={styles.head}>
-    <IconButton
-      onClick={() => {
-        // const { anim, animIndex } = removeAnimation(selectedAnimId);
+  <UIStore.Consumer>
+    {({ selectedAnimId, setSelectedAnim }) => (
+      <div
+        className={classnames(styles.head, {
+          [styles.selected]: selectedAnimId === anim.id
+        })}
+        onClick={() => setSelectedAnim(anim.id)}
+      >
+        <IconButton
+          onClick={() => {
+            // const { anim, animIndex } = removeAnimation(selectedAnimId);
 
-        // // if removing selected, apply new selected
-        // if (anim.id === selectedAnimId) {
-        //   const nextAnim = animations[animIndex + 1] || animations[animIndex - 1];
-        //   this.setState({
-        //     selectedAnimId: nextAnim ? nextAnim.id : ''
-        //   });
+            // // if removing selected, apply new selected
+            // if (anim.id === selectedAnimId) {
+            //   const nextAnim = animations[animIndex + 1] || animations[animIndex - 1];
+            //   this.setState({
+            //     selectedAnimId: nextAnim ? nextAnim.id : ''
+            //   });
+            // }
+          }}
+        >
+          <Icon name="close" />
+        </IconButton>
+        <ContextField
+          label={anim.name}
+          fieldIndex={0}
+        // onClick={
+        //   () => this.setState({ selectedAnimId: anim.id })
         // }
-      }}
-    >
-      <Icon name="close" />
-    </IconButton>
-    <ContextField
-      label={anim.name}
-      fieldIndex={0}
-    // onClick={
-    //   () => this.setState({ selectedAnimId: anim.id })
-    // }
-    />
-  </div>
+        />
+      </div>
+    )}
+  </UIStore.Consumer>
 )
 
 const Animation = ({ className, anim }) => (
@@ -198,22 +210,32 @@ const Animation = ({ className, anim }) => (
     <Head anim={anim} />
     <div className={styles.tweens}>
       <AnimationStore.Consumer>
-        {({ animations, getTweens }) => (
+        {({ getTweens }) => (
           getTweens(anim.id).map((tween, tweenIndex, tweens) => (
-            <div
-              key={tween.id}
-              style={{
-                display: 'flex'
-              }}
-            >
-              <TweenLabel
-                tween={tween}
-              />
-              <TweenTimeline
-                tween={tween}
-                style={{ flex: 1 }}
-                underlined={tweenIndex !== tweens.length - 1}
-              />
+            <div key={tween.id}>
+              <div
+                style={{
+                  display: 'flex'
+                }}
+              >
+                <TweenLabel
+                  tween={tween}
+                />
+                <TweenTimeline
+                  tween={tween}
+                  style={{ flex: 1 }}
+                  underlined={tweenIndex !== tweens.length - 1}
+                />
+              </div>
+
+              <UIStore.Consumer>
+                {({ expandedTweenId }) => expandedTweenId === tween.id && (
+                  <div className={styles.valueEditor}>
+                    <ValueEditor tween={tween} />
+                  </div>
+                )}
+              </UIStore.Consumer>
+
             </div>
           ))
         )}

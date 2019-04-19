@@ -13,8 +13,24 @@ export const parsers = {
 export const renderers = {
   color: ({ onChange, value }) => (
     <ColorField
-      onChange={onChange}
-      value={value}
+      colorType="hex"
+      onChange={v => onChange(v.color)}
+      providerType="passthrough"
+      value={{
+        color: value,
+        palette: [
+          '#123456',
+          '#842134',
+          '#abc123',
+          '#984fff',
+          '#123456',
+          '#ffffff',
+          '#000000',
+          '#909090',
+          '#101010',
+          '#203123'
+        ]
+      }}
     />
   ),
   number: ({ onChange, value }) => (

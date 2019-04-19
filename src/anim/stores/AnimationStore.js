@@ -188,7 +188,7 @@ export default class AnimationStore extends React.Component {
     // ensure definition and prevent duplicates
     if (
       !definition ||
-      db.getOne(this.state.tweens, t => t.definition === definition).item
+      db.getOne(this.state.tweens, t => t.animId === animId && t.definition === definition).item
     ) {
       return {
         tween: null,
@@ -213,14 +213,16 @@ export default class AnimationStore extends React.Component {
         animId,
         tweenId: item.id,
         time: 0.2,
-        value: 20
+        //value: 20
+        value: '#00ff00'
       }), true);
 
       db.createOne(keyframes, createKeyframe({
         animId,
         tweenId: item.id,
         time: 0.8,
-        value: 80
+        //value: 80
+        value: '#ff0000'
       }), true)
 
       this.setState({ keyframes });
@@ -246,15 +248,12 @@ export default class AnimationStore extends React.Component {
   }
 
   addKeyframe = (tweenId, time, value) => {
-
-    const { item: tween } = db.getOne(this.state.tweens, tweenId);
+    const tween = this.getTween(tweenId);
 
     // ensure tween and prevent duplicate keyframe time
     if (
       !tween ||
-      db.getOne(this.state.keyframes,
-        kf => kf.tweenId === tweenId && kf.time === time
-      ).item
+      this.getKeyframeAtTime(tweenId, time)
     ) {
       return {
         keyframe: null,
@@ -292,11 +291,17 @@ export default class AnimationStore extends React.Component {
     const { list: keyframes, item, index } = db.setOne(this.state.keyframes, keyframeId, { value });
 
     this.setState({ keyframes });
-
     return {
       keyframe: item,
       keyframeIndex: index
     };
+  }
+
+  setKeyframeValueAtTime = (tweenId, time, value) => {
+    const keyframe = this.getKeyframeAtTime(tweenId, time);
+    return keyframe ?
+      this.setKeyframeValue(keyframe.id, value) :
+      this.addKeyframe(tweenId, time, value);
   }
 
   setTweenPosition = (tweenId, time) => {
@@ -355,26 +360,10 @@ export default class AnimationStore extends React.Component {
     return tween.definition.lerp(fromValue, toValue, curvedTime);
   }
 
-  getTweens = (animId) => {
-    return this.state.tweens.filter(t => t.animId === animId);
-  }
-
-  /**
-   * Get keyframes for tween, sorted by time
-   */
-  getKeyframes = (tweenId) => {
-    const { items } = db.getMany(this.state.keyframes, kf => kf.tweenId === tweenId);
-    return items.sort((a, b) => a.time < b.time ? -1 : 1);
-  }
-
-  getUsedPropDefinitions = animId => {
-    return this.getTweens(animId).map(t => t.definition);
-  }
-
   getUnusedPropDefinitions = (animId) => {
     return difference(
       getPropDefinitionList(),
-      this.getUsedPropDefinitions(animId)
+      this.getTweens(animId).map(t => t.definition)
     );
   }
 
@@ -382,40 +371,65 @@ export default class AnimationStore extends React.Component {
     return db.getOne(this.state.animations, animId).item;
   }
 
+  getAnimations = () => {
+    return [...this.state.animations];
+  }
+
   getTween = tweenId => {
     return db.getOne(this.state.tweens, tweenId).item;
   }
 
+  getTweens = animId => {
+    return db.getMany(this.state.tweens, t => t.animId === animId).items;
+  }
+
+  getKeyframe = keyframeId => {
+    return db.getOne(this.state.keyframes, keyframeId).item;
+  }
+
+  getKeyframeAtTime = (tweenId, time) => {
+    return db.getOne(this.state.keyframes, kf => kf.tweenId === tweenId && kf.time === time).item;
+  }
+
+  getKeyframes = tweenId => {
+    return db.getMany(this.state.keyframes, kf => kf.tweenId === tweenId)
+      .items
+      .sort((a, b) => a.time < b.time ? -1 : 1); // sort by time
+  }
+
   render() {
-    const { animations } = this.state;
     return (
       <Context.Provider
         value={{
-          animations,
-
           importAnimations: this.importAnimations,
 
-          addAnimation: this.addAnimation,
-          removeAnimation: this.removeAnimation,
+          addAnimation: this.addAnimation, // CREATE
           setAnimationOffset: this.setAnimationOffset,
+          removeAnimation: this.removeAnimation, // DELETE
 
-          addTween: this.addTween,
-          removeTween: this.removeTween,
+          addTween: this.addTween, // CREATE
+          setTweenPosition: this.setTweenPosition,
+          removeTween: this.removeTween, // DELETE
 
-          addKeyframe: this.addKeyframe,
+          addKeyframe: this.addKeyframe, // CREATE
+          // TODO: DELETE
 
           setKeyframeTime: this.setKeyframeTime,
           setKeyframeValue: this.setKeyframeValue,
-
-          setTweenPosition: this.setTweenPosition,
-
-          getTweens: this.getTweens,
-          getKeyframes: this.getKeyframes,
-
-          getUsedPropDefinitions: this.getUsedPropDefinitions,
-          getUnusedPropDefinitions: this.getUnusedPropDefinitions,
+          setKeyframeValueAtTime: this.setKeyframeValueAtTime,
 
           getAnimation: this.getAnimation,
+          getAnimations: this.getAnimations,
+
+          getTween: this.getTween,
+          getTweens: this.getTweens,
+
+          getKeyframe: this.getKeyframe, // READ
+          getKeyframeAtTime: this.getKeyframeAtTime,
+          getKeyframes: this.getKeyframes,
+
+          getUnusedPropDefinitions: this.getUnusedPropDefinitions,
+
           interpolate: this.interpolate
         }}
       >

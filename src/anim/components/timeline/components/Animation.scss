@@ -8,7 +8,16 @@
     align-items: center;
     height: $grid-px * 3;
     width: $timeline-left-width;
+
+    &.selected {
+      background-color: $color-bg-0;
+      border-bottom: $color-border-1;
+    }
   }
 
   .tweens {}
+
+  .valueEditor {
+    width: $timeline-left-width;
+  }
 }

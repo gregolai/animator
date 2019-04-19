@@ -5,6 +5,7 @@ import IconButton from '@sqs/core-components/primitives/IconButton';
 
 import AnimationStore from '../../../stores/AnimationStore';
 import MediaStore from '../../../stores/MediaStore';
+import UIStore from '../../../stores/UIStore';
 
 import styles from './TweenLabel.scss';
 
@@ -33,16 +34,20 @@ const TweenLabel = ({ tween }) => (
               <IconButton className={styles.btnDisableTween}>
                 <Icon name="passwordshow" />
               </IconButton>
-              <ButtonField
-                flush
-                underlined={false}
-                alignment="right"
-                label={tween.definition.format(
-                  interpolate(tween.id, playhead)
+              <UIStore.Consumer>
+                {({ expandedTweenId, setExpandedTween }) => (
+                  <ButtonField
+                    flush
+                    underlined={false}
+                    alignment="right"
+                    label={tween.definition.format(
+                      interpolate(tween.id, playhead)
+                    )}
+                    onClick={() => setExpandedTween(expandedTweenId === tween.id ? -1 : tween.id)}
+                    size="small"
+                  />
                 )}
-                onClick={() => { }}
-                size="small"
-              />
+              </UIStore.Consumer>
             </div>
           </div>
         )}

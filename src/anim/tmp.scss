@@ -2,16 +2,6 @@
 
 :local {
 
-  .importCssDialog {
-    width: 600px;
-  }
-
-  // apply to children too, ewww
-  .monospace,
-  .monospace * {
-    font-family: Courier;
-  }
-
   .flex1 {
     flex: 1;
   }

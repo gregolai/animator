@@ -48,11 +48,9 @@ const StageCanvas = () => (
 )
 
 export default ({ children, className, showControls }) => (
-  <StageStore>
-    <div className={classnames(styles.container, className)}>
-      <StageCanvas />
-      {children}
-      {showControls && <Controls />}
-    </div>
-  </StageStore>
+  <div className={classnames(styles.container, className)}>
+    <StageCanvas />
+    {children}
+    {showControls && <Controls />}
+  </div>
 );

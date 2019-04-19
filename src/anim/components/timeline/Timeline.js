@@ -25,8 +25,8 @@ const Timeline = ({ className }) => (
     {/* CONTENT ABOVE LEFT AREA BACKGROUND */}
     <div className={styles.content}>
       <AnimationStore.Consumer>
-        {({ animations, getTweens }) => (
-          animations.map(anim => (
+        {({ getAnimations }) => (
+          getAnimations().map(anim => (
             <Animation
               key={anim.id}
               anim={anim}
