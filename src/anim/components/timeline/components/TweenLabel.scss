@@ -1,0 +1,43 @@
+@import "../../../constants.scss";
+
+:local {
+  $btn-width: $grid-px * 3;
+
+  .container {
+    padding-left: $grid-px * 3;
+    width: $timeline-left-width;
+
+    &:not(:last-child) .innerContainer {
+      border-bottom: 1px solid $color-border-2;
+    }
+  }
+
+  .innerContainer {
+    display: flex;
+    background-color: $color-bg-1;
+  }
+
+  .btnDeleteTween {
+    width: $btn-width;
+
+    &:hover {
+      background-color: $color-bg-1;
+    }
+  }
+
+  .btnExpandTween {
+    flex: 1;
+  }
+
+  .btnLockTween {
+    width: $btn-width;
+
+    &:hover {
+      background-color: $color-bg-0;
+    }
+  }
+
+  .btnDisableTween {
+    width: $btn-width;
+  }
+}

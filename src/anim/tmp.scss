@@ -1,13 +1,6 @@
 @import "./constants.scss";
 
 :local {
-  .tweenBar {
-    background-color: black;
-
-    &:hover {
-      background-color: #333333;
-    }
-  }
 
   .importCssDialog {
     width: 600px;
@@ -33,28 +26,6 @@
 
     &:hover {
       transform: scale(1.2, 1.2);
-    }
-  }
-
-  .btnDeleteTween {
-    background-color: $color-bg-0;
-    width: $grid-px * 2;
-
-    &:hover {
-      background-color: $color-bg-1;
-    }
-  }
-
-  .btnExpandTween {
-    flex: 1;
-  }
-
-  .btnKeyframeLock {
-    background-color: $color-bg-0;
-    width: $grid-px * 2;
-
-    &:hover {
-      background-color: $color-bg-1;
     }
   }
 }

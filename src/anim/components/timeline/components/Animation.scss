@@ -1,0 +1,14 @@
+@import "../../../constants.scss";
+
+:local {
+  .container {}
+
+  .head {
+    display: flex;
+    align-items: center;
+    height: $grid-px * 3;
+    width: $timeline-left-width;
+  }
+
+  .tweens {}
+}

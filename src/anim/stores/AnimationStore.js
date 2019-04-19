@@ -1,16 +1,16 @@
 import React from 'react';
 import rework from 'rework';
 import difference from 'lodash/difference';
+import last from 'lodash/last';
+import { uniqueNamesGenerator } from 'unique-names-generator';
+
 import {
   getPropDefinitionFromCSSName,
   getPropDefinitionFromName,
   getPropDefinitionList
-} from './utils/cssProps';
-
-import uid from 'uid';
-import { uniqueNamesGenerator } from 'unique-names-generator';
-
-import db from './utils/db';
+} from '../utils/cssProps';
+import { getPointAtTime } from '../utils/easing';
+import db from '../utils/db';
 
 const createAnimation = ({ name = undefined, offset = { x: 0, y: 0 } }) => {
   return {
@@ -21,10 +21,8 @@ const createAnimation = ({ name = undefined, offset = { x: 0, y: 0 } }) => {
 }
 
 const createTween = ({ animId, definition, easing = 'linear', lerp, name }) => {
-  const id = uid(8);
   return {
     animId,
-    id,
     definition,
     easing,
     lerp,
@@ -36,7 +34,6 @@ const createKeyframe = ({ animId, tweenId, time, value }) => {
   return {
     animId,
     tweenId,
-    id: uid(8),
     time,
     value
   };
@@ -93,10 +90,7 @@ const fromCSSString = cssString => {
               // create tween with definition
               tween = db.createOne(tweens, createTween({
                 animId: anim.id,
-                definition,
-                // TODO
-                name: definition.name,
-                lerp: definition.lerp
+                definition
               }), true).item;
             }
 
@@ -133,12 +127,13 @@ export default class AnimationStore extends React.Component {
 
   importAnimations = (cssString, replace = false) => {
     let { animations, keyframes, tweens } = fromCSSString(cssString);
-    console.log({ animations, keyframes, tweens })
+
     if (!replace) {
       animations = [...this.state.animations, ...animations];
       keyframes = [...this.state.keyframes, ...keyframes];
       tweens = [...this.state.tweens, ...tweens];
     }
+
     this.setState({ animations, keyframes, tweens });
   }
 
@@ -209,6 +204,27 @@ export default class AnimationStore extends React.Component {
     }))
 
     this.setState({ tweens });
+
+    // SAMPLE
+    {
+      const keyframes = [...this.state.keyframes];
+
+      db.createOne(keyframes, createKeyframe({
+        animId,
+        tweenId: item.id,
+        time: 0.2,
+        value: 20
+      }), true);
+
+      db.createOne(keyframes, createKeyframe({
+        animId,
+        tweenId: item.id,
+        time: 0.8,
+        value: 80
+      }), true)
+
+      this.setState({ keyframes });
+    }
 
     return {
       tween: item,
@@ -302,6 +318,43 @@ export default class AnimationStore extends React.Component {
     // });
   }
 
+  interpolate = (tweenId, time) => {
+    const tween = this.getTween(tweenId);
+    if (!tween) return undefined;
+
+    const keyframes = this.getKeyframes(tweenId);
+
+    // early exit if no keyframes
+    if (keyframes.length === 0) return undefined;
+    if (keyframes.length === 1) return keyframes[0].value;
+
+    if (time <= keyframes[0].time) return keyframes[0].value;
+    if (time >= last(keyframes).time) return last(keyframes).value;
+
+    let kf0, kf1;
+    for (let i = 0; i < keyframes.length - 1; ++i) {
+      if (time >= keyframes[i].time && time <= keyframes[i + 1].time) {
+        kf0 = keyframes[i];
+        kf1 = keyframes[i + 1];
+        break;
+      }
+    }
+
+    if (!kf0 || !kf1) { console.error('This should never happen!'); }
+
+    const { time: fromTime, value: fromValue } = kf0;
+    const { time: toTime, value: toValue } = kf1;
+
+    const span = toTime - fromTime;
+    if (span <= 0) return fromValue; // prevent divide-by-zero
+
+    // interpolate
+    const scaledTime = (time - fromTime) / span;
+    const [_, curvedTime] = getPointAtTime(scaledTime, tween.easing);
+
+    return tween.definition.lerp(fromValue, toValue, curvedTime);
+  }
+
   getTweens = (animId) => {
     return this.state.tweens.filter(t => t.animId === animId);
   }
@@ -323,6 +376,14 @@ export default class AnimationStore extends React.Component {
       getPropDefinitionList(),
       this.getUsedPropDefinitions(animId)
     );
+  }
+
+  getAnimation = animId => {
+    return db.getOne(this.state.animations, animId).item;
+  }
+
+  getTween = tweenId => {
+    return db.getOne(this.state.tweens, tweenId).item;
   }
 
   render() {
@@ -352,7 +413,10 @@ export default class AnimationStore extends React.Component {
           getKeyframes: this.getKeyframes,
 
           getUsedPropDefinitions: this.getUsedPropDefinitions,
-          getUnusedPropDefinitions: this.getUnusedPropDefinitions
+          getUnusedPropDefinitions: this.getUnusedPropDefinitions,
+
+          getAnimation: this.getAnimation,
+          interpolate: this.interpolate
         }}
       >
         {this.props.children}

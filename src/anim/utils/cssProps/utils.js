@@ -46,8 +46,9 @@ export const createPixelProps = (name, cssName) => ({
   render: renderers.number
 });
 
-export const createColorProps = (name, cssName) => ({
+export const createColorProps = (name, cssName, defaultValue) => ({
   ...createProp(name, cssName),
+  defaultValue,
   lerp: lerps.color,
   parse: parsers.color,
   format: v => toPx(v),

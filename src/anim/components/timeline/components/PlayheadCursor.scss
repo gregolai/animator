@@ -1,0 +1,34 @@
+@import "../../../constants.scss";
+
+:local {
+  $playhead-color: black;
+  $diamond-size: 12px;
+
+  .container {
+    position: absolute;
+    pointer-events: none;
+    left: $timeline-left-width;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    z-index: 2;
+  }
+
+  .playhead {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background-color: $playhead-color;
+  }
+
+  .diamond {
+    position: absolute;
+    left: 0;
+    width: $diamond-size;
+    height: $diamond-size;
+    background-color: $playhead-color;
+    transform: translate(-6px, -6px) rotate(-45deg);
+  }
+}
