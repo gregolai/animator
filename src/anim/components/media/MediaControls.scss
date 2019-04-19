@@ -1,0 +1,10 @@
+@import "../../constants.scss";
+
+:local {
+  .container {
+    background-color: $color-bg-0;
+    border: 1px solid $color-border-0;
+    border-radius: $border-radius-px;
+    padding-top: $grid-px;
+  }
+}

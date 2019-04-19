@@ -19,9 +19,7 @@ import {
 
 import ContextField from '@sqs/core-components/fields/ContextField';
 import ButtonField from '@sqs/core-components/fields/ButtonField';
-import BooleanField from '@sqs/core-components/fields/BooleanField';
 import DisclosureField from '@sqs/core-components/fields/DisclosureField';
-import NumberField from '@sqs/core-components/fields/NumberField';
 
 // STORES
 import AnimationStore from './stores/AnimationStore';
@@ -33,11 +31,11 @@ import UIStore from './stores/UIStore';
 import Stage from './components/stage/Stage';
 import Drag from './components/shared/Drag';
 import ImportCSSModal from './components/importer/ImportCSSModal';
+import MediaControls from './components/media/MediaControls';
+import Playhead from './components/playhead/Playhead';
 import Timeline from './components/timeline/Timeline';
 
 import tmpStyle from './tmp.scss';
-
-const TIMELINE_LABEL_PX = 260;
 
 const PropDefinitionList = ({ definitions, onClick }) => (
   <div style={{ backgroundColor: COLOR_BG_0, overflowY: 'scroll' }}>
@@ -51,30 +49,6 @@ const PropDefinitionList = ({ definitions, onClick }) => (
     ))}
   </div>
 );
-
-const Playhead = props => (
-  <MediaStore.Consumer>
-    {({ playhead, setPlayhead }) => (
-      <input
-        {...props}
-        min={0}
-        max={1}
-        onChange={e => setPlayhead(parseFloat(e.target.value))}
-        step={MIN_TIME_DIFF}
-        type="range"
-        value={playhead}
-      />
-    )}
-  </MediaStore.Consumer>
-)
-
-const PlayheadTime = props => (
-  <MediaStore.Consumer>
-    {({ playhead }) => (
-      <div {...props}>{Number(playhead).toFixed(2)}</div>
-    )}
-  </MediaStore.Consumer>
-)
 
 const AnimTarget = ({ anim, tweens }) => (
   <UIStore.Consumer>
@@ -108,13 +82,15 @@ const AnimTarget = ({ anim, tweens }) => (
                         })
                       }}
                       style={{
-                        border: isDragging ? '10px solid yellow' : undefined,
+                        border: isDragging ? '2px solid yellow' : undefined,
                         width: 30,
                         height: 30,
                         backgroundColor: 'blue',
                         ...tweens.reduce((style, tween) => {
                           const value = interpolate(tween.id, playhead);
-                          style[tween.definition.name] = value;
+                          if (value !== undefined) {
+                            style[tween.definition.name] = value;
+                          }
                           return style;
                         }, {})
                       }}
@@ -128,84 +104,6 @@ const AnimTarget = ({ anim, tweens }) => (
       </AnimationStore.Consumer>
     )}
   </UIStore.Consumer>
-)
-
-// PLAY PAUSE CONTROLS
-const MediaControls = ({ style }) => (
-  <MediaStore.Consumer>
-    {({ duration, isLooping, isReversed, isPlaying, playhead, setDuration, setLooping, setReversed, setPaused, setPlaying, setStopped }) => (
-      <div
-        style={{
-          backgroundColor: COLOR_BG_0,
-          border: `1px solid ${COLOR_BORDER_0}`,
-          borderRadius: BORDER_RADIUS_PX,
-          paddingTop: GRID_PX,
-          ...style
-        }}
-      >
-        <div style={{ display: 'flex' }}>
-          <div style={{ flex: 1 }}>
-            <ButtonField
-              inverted
-              size="small"
-              isDisabled={isPlaying}
-              label="Play"
-              onClick={setPlaying}
-            />
-          </div>
-          <div style={{ flex: 1 }}>
-            <ButtonField
-              inverted
-              size="small"
-              isDisabled={!isPlaying}
-              label="Pause"
-              onClick={setPaused}
-            />
-          </div>
-          <div style={{ flex: 1 }}>
-            <ButtonField
-              inverted
-              size="small"
-              isDisabled={playhead === 0}
-              label="Stop"
-              onClick={setStopped}
-            />
-          </div>
-        </div>
-
-
-
-        <div style={{ display: 'flex' }}>
-          <div style={{ flex: 1, marginRight: GRID_PX }}>
-            <NumberField
-              label="Duration"
-              min={MIN_DURATION_MS}
-              max={MAX_DURATION_MS}
-              onChange={setDuration}
-              value={duration}
-            />
-          </div>
-
-          <div style={{ flex: 1, marginRight: GRID_PX }}>
-            <BooleanField
-              label="Loop"
-              onChange={setLooping}
-              value={isLooping}
-              underlined={false}
-            />
-          </div>
-          <div style={{ flex: 1 }}>
-            <BooleanField
-              label="Reverse"
-              onChange={setReversed}
-              value={isReversed}
-              underlined={false}
-            />
-          </div>
-        </div>
-      </div>
-    )}
-  </MediaStore.Consumer>
 )
 
 class App extends React.Component {
@@ -256,7 +154,7 @@ class App extends React.Component {
         <ImportCSSModal />
 
         {/* TOP REGION */}
-        <div style={{ display: 'flex', padding: GRID_PX, height: 600 }}>
+        <div style={{ display: 'flex', padding: GRID_PX, height: 500 }}>
 
           {/* LEFT OF STAGE */}
           <div style={{
@@ -289,9 +187,6 @@ class App extends React.Component {
                 />
               )}
             </Store.Consumer> */}
-
-
-
 
             {/* DEFINITION LISTS */}
             <div
@@ -358,7 +253,9 @@ class App extends React.Component {
               )}
             </AnimationStore.Consumer>
 
-            <MediaControls style={{ marginTop: GRID_PX }} />
+            <div style={{ marginTop: GRID_PX }}>
+              <MediaControls />
+            </div>
 
           </div>
 
@@ -379,16 +276,8 @@ class App extends React.Component {
           >
 
             {/* PLAYHEAD REGION */}
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                height: 40,
-                borderBottom: `1px solid ${COLOR_BORDER_0}`
-              }}
-            >
-              <PlayheadTime style={{ textAlign: 'center', width: TIMELINE_LABEL_PX, overflow: 'hidden' }} />
-              <Playhead style={{ flex: 1 }} />
+            <div style={{ borderBottom: `1px solid ${COLOR_BORDER_0}` }}>
+              <Playhead />
             </div>
 
             {/* TIMELINE REGION */}

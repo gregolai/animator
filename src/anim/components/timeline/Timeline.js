@@ -15,25 +15,26 @@ import styles from './Timeline.scss';
 
 const Timeline = ({ className }) => (
   <div className={classnames(styles.container, className)}>
-
     {/* PLAYHEAD VERTICAL LINE */}
-    <PlayheadCursor />
+    <PlayheadCursor className={styles.playhead} />
 
     {/* LEFT AREA BACKGROUND */}
     <div className={styles.leftBackground} />
 
-    {/* CONTENT ABOVE LEFT AREA BACKGROUND */}
-    <div className={styles.content}>
-      <AnimationStore.Consumer>
-        {({ getAnimations }) => (
-          getAnimations().map(anim => (
-            <Animation
-              key={anim.id}
-              anim={anim}
-            />
-          ))
-        )}
-      </AnimationStore.Consumer>
+    <div className={styles.scrollContainer}>
+
+      <div className={styles.content}>
+        <AnimationStore.Consumer>
+          {({ getAnimations }) => (
+            getAnimations().map(anim => (
+              <Animation
+                key={anim.id}
+                anim={anim}
+              />
+            ))
+          )}
+        </AnimationStore.Consumer>
+      </div>
     </div>
   </div>
 )

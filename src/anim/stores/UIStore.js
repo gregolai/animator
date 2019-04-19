@@ -2,6 +2,8 @@ import React from 'react';
 
 const INITIAL_STATE = {
   expandedTweenId: -1,
+  hiddenTweens: {},
+  lockedTweens: {},
   selectedAnimId: -1,
 }
 
@@ -11,22 +13,72 @@ export default class UIStore extends React.Component {
 
   state = INITIAL_STATE;
 
-  setExpandedTween = tweenId => {
-    this.setState({ expandedTweenId: tweenId });
-  }
-
   setSelectedAnim = animId => {
     this.setState({ selectedAnimId: animId });
+  }
+
+  isAnimationSelected = animId => {
+    return this.state.selectedAnimId === animId;
+  }
+
+  isTweenExpanded = tweenId => {
+    return this.state.expandedTweenId === tweenId;
+  }
+
+  setTweenExpanded = (tweenId, expand) => {
+    this.setState({
+      expandedTweenId: expand ? tweenId : -1
+    });
+  }
+
+  isTweenHidden = tweenId => {
+    return !!this.state.hiddenTweens[tweenId];
+  }
+
+  setHiddenTween = (tweenId, hide) => {
+    const hiddenTweens = { ...this.state.hiddenTweens };
+
+    if (hide) {
+      hiddenTweens[tweenId] = true;
+    } else {
+      delete hiddenTweens[tweenId];
+    }
+
+    this.setState({ hiddenTweens });
+  }
+
+  isTweenLocked = tweenId => {
+    return !!this.state.lockedTweens[tweenId];
+  }
+
+  setTweenLocked = (tweenId, lock) => {
+    const lockedTweens = { ...this.state.lockedTweens };
+
+    if (lock) {
+      lockedTweens[tweenId] = true;
+    } else {
+      delete lockedTweens[tweenId];
+    }
+
+    this.setState({ lockedTweens });
   }
 
   render() {
     return (
       <Context.Provider
         value={{
-          ...this.state,
+          selectedAnimId: this.state.selectedAnimId,
+          setSelectedAnim: this.setSelectedAnim,
+          isAnimationSelected: this.isAnimationSelected,
 
-          setExpandedTween: this.setExpandedTween,
-          setSelectedAnim: this.setSelectedAnim
+          isTweenExpanded: this.isTweenExpanded,
+          setTweenExpanded: this.setTweenExpanded,
+
+          isTweenHidden: this.isTweenHidden,
+          setHiddenTween: this.setHiddenTween,
+
+          isTweenLocked: this.isTweenLocked,
+          setTweenLocked: this.setTweenLocked,
         }}
       >
         {this.props.children}

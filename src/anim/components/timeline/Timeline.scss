@@ -3,24 +3,35 @@
 :local {
   .container {
     position: relative;
+  }
+
+  .scrollContainer {
+    position: relative;
     overflow-y: scroll;
     overflow-x: hidden;
     background-color: $color-bg-0;
+    height: 100%;
   }
 
   .leftBackground {
     position: absolute;
+    top: 0;
+    left: 0;
     width: $timeline-left-width;
     height: 100%;
-    background: $color-bg-2;
+    z-index: 1;
   }
 
   .content {
     position: absolute;
-    z-index: 1;
+    z-index: 2;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
+  }
+
+  .playhead {
+    z-index: 3;
   }
 }

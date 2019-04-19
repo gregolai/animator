@@ -1,5 +1,5 @@
 import React from 'react';
-import clamp from 'lodash/clamp';
+import { normalizeTime } from '../utils/time';
 
 const Context = React.createContext();
 export default class MediaStore extends React.Component {
@@ -18,15 +18,15 @@ export default class MediaStore extends React.Component {
     this._controls = (() => {
       let raf = null;
       let prevTime;
-  
+
       const loop = () => {
         const curTime = Date.now();
-  
+
         const timeStep = (curTime - prevTime) * (1 / this.state.duration);
-  
+
         let stop = false;
         let nextPlayhead = this.state.playhead + (this.state.isReversed ? -timeStep : timeStep);
-  
+
         if (nextPlayhead >= 1) {
           if (this.state.isLooping) {
             nextPlayhead -= 1; // loop
@@ -34,7 +34,7 @@ export default class MediaStore extends React.Component {
             nextPlayhead = 1; // clamp
             stop = true;
           }
-        } else if(nextPlayhead < 0) {
+        } else if (nextPlayhead < 0) {
           if (this.state.isLooping) {
             nextPlayhead += 1; // loop
           } else {
@@ -42,29 +42,29 @@ export default class MediaStore extends React.Component {
             stop = true;
           }
         }
-  
+
         this.setState({ playhead: nextPlayhead, isPlaying: !stop });
-  
+
         if (!stop) {
           // continue playing
           prevTime = curTime;
           raf = requestAnimationFrame(loop);
         }
       }
-  
+
       return {
         play: () => {
           if (this.state.isPlaying) return;
-  
+
           let { playhead } = this.state;
-          
+
           // reset if necessary
           if (!this.state.isReversed && playhead === 1) {
             playhead = 0;
-          } else if(this.state.isReversed && playhead === 0) {
+          } else if (this.state.isReversed && playhead === 0) {
             playhead = 1;
           }
-  
+
           this.setState({ isPlaying: true, playhead }, () => {
             prevTime = Date.now();
             raf = requestAnimationFrame(loop);
@@ -83,31 +83,45 @@ export default class MediaStore extends React.Component {
   }
 
   onKeyDown = e => {
-    console.log(e, e.code);
-    switch(e.code) {
+    const excludeTags = ['INPUT', 'TEXTAREA', 'SELECT'];
+    if (e.target && excludeTags.indexOf(e.target.tagName) !== -1) {
+      return;
+    }
+
+    switch (e.code) {
       case 'Enter':
       case 'Space':
+        e.preventDefault();
         this.state.isPlaying ? this.setPaused() : this.setPlaying();
         break;
       case 'Backspace':
+        e.preventDefault();
         this.setStopped();
         break;
       case 'ArrowRight':
+        e.preventDefault();
         this.setPlayhead(e.metaKey ? 1 : this.state.playhead + 0.01);
         break;
       case 'ArrowLeft':
+        e.preventDefault();
         this.setPlayhead(e.metaKey ? 0 : this.state.playhead - 0.01);
         break;
       case 'End':
+        e.preventDefault();
         this.setPlayhead(1)
         break;
       case 'Home':
+        e.preventDefault();
         this.setPlayhead(0);
         break;
       case 'KeyR':
-        this.setReversed(!this.state.isReversed);
+        if (!e.metaKey) {
+          e.preventDefault();
+          this.setReversed(!this.state.isReversed);
+        }
         break;
       case 'KeyL':
+        e.preventDefault();
         this.setLooping(!this.state.isLooping);
         break;
       case 'Digit1':
@@ -119,7 +133,8 @@ export default class MediaStore extends React.Component {
       case 'Digit7':
       case 'Digit8':
       case 'Digit9':
-        this.setPlayhead(parseInt(e.code.replace('Digit', '')) * 0.1);
+        e.preventDefault();
+        this.setPlayhead((parseInt(e.code.replace('Digit', '')) - 1) * 0.1);
         break;
       default:
     }
@@ -157,9 +172,8 @@ export default class MediaStore extends React.Component {
     this._controls.stop();
   };
 
-  setPlayhead = playhead => {
-    playhead = clamp(playhead, 0, 1);
-    this.setState({ playhead });
+  setPlayhead = time => {
+    this.setState({ playhead: normalizeTime(time) });
   }
 
   render() {
@@ -172,7 +186,7 @@ export default class MediaStore extends React.Component {
           setReversed: this.setReversed,
           setPlaying: this.setPlaying,
           setPaused: this.setPaused,
-          setStopped:  this.setStopped,
+          setStopped: this.setStopped,
           setPlayhead: this.setPlayhead,
         }}
       >

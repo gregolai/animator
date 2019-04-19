@@ -11,6 +11,7 @@ import {
 } from '../utils/cssProps';
 import { getPointAtTime } from '../utils/easing';
 import db from '../utils/db';
+import { normalizeTime } from '../utils/time';
 
 const createAnimation = ({ name = undefined, offset = { x: 0, y: 0 } }) => {
   return {
@@ -164,6 +165,7 @@ export default class AnimationStore extends React.Component {
     });
 
     return {
+      animations,
       anim: item,
       animIndex: index
     };
@@ -206,27 +208,27 @@ export default class AnimationStore extends React.Component {
     this.setState({ tweens });
 
     // SAMPLE
-    {
-      const keyframes = [...this.state.keyframes];
+    // {
+    //   const keyframes = [...this.state.keyframes];
 
-      db.createOne(keyframes, createKeyframe({
-        animId,
-        tweenId: item.id,
-        time: 0.2,
-        //value: 20
-        value: '#00ff00'
-      }), true);
+    //   db.createOne(keyframes, createKeyframe({
+    //     animId,
+    //     tweenId: item.id,
+    //     time: 0.2,
+    //     //value: 20
+    //     value: '#00ff00'
+    //   }), true);
 
-      db.createOne(keyframes, createKeyframe({
-        animId,
-        tweenId: item.id,
-        time: 0.8,
-        //value: 80
-        value: '#ff0000'
-      }), true)
+    //   db.createOne(keyframes, createKeyframe({
+    //     animId,
+    //     tweenId: item.id,
+    //     time: 0.8,
+    //     //value: 80
+    //     value: '#ff0000'
+    //   }), true)
 
-      this.setState({ keyframes });
-    }
+    //   this.setState({ keyframes });
+    // }
 
     return {
       tween: item,
@@ -248,6 +250,8 @@ export default class AnimationStore extends React.Component {
   }
 
   addKeyframe = (tweenId, time, value) => {
+    time = normalizeTime(time);
+
     const tween = this.getTween(tweenId);
 
     // ensure tween and prevent duplicate keyframe time
@@ -277,6 +281,8 @@ export default class AnimationStore extends React.Component {
   }
 
   setKeyframeTime = (keyframeId, time) => {
+    time = normalizeTime(time);
+
     const { list: keyframes, item, index } = db.setOne(this.state.keyframes, keyframeId, { time });
 
     this.setState({ keyframes });
@@ -355,7 +361,7 @@ export default class AnimationStore extends React.Component {
 
     // interpolate
     const scaledTime = (time - fromTime) / span;
-    const [_, curvedTime] = getPointAtTime(scaledTime, tween.easing);
+    const { y: curvedTime } = getPointAtTime(scaledTime, tween.easing);
 
     return tween.definition.lerp(fromValue, toValue, curvedTime);
   }
@@ -388,6 +394,7 @@ export default class AnimationStore extends React.Component {
   }
 
   getKeyframeAtTime = (tweenId, time) => {
+    time = normalizeTime(time);
     return db.getOne(this.state.keyframes, kf => kf.tweenId === tweenId && kf.time === time).item;
   }
 

@@ -1,11 +1,11 @@
-import {
-  createColorProps
-} from './utils';
+import { createColorProps } from './utils';
 
 export default {
-  backgroundColor: {
-    ...createColorProps('backgroundColor', 'background-color'),
-  },
+  backgroundColor: createColorProps({
+    name: 'backgroundColor',
+    cssName: 'background-color',
+    render: {}
+  })
   // backgroundPosition: {
   //   ...createColorProps('backgroundPosition', 'background-position', '#ffffff'),
   // },

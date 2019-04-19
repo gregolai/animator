@@ -27,20 +27,20 @@ export const getPointAtTime = (t, easing) => {
   const [X3, Y3] = [1, 1];
 
   const it = 1 - t;
-  
+
   // SOLVE: X(t) = (1-t)^3 * X0 + 3*(1-t)^2 * t * X1 + 3*(1-t) * t^2 * X2 + t^3 * X3
-  const PX =
+  const x =
     (it * it * it * X0) +
     (3 * it * it * t * X1) +
-    (3 * it * t * t * X2) + 
+    (3 * it * t * t * X2) +
     (t * t * t * X3);
 
   // SOLVE: Y(t) = (1-t)^3 * Y0 + 3*(1-t)^2 * t * Y1 + 3*(1-t) * t^2 * Y2 + t^3 * Y3
-  const PY =
+  const y =
     (it * it * it * Y0) +
-    (3 * it * it * t * Y1) + 
+    (3 * it * it * t * Y1) +
     (3 * it * t * t * Y2) +
     (t * t * t * Y3);
 
-  return [PX, PY];
+  return { x, y };
 }

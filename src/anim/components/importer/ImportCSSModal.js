@@ -55,7 +55,7 @@ const ImportCSSModal = () => (
                     color="primary"
                     label={'Import' + (replace ? ' (replace)' : '')}
                     onClick={() => {
-                      importAnimations(value); // MAGIC
+                      importAnimations(value, replace); // MAGIC
                       setOpen(false);
                     }}
                     isDisabled={!canImport}

@@ -1,0 +1,18 @@
+@import "../../constants.scss";
+
+:local {
+  .container {
+    display: flex;
+    align-items: center;
+    height: 40px;
+  }
+
+  .timeDisplay {
+    text-align: center;
+    width: $timeline-left-width;
+  }
+
+  .slider {
+    flex: 1;
+  }
+}

@@ -1,21 +1,78 @@
 @import "../../../constants.scss";
 
 :local {
+  $head-height: $grid-px * 3;
+  $keyframe-width-px: 8px;
+
   .container {}
 
   .head {
+    padding-top: $grid-px;
+    cursor: pointer;
     display: flex;
-    align-items: center;
-    height: $grid-px * 3;
-    width: $timeline-left-width;
 
-    &.selected {
-      background-color: $color-bg-0;
-      border-bottom: $color-border-1;
+    width: $timeline-left-width;
+  }
+
+  .btnDeleteAnimation {
+    height: $head-height;
+    width: $head-height;
+
+    transition: opacity 300ms ease-in-out;
+    opacity: 1;
+
+    &.hidden {
+      opacity: 0;
+    }
+  }
+
+  .animName,
+  .animName * {
+    height: $head-height;
+    line-height: $head-height;
+
+    transition: all 300ms ease-in-out;
+
+    &:hover,
+    &:hover * {
+      color: $color-font-0;
+    }
+
+    &.selected,
+    &.selected * {
+      color: $color-font-0;
+      font-size: 18px;
     }
   }
 
   .tweens {}
+
+  .tween {
+    position: relative;
+    height: $timeline-tween-height;
+    flex: 1;
+
+    background-color: $color-bg-1;
+
+    &.odd {
+      background-color: $color-bg-3;
+    }
+  }
+
+  .keyframe {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: $keyframe-width-px;
+    //transform: translateX(-$keyframe-width-px/2);
+    cursor: col-resize;
+
+    background-color: dodgerblue;
+
+    &.dragging {
+      background-color: red;
+    }
+  }
 
   .valueEditor {
     width: $timeline-left-width;

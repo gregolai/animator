@@ -1,43 +1,67 @@
 @import "../../../constants.scss";
 
 :local {
-  $btn-width: $grid-px * 3;
+  $btn-width: $timeline-tween-height;
 
-  .container {
-    padding-left: $grid-px * 3;
-    width: $timeline-left-width;
-
-    &:not(:last-child) .innerContainer {
-      border-bottom: 1px solid $color-border-2;
-    }
-  }
-
-  .innerContainer {
-    display: flex;
-    background-color: $color-bg-1;
-  }
-
-  .btnDeleteTween {
-    width: $btn-width;
-
-    &:hover {
-      background-color: $color-bg-1;
-    }
-  }
-
-  .btnExpandTween {
-    flex: 1;
-  }
-
-  .btnLockTween {
-    width: $btn-width;
+  %btn {
+    border-radius: 0;
 
     &:hover {
       background-color: $color-bg-0;
     }
   }
 
-  .btnDisableTween {
+  .container {
+    padding-left: $grid-px * 3;
+    width: $timeline-left-width;
+  }
+
+  .innerContainer {
+    display: flex;
+    height: $timeline-tween-height;
+
+    //background-color: $color-bg-1;
+    background-color: #cecece;
+
+    &.odd {
+      //background-color: $color-bg-3;
+      background-color: #e4e4e4;
+    }
+  }
+
+  .btnDeleteTween {
+    @extend %btn;
+    width: $btn-width;
+
+    transition: opacity 300ms ease-in-out;
+    opacity: 1;
+
+    &.hidden {
+      opacity: 0;
+    }
+  }
+
+  .btnName {
+    @extend %btn;
+    flex: 1;
+  }
+
+  .btnValue {
+    @extend %btn;
+    width: $grid-px * 6;
+  }
+
+  .btnLock {
+    @extend %btn;
+    width: $btn-width;
+
+    &.locked {
+      background-color: $color-border-1;
+    }
+  }
+
+  .btnVisible {
+    @extend %btn;
     width: $btn-width;
   }
 }

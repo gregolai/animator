@@ -5,7 +5,7 @@ export default class Hover extends React.Component {
   onMouseEnter = () => this.setState({ isHovering: true });
   onMouseLeave = () => this.setState({ isHovering: false });
 
-  captureRef = ref => {
+  hoverRef = ref => {
     if (ref) {
       this.ref = ref;
       this.ref.addEventListener('mouseenter', this.onMouseEnter, false);
@@ -22,7 +22,7 @@ export default class Hover extends React.Component {
 
   render() {
     return this.props.children({
-      captureRef: this.captureRef,
+      hoverRef: this.hoverRef,
       isHovering: this.state.isHovering
     })
   }

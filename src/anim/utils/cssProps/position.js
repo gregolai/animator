@@ -1,18 +1,17 @@
-import {
-  createPixelProps
-} from './utils';
+import { createPixelProps } from './utils';
+
+const createProps = (name, cssName) => createPixelProps({
+  name,
+  cssName,
+  render: {
+    min: -500,
+    max: 500
+  }
+})
 
 export default {
-  top: {
-    ...createPixelProps('top', 'top'),
-  },
-  right: {
-    ...createPixelProps('right', 'right'),
-  },
-  bottom: {
-    ...createPixelProps('bottom', 'bottom'),
-  },
-  left: {
-    ...createPixelProps('left', 'left'),
-  }
+  top: createProps('top', 'top'),
+  right: createProps('right', 'right'),
+  bottom: createProps('bottom', 'bottom'),
+  left: createProps('left', 'left')
 }
