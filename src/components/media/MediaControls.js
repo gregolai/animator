@@ -8,7 +8,6 @@ import MediaStore from '../../stores/MediaStore';
 import styles from './MediaControls.scss';
 
 const GRID_PX = 11;
-const MIN_TIME_DIFF = 0.01;
 
 const MIN_DURATION_MS = 100;
 const MAX_DURATION_MS = 10000;
