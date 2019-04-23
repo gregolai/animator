@@ -7,9 +7,7 @@ import IconButton from '@sqs/core-components/primitives/IconButton';
 
 import Hover from '../../shared/Hover';
 
-import AnimationStore from '../../../stores/AnimationStore';
-import MediaStore from '../../../stores/MediaStore';
-import UIStore from '../../../stores/UIStore';
+import { AnimationStore, MediaStore, UIStore } from 'stores'
 
 import styles from './TweenLabel.scss';
 

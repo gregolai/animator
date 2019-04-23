@@ -1,7 +1,5 @@
 import React from 'react';
-
-import AnimationStore from '../../../stores/AnimationStore';
-import MediaStore from '../../../stores/MediaStore';
+import { AnimationStore, MediaStore } from 'stores';
 
 const ValueEditor = ({ tween }) => (
   <MediaStore.Consumer>

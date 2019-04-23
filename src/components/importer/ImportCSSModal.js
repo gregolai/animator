@@ -6,8 +6,7 @@ import TextareaField from '@sqs/core-components/fields/TextareaField';
 
 import { Modal } from '@sqs/experimental-components';
 
-import AnimationStore from '../../stores/AnimationStore';
-import ImporterStore from '../../stores/ImporterStore';
+import { AnimationStore, ImporterStore } from 'stores'
 
 import styles from './ImportCSSModal.scss';
 

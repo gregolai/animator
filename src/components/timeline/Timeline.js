@@ -1,7 +1,7 @@
 import React from 'react';
 import classnames from 'classnames';
 
-import AnimationStore from '../../stores/AnimationStore';
+import { AnimationStore } from 'stores';
 
 import Animation from './components/Animation';
 import PlayheadCursor from './components/PlayheadCursor';

@@ -1,10 +1,12 @@
 import React from 'react';
 import classnames from 'classnames';
 
+import { AnimationStore, StageStore } from 'stores';
 import Canvas from '../shared/Canvas';
 
 import Controls from './components/Controls';
-import StageStore from '../../stores/StageStore';
+
+import AnimInstance from './AnimInstance';
 
 import styles from './Stage.scss';
 
@@ -47,10 +49,22 @@ const StageCanvas = () => (
   </StageStore.Consumer>
 )
 
-export default ({ children, className, showControls }) => (
+export default ({ className, showControls }) => (
   <div className={classnames(styles.container, className)}>
     <StageCanvas />
-    {children}
+    <AnimationStore.Consumer>
+      {({ getAnimations, getTweens }) => (
+        <div className={styles.instances}>
+          {getAnimations().map(anim => (
+            <AnimInstance
+              key={anim.id}
+              anim={anim}
+              tweens={getTweens(anim.id)}
+            />
+          ))}
+        </div>
+      )}
+    </AnimationStore.Consumer>
     {showControls && <Controls />}
   </div>
 );

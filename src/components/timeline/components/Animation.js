@@ -5,9 +5,7 @@ import ContextField from '@sqs/core-components/fields/ContextField';
 import Icon from '@sqs/core-components/primitives/Icon';
 import IconButton from '@sqs/core-components/primitives/IconButton';
 
-import AnimationStore from '../../../stores/AnimationStore';
-import MediaStore from '../../../stores/MediaStore';
-import UIStore from '../../../stores/UIStore';
+import { AnimationStore, MediaStore, UIStore } from 'stores';
 
 import Drag from '../../shared/Drag';
 import Hover from '../../shared/Hover';
