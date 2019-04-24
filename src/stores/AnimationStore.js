@@ -1,30 +1,35 @@
 import React from 'react';
 import rework from 'rework';
 import difference from 'lodash/difference';
-import last from 'lodash/last';
 import { uniqueNamesGenerator } from 'unique-names-generator';
 
 import {
   getPropDefinitionFromCSSName,
   getPropDefinitionFromName,
   getPropDefinitionList
-} from '../utils/cssProps';
-import { getPointAtTime } from '../utils/easing';
-import db from '../utils/db';
-import { normalizeTime } from '../utils/time';
+} from 'utils/cssProps';
+import db from 'utils/db';
+import { normalizeTime } from 'utils/time';
+import interpolate from 'utils/interpolate';
+import { createPersist } from 'utils/persist';
+
+const persist = createPersist('AnimationStore', {
+  animations: [],
+  keyframes: [],
+  tweens: []
+});
 
 const createAnimation = ({ name = undefined, offset = { x: 0, y: 0 } }) => {
   return {
     name: name || uniqueNamesGenerator('-', true),
-    offset,
-    cssPropGroups: []
+    offset
   }
 }
 
-const createTween = ({ animId, definition, easing = 'linear', lerp, name }) => {
+const createTween = ({ animId, definitionId, easing = 'linear', lerp, name }) => {
   return {
     animId,
-    definition,
+    definitionId,
     easing,
     lerp,
     name
@@ -82,16 +87,18 @@ const fromCSSString = cssString => {
               return; // EARLY EXIT
             }
 
+            const definitionId = definition.name; // use as ID for now
+
             // e.g. 100px => 100
             const value = definition.parse(decl.value);
 
             // get tween with definition
-            let tween = db.getOne(tweens, t => t.definition === definition).item;
+            let tween = db.getOne(tweens, t => t.definitionId === definitionId).item;
             if (!tween) {
               // create tween with definition
               tween = db.createOne(tweens, createTween({
                 animId: anim.id,
-                definition
+                definitionId
               }), true).item;
             }
 
@@ -116,15 +123,17 @@ const fromCSSString = cssString => {
   return { animations, keyframes, tweens };
 }
 
+const INITIAL_STATE = {
+  animations: persist.animations.read(),
+  keyframes: persist.keyframes.read(),
+  tweens: persist.tweens.read(),
+}
+
 const Context = React.createContext();
 export default class AnimationStore extends React.Component {
   static Consumer = Context.Consumer;
 
-  state = {
-    animations: [],
-    keyframes: [],
-    tweens: []
-  }
+  state = INITIAL_STATE;
 
   importAnimations = (cssString, replace = false) => {
     let { animations, keyframes, tweens } = fromCSSString(cssString);
@@ -145,6 +154,7 @@ export default class AnimationStore extends React.Component {
     }));
 
     this.setState({ animations });
+    persist.animations.write(animations);
 
     return {
       anim: item,
@@ -153,7 +163,7 @@ export default class AnimationStore extends React.Component {
   }
 
   // DELETE - Animation
-  removeAnimation = (animId) => {
+  deleteAnimation = (animId) => {
     const { list: animations, item, index } = db.deleteOne(this.state.animations, animId);
     const { list: tweens } = db.deleteMany(this.state.tweens, tween => tween.animId === animId);
     const { list: keyframes } = db.deleteMany(this.state.keyframes, kf => kf.animId === animId);
@@ -163,6 +173,9 @@ export default class AnimationStore extends React.Component {
       tweens,
       keyframes
     });
+    persist.animations.write(animations);
+    persist.tweens.write(tweens);
+    persist.keyframes.write(keyframes);
 
     return {
       animations,
@@ -175,6 +188,7 @@ export default class AnimationStore extends React.Component {
     const { list: animations, item, index } = db.setOne(this.state.animations, animId, { offset });
 
     this.setState({ animations });
+    persist.animations.write(animations);
 
     return {
       anim: item,
@@ -190,7 +204,7 @@ export default class AnimationStore extends React.Component {
     // ensure definition and prevent duplicates
     if (
       !definition ||
-      db.getOne(this.state.tweens, t => t.animId === animId && t.definition === definition).item
+      db.getOne(this.state.tweens, t => t.animId === animId && t.definitionId === definitionId).item
     ) {
       return {
         tween: null,
@@ -198,14 +212,15 @@ export default class AnimationStore extends React.Component {
       };
     }
 
+    const definitionId = definition.name; // use as ID for now
+
     const { list: tweens, item, index } = db.createOne(this.state.tweens, createTween({
       animId,
-      definition,
-      name: definition.name,
-      lerp: definition.lerp
+      definitionId
     }))
 
     this.setState({ tweens });
+    persist.tweens.write(tweens);
 
     // SAMPLE
     // {
@@ -237,11 +252,13 @@ export default class AnimationStore extends React.Component {
   }
 
   // DELETE - Tween
-  removeTween = (tweenId) => {
+  deleteTween = (tweenId) => {
     const { list: tweens, item, index } = db.deleteOne(this.state.tweens, tweenId);
     const { list: keyframes } = db.deleteMany(this.state.keyframes, kf => kf.tweenId === tweenId);
 
     this.setState({ keyframes, tweens });
+    persist.keyframes.write(keyframes);
+    persist.tweens.write(tweens);
 
     return {
       tween: item,
@@ -273,6 +290,7 @@ export default class AnimationStore extends React.Component {
     }))
 
     this.setState({ keyframes });
+    persist.keyframes.write(keyframes);
 
     return {
       keyframe: item,
@@ -286,6 +304,7 @@ export default class AnimationStore extends React.Component {
     const { list: keyframes, item, index } = db.setOne(this.state.keyframes, keyframeId, { time });
 
     this.setState({ keyframes });
+    persist.keyframes.write(keyframes);
 
     return {
       keyframe: item,
@@ -297,6 +316,8 @@ export default class AnimationStore extends React.Component {
     const { list: keyframes, item, index } = db.setOne(this.state.keyframes, keyframeId, { value });
 
     this.setState({ keyframes });
+    persist.keyframes.write(keyframes);
+
     return {
       keyframe: item,
       keyframeIndex: index
@@ -310,60 +331,18 @@ export default class AnimationStore extends React.Component {
       this.createKeyframe(tweenId, time, value);
   }
 
-  setTweenPosition = (tweenId, time) => {
-    return;
-    // const keyframes = this._getKeyframes(tweenId);
-
-    // const time0 = keyframes[0].time;
-
-    // const diff = last(keyframes).time - keyframes[0].time;
-
-    // const clampedTime = clamp(time, 0, 1 - diff);
-
-    // this.setState({
-    //   keyframes: {
-    //     $set: this.state.keyframes.map(keyframe => {
-
-    //     })
-    //   }
-    // });
-  }
-
   interpolate = (tweenId, time) => {
     const tween = this.getTween(tweenId);
     if (!tween) return undefined;
 
-    const keyframes = this.getKeyframes(tweenId);
+    const definition = this.getDefinition(tween.definitionId)
 
-    // early exit if no keyframes
-    if (keyframes.length === 0) return undefined;
-    if (keyframes.length === 1) return keyframes[0].value;
-
-    if (time <= keyframes[0].time) return keyframes[0].value;
-    if (time >= last(keyframes).time) return last(keyframes).value;
-
-    let kf0, kf1;
-    for (let i = 0; i < keyframes.length - 1; ++i) {
-      if (time >= keyframes[i].time && time <= keyframes[i + 1].time) {
-        kf0 = keyframes[i];
-        kf1 = keyframes[i + 1];
-        break;
-      }
-    }
-
-    if (!kf0 || !kf1) { console.error('This should never happen!'); }
-
-    const { time: fromTime, value: fromValue } = kf0;
-    const { time: toTime, value: toValue } = kf1;
-
-    const span = toTime - fromTime;
-    if (span <= 0) return fromValue; // prevent divide-by-zero
-
-    // interpolate
-    const scaledTime = (time - fromTime) / span;
-    const { y: curvedTime } = getPointAtTime(scaledTime, tween.easing);
-
-    return tween.definition.lerp(fromValue, toValue, curvedTime);
+    return interpolate(
+      this.getKeyframes(tweenId),
+      time,
+      definition.lerp,
+      tween.easing
+    );
   }
 
   getUnusedPropDefinitions = (animId) => {
@@ -373,7 +352,7 @@ export default class AnimationStore extends React.Component {
 
     return difference(
       getPropDefinitionList(),
-      this.getTweens(animId).map(t => t.definition)
+      this.getTweens(animId).map(t => this.getDefinition(t.definitionId))
     );
   }
 
@@ -408,6 +387,10 @@ export default class AnimationStore extends React.Component {
       .sort((a, b) => a.time < b.time ? -1 : 1); // sort by time
   }
 
+  getDefinition = definitionId => {
+    return getPropDefinitionFromName(definitionId);
+  }
+
   render() {
     return (
       <Context.Provider
@@ -415,12 +398,11 @@ export default class AnimationStore extends React.Component {
           importAnimations: this.importAnimations,
 
           createAnimation: this.createAnimation, // CREATE
-          setAnimationOffset: this.setAnimationOffset,
-          removeAnimation: this.removeAnimation, // DELETE
+          setAnimationOffset: this.setAnimationOffset, // UPDATE
+          deleteAnimation: this.deleteAnimation, // DELETE
 
           createTween: this.createTween, // CREATE
-          setTweenPosition: this.setTweenPosition,
-          removeTween: this.removeTween, // DELETE
+          deleteTween: this.deleteTween, // DELETE
 
           createKeyframe: this.createKeyframe, // CREATE
           // TODO: DELETE
@@ -440,6 +422,7 @@ export default class AnimationStore extends React.Component {
           getKeyframes: this.getKeyframes,
 
           getUnusedPropDefinitions: this.getUnusedPropDefinitions,
+          getDefinition: this.getDefinition,
 
           interpolate: this.interpolate
         }}

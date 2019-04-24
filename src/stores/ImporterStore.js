@@ -1,5 +1,6 @@
 import React from 'react';
 import { CSSLint } from 'csslint';
+import { createPersist } from 'utils/persist';
 
 const lint = cssString => {
   const { messages } = CSSLint.verify(cssString);
@@ -8,10 +9,15 @@ const lint = cssString => {
   return { warnings, errors }
 }
 
-const INITIAL_STATE = {
-  replace: false,
-  canImport: false,
+const persist = createPersist('ImporterStore', {
   isOpen: false,
+  replace: false
+})
+
+const INITIAL_STATE = {
+  isOpen: persist.isOpen.read(),
+  replace: persist.replace.read(),
+  canImport: false,
   value: '',
   errors: [],
   warnings: [],
@@ -25,10 +31,12 @@ export default class ImporterStore extends React.Component {
 
   setReplace = replace => {
     this.setState({ replace });
+    persist.replace.write(replace);
   }
 
   setOpen = isOpen => {
     this.setState({ isOpen });
+    persist.isOpen.write(isOpen);
   }
 
   setValue = value => {

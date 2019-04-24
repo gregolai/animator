@@ -1,0 +1,39 @@
+@import "../../../../constants.scss";
+
+:local {
+  $btn-width: $timeline-tween-height;
+
+  .container {
+    display: flex;
+    padding-left: $grid-px * 3;
+    height: $timeline-tween-height;
+    width: $timeline-left-width;
+  }
+
+  .btnSmall {
+    justify-content: center;
+    height: $btn-width;
+    width: $btn-width;
+  }
+
+  .btnValue {
+    flex: 1;
+
+    &.locked {
+      cursor: initial;
+
+      &:hover {
+        background-color: transparent;
+      }
+    }
+
+    &.hidden {
+      cursor: initial;
+      opacity: 0.3;
+    }
+  }
+
+  .btnLock {}
+
+  .btnVisible {}
+}

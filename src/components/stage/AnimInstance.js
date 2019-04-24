@@ -2,8 +2,7 @@ import React from 'react';
 import classnames from 'classnames';
 
 import { AnimationStore, MediaStore, UIStore } from 'stores';
-
-import Drag from '../shared/Drag';
+import Drag from 'components/shared/Drag';
 
 import styles from './AnimInstance.scss';
 
@@ -11,9 +10,9 @@ const AnimInstance = ({ anim, tweens }) => (
   <UIStore.Consumer>
     {({ setSelectedAnim }) => (
       <AnimationStore.Consumer>
-        {({ interpolate, setAnimationOffset }) => (
+        {({ interpolate, setAnimationOffset, getDefinition }) => (
           <Drag>
-            {({ isDragging, onDragStart }) => (
+            {({ isDragging, startDrag }) => (
               <MediaStore.Consumer>
                 {({ playhead }) => (
                   <div
@@ -27,17 +26,21 @@ const AnimInstance = ({ anim, tweens }) => (
                   >
                     <div
                       className={styles.inner}
-                      onMouseDown={e => {
-                        if (e.button !== 0) return;
+                      onMouseDown={event => {
+                        if (event.button !== 0) return;
 
                         setSelectedAnim(anim.id);
 
                         const init = anim.offset;
-                        onDragStart(e, ({ deltaX, deltaY }) => {
-                          setAnimationOffset(anim.id, {
-                            x: init.x + deltaX,
-                            y: init.y + deltaY
-                          });
+
+                        startDrag({
+                          event,
+                          onUpdate: ({ deltaX, deltaY }) => {
+                            setAnimationOffset(anim.id, {
+                              x: init.x + deltaX,
+                              y: init.y + deltaY
+                            })
+                          }
                         })
                       }}
                       style={{
@@ -47,7 +50,8 @@ const AnimInstance = ({ anim, tweens }) => (
                         ...tweens.reduce((style, tween) => {
                           const value = interpolate(tween.id, playhead);
                           if (value !== undefined) {
-                            style[tween.definition.name] = value;
+                            const definition = getDefinition(tween.definitionId);
+                            style[definition.name] = value;
                           }
                           return style;
                         }, {})

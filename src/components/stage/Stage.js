@@ -2,7 +2,7 @@ import React from 'react';
 import classnames from 'classnames';
 
 import { AnimationStore, StageStore } from 'stores';
-import Canvas from '../shared/Canvas';
+import Canvas from 'components/shared/Canvas';
 
 import Controls from './components/Controls';
 

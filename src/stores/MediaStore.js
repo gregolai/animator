@@ -1,17 +1,27 @@
 import React from 'react';
 import { normalizeTime } from '../utils/time';
+import { createPersist } from 'utils/persist';
 
-const Context = React.createContext();
+const persist = createPersist('MediaStore', {
+  duration: 3000,
+  isLooping: true,
+  isReversed: false,
+  playhead: 0
+});
+
+const INITIAL_STATE = {
+  duration: persist.duration.read(),
+  isLooping: persist.isLooping.read(),
+  isPlaying: false,
+  isReversed: persist.isReversed.read(),
+  playhead: persist.playhead.read()
+}
+
+const Context = React.createContext(INITIAL_STATE);
 export default class MediaStore extends React.Component {
   static Consumer = Context.Consumer;
 
-  state = {
-    duration: 3000,
-    isLooping: true,
-    isPlaying: false,
-    isReversed: false,
-    playhead: 0
-  }
+  state = INITIAL_STATE;
 
   constructor(props) {
     super(props);
@@ -149,15 +159,18 @@ export default class MediaStore extends React.Component {
   }
 
   setDuration = (duration) => {
-    this.setState({ duration })
+    this.setState({ duration });
+    persist.duration.write(duration);
   }
 
   setLooping = (isLooping) => {
-    this.setState({ isLooping })
+    this.setState({ isLooping });
+    persist.isLooping.write(isLooping);
   }
 
   setReversed = (isReversed) => {
-    this.setState({ isReversed })
+    this.setState({ isReversed });
+    persist.isReversed.write(isReversed);
   }
 
   setPlaying = () => {
@@ -173,7 +186,10 @@ export default class MediaStore extends React.Component {
   };
 
   setPlayhead = time => {
-    this.setState({ playhead: time });
+    const playhead = time;
+
+    this.setState({ playhead });
+    persist.playhead.write(playhead);
   }
 
   render() {

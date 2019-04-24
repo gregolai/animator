@@ -1,65 +1,69 @@
 import React from 'react';
+import noop from 'lodash/noop';
 
 export default class Drag extends React.Component {
   state = {
-    isDragging: false,
-    target: null,
+    drag: null
   }
 
-  onDragStart = (e, onUpdate) => {
-    if (this.state.isDragging) return;
+  startDrag = ({ event, onUpdate = noop, onEnd = noop }) => {
+    if (this.state.drag) return;
 
-    const { pageX, pageY, target } = e;
+    const { pageX, pageY, target } = event;
+
     this.setState({
-      onUpdate,
-      isDragging: true,
-      deltaX: 0,
-      deltaY: 0,
-      startX: pageX,
-      startY: pageY,
-      pageX,
-      pageY,
-      target
-    }, () => {
-      document.addEventListener('mousemove', this.onMouseMove, false);
-      document.addEventListener('mouseup', this.onMouseUp, false);
+      drag: {
+        onUpdate,
+        onEnd,
+        deltaX: 0,
+        deltaY: 0,
+        startX: pageX,
+        startY: pageY,
+        pageX,
+        pageY,
+        target
+      }
     });
-  };
 
-  onMouseMove = e => {
-    if (!this.state.isDragging) return;
+    document.addEventListener('mousemove', this.onMouseMove, false);
+    document.addEventListener('mouseup', this.onMouseUp, false);
+  }
 
-    const { pageX, pageY } = e;
-    const { onUpdate, startX, startY } = this.state;
+  onMouseMove = event => {
+    const { drag } = this.state;
+    if (!drag) return;
+
+    const { pageX, pageY } = event;
 
     const nextState = {
-      pageX,
-      pageY,
-      deltaX: pageX - startX,
-      deltaY: pageY - startY
-    }
+      drag: {
+        ...drag,
+        pageX,
+        pageY,
+        deltaX: pageX - drag.startX,
+        deltaY: pageY - drag.startY
+      }
+    };
 
-    onUpdate({ ...this.state, ...nextState })
     this.setState(nextState);
+    drag.onUpdate(nextState.drag);
   }
 
   onMouseUp = e => {
-    if (!this.state.isDragging) return;
+    const { drag } = this.state;
+    if (!drag) return;
 
     document.removeEventListener('mousemove', this.onMouseMove, false);
     document.removeEventListener('mouseup', this.onMouseUp, false);
-    this.setState({
-      onUpdate: null,
-      isDragging: false,
-      target: null
-    });
+
+    this.setState({ drag: null });
+    drag.onEnd(drag);
   }
 
   render() {
-    const { isDragging } = this.state;
     return this.props.children({
-      isDragging,
-      onDragStart: this.onDragStart
+      isDragging: !!this.state.drag,
+      startDrag: this.startDrag
     });
   }
 }

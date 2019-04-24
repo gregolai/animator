@@ -1,5 +1,5 @@
 // global styles
-import './index.css';
+import './index.scss';
 import './split-pane.scss';
 
 import React from 'react';

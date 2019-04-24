@@ -2,14 +2,15 @@ import React from 'react';
 import classnames from 'classnames';
 import clamp from 'lodash/clamp';
 
-import {ContextField, Icon, IconButton} from 'components/core';
+import { ContextField, Icon, IconButton } from 'components/core';
+import Drag from 'components/shared/Drag';
+import Hover from 'components/shared/Hover';
+import ValueEditor from 'components/shared/ValueEditor';
 
 import { AnimationStore, MediaStore, UIStore } from 'stores';
 
-import Drag from '../../shared/Drag';
-import Hover from '../../shared/Hover';
-import TweenLabel from './TweenLabel';
-import ValueEditor from './ValueEditor';
+
+import TweenControls from './TweenControls';
 
 import styles from './Animation.scss';
 
@@ -67,54 +68,39 @@ class TweenTimeline extends React.Component {
           [styles.odd]: tweenIndex & 1
         })}>
         <AnimationStore.Consumer>
-          {({ getKeyframes, setTweenPosition }) => {
+          {({ getKeyframes }) => {
             const keyframes = getKeyframes(tween.id);
             if (keyframes.length === 0) return null;
 
             return (
               <>
                 {keyframes.length > 1 && (
-                  <Drag>
-                    {({ onDragStart }) => (
-                      <TweenBar
-                        ref={this.captureBarRef}
-                        keyframes={keyframes}
-                        onMouseDown={e => {
-                          if (e.target !== this.barRef) return;
-                          if (!this.containerRef || !this.barRef) return;
-
-                          const rect = this.containerRef.getBoundingClientRect();
-                          const barRect = this.barRef.getBoundingClientRect();
-
-                          const initRatio = (barRect.left - rect.left) / rect.width;
-
-                          onDragStart(e, ({ deltaX }) => {
-                            const time = clamp(initRatio + deltaX / rect.width, 0, 1);
-                            setTweenPosition(tween.id, time);
-                          })
-                        }}
-                      />
-                    )}
-                  </Drag>
+                  <TweenBar
+                    ref={this.captureBarRef}
+                    keyframes={keyframes}
+                  />
                 )}
                 {keyframes.map(keyframe => (
                   <AnimationStore.Consumer key={keyframe.id}>
                     {({ setKeyframeTime }) => (
                       <Drag>
-                        {({ isDragging, onDragStart }) => (
+                        {({ isDragging, startDrag }) => (
                           <TweenKeyframe
                             key={keyframe.id}
                             keyframe={keyframe}
                             isDragging={isDragging}
-                            onMouseDown={e => {
+                            onMouseDown={event => {
                               if (!this.containerRef) return;
-                              if (e.button !== 0) return;
+                              if (event.button !== 0) return;
 
                               const rect = this.containerRef.getBoundingClientRect();
 
-                              onDragStart(e, ({ pageX }) => {
-                                const time = clamp((pageX - rect.left) / rect.width, 0, 1);
-                                setKeyframeTime(keyframe.id, time);
+                              startDrag({
+                                event,
+                                onUpdate: ({ pageX }) => {
+                                  const time = clamp((pageX - rect.left) / rect.width, 0, 1);
+                                  setKeyframeTime(keyframe.id, time);
+                                }
                               })
                             }}
                           />
@@ -154,7 +140,6 @@ const DeleteAnimation = ({ onClick, enabled }) => (
   >
     <Icon name="close" />
   </IconButton>
-
 )
 
 const Head = ({ anim }) => (
@@ -163,7 +148,7 @@ const Head = ({ anim }) => (
       <UIStore.Consumer>
         {({ isAnimationSelected, setSelectedAnim }) => (
           <AnimationStore.Consumer>
-            {({ removeAnimation }) => (
+            {({ deleteAnimation }) => (
               <div
                 ref={hoverRef}
                 className={styles.head}
@@ -171,12 +156,10 @@ const Head = ({ anim }) => (
                 <DeleteAnimation
                   enabled={isHovering && isAnimationSelected(anim.id)}
                   onClick={() => {
-                    const { animIndex, animations } = removeAnimation(anim.id);
+                    const { animIndex, animations } = deleteAnimation(anim.id);
 
                     const nextAnim = animations[animIndex] || animations[animIndex - 1];
-                    if (nextAnim) {
-                      setSelectedAnim(nextAnim.id);
-                    }
+                    setSelectedAnim(nextAnim ? nextAnim.id : -1);
                   }}
                 />
                 <ContextField
@@ -205,7 +188,7 @@ const Animation = ({ className, anim }) => (
           getTweens(anim.id).map((tween, tweenIndex, tweens) => (
             <div key={tween.id}>
               <div style={{ display: 'flex' }}>
-                <TweenLabel
+                <TweenControls
                   tween={tween}
                   tweenIndex={tweenIndex}
                 />
@@ -216,10 +199,8 @@ const Animation = ({ className, anim }) => (
               </div>
 
               <UIStore.Consumer>
-                {({ isTweenExpanded }) => isTweenExpanded(tween.id) && (
-                  <div className={styles.valueEditor}>
-                    <ValueEditor tween={tween} />
-                  </div>
+                {({ isTweenLocked, isTweenExpanded }) => !isTweenLocked(tween.id) && isTweenExpanded(tween.id) && (
+                  <ValueEditor className={styles.valueEditor} tween={tween} />
                 )}
               </UIStore.Consumer>
 

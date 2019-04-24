@@ -3,12 +3,23 @@
 :local {
   $control-width-px: $grid-px * 14;
 
-  .container {
+  .container {}
+
+  .leftControls {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    padding: $grid-px;
+  }
+
+  .rightControls {
     position: absolute;
     right: 0;
     bottom: 0;
-    z-index: 1;
-    display: flex;
+  }
+
+  .createInstance {
+    width: $control-width-px;
   }
 
   .showGrid {
@@ -19,7 +30,5 @@
     width: $control-width-px;
   }
 
-  .createInstance {
-    width: $control-width-px;
-  }
+
 }

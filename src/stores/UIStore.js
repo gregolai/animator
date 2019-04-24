@@ -1,10 +1,18 @@
 import React from 'react';
+import { createPersist } from 'utils/persist';
 
-const INITIAL_STATE = {
+const persist = createPersist('UIStore', {
   expandedTweenId: -1,
   hiddenTweens: {},
   lockedTweens: {},
-  selectedAnimId: -1,
+  selectedAnimId: -1
+});
+
+const INITIAL_STATE = {
+  expandedTweenId: persist.expandedTweenId.read(),
+  hiddenTweens: persist.hiddenTweens.read(),
+  lockedTweens: persist.lockedTweens.read(),
+  selectedAnimId: persist.selectedAnimId.read(),
 }
 
 const Context = React.createContext(INITIAL_STATE);
@@ -14,7 +22,10 @@ export default class UIStore extends React.Component {
   state = INITIAL_STATE;
 
   setSelectedAnim = animId => {
-    this.setState({ selectedAnimId: animId });
+    const selectedAnimId = animId;
+
+    this.setState({ selectedAnimId });
+    persist.selectedAnimId.write(selectedAnimId);
   }
 
   isAnimationSelected = animId => {
@@ -26,16 +37,17 @@ export default class UIStore extends React.Component {
   }
 
   setTweenExpanded = (tweenId, expand) => {
-    this.setState({
-      expandedTweenId: expand ? tweenId : -1
-    });
+    const expandedTweenId = expand ? tweenId : -1;
+
+    this.setState({ expandedTweenId });
+    persist.expandedTweenId.write(expandedTweenId);
   }
 
   isTweenHidden = tweenId => {
     return !!this.state.hiddenTweens[tweenId];
   }
 
-  setHiddenTween = (tweenId, hide) => {
+  setTweenHidden = (tweenId, hide) => {
     const hiddenTweens = { ...this.state.hiddenTweens };
 
     if (hide) {
@@ -45,6 +57,7 @@ export default class UIStore extends React.Component {
     }
 
     this.setState({ hiddenTweens });
+    persist.hiddenTweens.write(hiddenTweens);
   }
 
   isTweenLocked = tweenId => {
@@ -61,6 +74,7 @@ export default class UIStore extends React.Component {
     }
 
     this.setState({ lockedTweens });
+    persist.lockedTweens.write(lockedTweens);
   }
 
   render() {
@@ -75,7 +89,7 @@ export default class UIStore extends React.Component {
           setTweenExpanded: this.setTweenExpanded,
 
           isTweenHidden: this.isTweenHidden,
-          setHiddenTween: this.setHiddenTween,
+          setTweenHidden: this.setTweenHidden,
 
           isTweenLocked: this.isTweenLocked,
           setTweenLocked: this.setTweenLocked,
