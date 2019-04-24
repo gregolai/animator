@@ -13,15 +13,6 @@
     height: 100%;
   }
 
-  .leftBackground {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: $timeline-left-width;
-    height: 100%;
-    z-index: 1;
-  }
-
   .content {
     position: absolute;
     z-index: 2;
@@ -33,5 +24,8 @@
 
   .playhead {
     z-index: 3;
+
+    // important so scrollbar gets factored into % calculations
+    overflow-y: scroll;
   }
 }

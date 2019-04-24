@@ -13,9 +13,6 @@ const Timeline = ({ className }) => (
     {/* PLAYHEAD VERTICAL LINE */}
     <PlayheadCursor className={styles.playhead} />
 
-    {/* LEFT AREA BACKGROUND */}
-    <div className={styles.leftBackground} />
-
     <div className={styles.scrollContainer}>
 
       <div className={styles.content}>

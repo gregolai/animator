@@ -301,6 +301,19 @@ export default class AnimationStore extends React.Component {
   setKeyframeTime = (keyframeId, time) => {
     time = normalizeTime(time);
 
+    const keyframe = this.getKeyframe(keyframeId);
+
+    // ensure tween and prevent duplicate keyframe time
+    if (
+      !keyframe ||
+      this.getKeyframeAtTime(keyframe.tweenId, time)
+    ) {
+      return {
+        keyframe: null,
+        keyframeIndex: -1
+      }
+    }
+
     const { list: keyframes, item, index } = db.setOne(this.state.keyframes, keyframeId, { time });
 
     this.setState({ keyframes });

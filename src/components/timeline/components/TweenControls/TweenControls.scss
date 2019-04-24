@@ -5,7 +5,8 @@
 
   .container {
     display: flex;
-    padding-left: $grid-px * 3;
+    padding-left: $grid-px * 2;
+    padding-right: $grid-px;
     height: $timeline-tween-height;
     width: $timeline-left-width;
   }
@@ -16,24 +17,40 @@
     width: $btn-width;
   }
 
+  .btnDelete {
+    transition: opacity 250ms ease-out;
+    opacity: 1;
+
+    &.hidden {
+      cursor: initial;
+      opacity: 0;
+    }
+  }
+
   .btnValue {
     flex: 1;
+    margin-right: $grid-px;
+    border: 1px solid transparent;
+
+    &:hover {
+      border-color: $color-border-0;
+    }
 
     &.locked {
       cursor: initial;
 
       &:hover {
-        background-color: transparent;
+        border-color: transparent;
       }
     }
 
     &.hidden {
       cursor: initial;
       opacity: 0.3;
+
+      &:hover {
+        border-color: transparent;
+      }
     }
   }
-
-  .btnLock {}
-
-  .btnVisible {}
 }

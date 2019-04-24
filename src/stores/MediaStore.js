@@ -134,6 +134,7 @@ export default class MediaStore extends React.Component {
         e.preventDefault();
         this.setLooping(!this.state.isLooping);
         break;
+      case 'Backquote':
       case 'Digit1':
       case 'Digit2':
       case 'Digit3':
@@ -143,8 +144,14 @@ export default class MediaStore extends React.Component {
       case 'Digit7':
       case 'Digit8':
       case 'Digit9':
+      case 'Digit0':
         e.preventDefault();
-        this.setPlayhead((parseInt(e.code.replace('Digit', '')) - 1) * 0.1);
+
+        const time = e.code === 'Digit0' ?
+          100 : e.code === 'Backquote' ?
+            0 :
+            parseInt(e.code.replace('Digit', '')) * 0.1;
+        this.setPlayhead(time);
         break;
       default:
     }

@@ -18,7 +18,7 @@
     height: $head-height;
     width: $head-height;
 
-    transition: opacity 300ms ease-in-out;
+    transition: opacity 250ms ease-out;
     opacity: 1;
 
     &.hidden {
@@ -31,7 +31,7 @@
     height: $head-height;
     line-height: $head-height;
 
-    transition: all 300ms ease-in-out;
+    transition: all 250ms ease-out;
 
     &:hover,
     &:hover * {
@@ -41,7 +41,7 @@
     &.selected,
     &.selected * {
       color: $color-font-0;
-      font-size: 18px;
+      font-size: $font-size-xl;
     }
   }
 
@@ -56,6 +56,10 @@
 
     &.odd {
       background-color: $color-bg-3;
+    }
+
+    &.hidden {
+      display: none;
     }
   }
 

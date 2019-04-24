@@ -10,17 +10,73 @@ import { AnimationStore, MediaStore, UIStore } from 'stores'
 
 import styles from './TweenControls.scss';
 
-const SmallButton = ({ className, icon, isToggled, onClick }) => (
+const SmallButton = ({ className, icon, ...rest }) => (
   <Button
+    {...rest}
     className={classnames(styles.btnSmall, className)}
-    isToggled={isToggled}
-    onClick={onClick}
   >
     <Icon name={icon} />
   </Button>
 )
 
-const LabelValue = ({ tween }) => (
+const ToggleLock = ({ tween }) => (
+  <UIStore.Consumer>
+    {({ isTweenLocked, setTweenLocked, setTweenExpanded }) => (
+      <SmallButton
+        icon="lock"
+        isToggled={isTweenLocked(tween.id)}
+        onClick={() => {
+          setTweenLocked(tween.id, !isTweenLocked(tween.id));
+          setTweenExpanded(tween.id, false);
+        }}
+      />
+    )}
+  </UIStore.Consumer>
+)
+
+const ToggleVisible = ({ tween }) => (
+  <UIStore.Consumer>
+    {({ isTweenHidden, setTweenHidden, setTweenExpanded }) => (
+      <SmallButton
+        icon="passwordshow"
+        isToggled={isTweenHidden(tween.id)}
+        onClick={() => {
+          setTweenHidden(tween.id, !isTweenHidden(tween.id));
+          setTweenExpanded(tween.id, false);
+        }}
+      />
+    )}
+  </UIStore.Consumer>
+)
+
+const DeleteTween = ({ isHovering, tween }) => (
+  <UIStore.Consumer>
+    {({ isTweenLocked, isTweenHidden }) => (
+
+      <AnimationStore.Consumer>
+        {({ deleteTween }) => (
+
+          <SmallButton
+            className={classnames(styles.btnDelete, {
+              [styles.hidden]: !isHovering || isTweenLocked(tween.id) || isTweenHidden(tween.id)
+            })}
+            icon="close"
+            onClick={() => {
+              const canDelete = !isTweenLocked(tween.id) && !isTweenHidden(tween.id);
+              if (canDelete) {
+                deleteTween(tween.id)
+              }
+            }}
+          />
+
+        )}
+      </AnimationStore.Consumer>
+
+    )}
+  </UIStore.Consumer>
+)
+
+const TweenLabel = ({ tween }) => (
   <UIStore.Consumer>
     {({ isTweenLocked, isTweenHidden, isTweenExpanded, setTweenExpanded }) => (
 
@@ -28,18 +84,13 @@ const LabelValue = ({ tween }) => (
         {({ playhead }) => (
 
           <AnimationStore.Consumer>
-            {({ interpolate, deleteTween, getDefinition }) => (
+            {({ interpolate, getDefinition }) => (
 
               <Hover>
                 {({ hoverRef, isHovering }) => (
                   <ValueButton
                     ref={hoverRef}
-                    accessory={isHovering && (
-                      <SmallButton
-                        icon="close"
-                        onClick={() => deleteTween(tween.id)}
-                      />
-                    )}
+                    accessory={<DeleteTween isHovering={isHovering} tween={tween} />}
                     className={classnames(styles.btnValue, {
                       [styles.locked]: isTweenLocked(tween.id),
                       [styles.hidden]: isTweenHidden(tween.id)
@@ -67,46 +118,12 @@ const LabelValue = ({ tween }) => (
   </UIStore.Consumer>
 );
 
-const ToggleLock = ({ tween }) => (
-  <UIStore.Consumer>
-    {({ isTweenLocked, setTweenLocked, setTweenExpanded }) => (
-      <SmallButton
-        className={styles.btnLock}
-        icon="lock"
-        isToggled={isTweenLocked(tween.id)}
-        onClick={() => {
-          setTweenLocked(tween.id, !isTweenLocked(tween.id));
-          setTweenExpanded(tween.id, false);
-        }}
-      />
-    )}
-  </UIStore.Consumer>
-)
-
 const TweenControls = ({ tween, tweenIndex }) => (
-  <UIStore.Consumer>
-    {({ isAnimationSelected, isTweenLocked, setTweenLocked, isTweenHidden, setTweenHidden, isTweenExpanded, setTweenExpanded }) => (
-
-      <div className={styles.container}>
-        <LabelValue tween={tween} />
-        <ToggleLock tween={tween} />
-
-
-        <SmallButton
-          icon="passwordshow"
-          isToggled={isTweenHidden(tween.id)}
-          onClick={() => {
-            const hide = !isTweenHidden(tween.id);
-            setTweenHidden(tween.id, hide);
-            if (hide) {
-              setTweenExpanded(-1);
-            }
-          }}
-        />
-      </div>
-
-    )}
-  </UIStore.Consumer>
+  <div className={styles.container}>
+    <TweenLabel tween={tween} />
+    <ToggleLock tween={tween} />
+    <ToggleVisible tween={tween} />
+  </div>
 )
 
 export default TweenControls;
