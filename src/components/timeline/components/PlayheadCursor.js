@@ -1,6 +1,6 @@
 import React from 'react';
 import classnames from 'classnames';
-import MediaStore from '../../../stores/MediaStore';
+import { MediaStore } from 'stores';
 
 import styles from './PlayheadCursor.scss';
 

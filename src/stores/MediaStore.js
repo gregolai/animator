@@ -173,14 +173,27 @@ export default class MediaStore extends React.Component {
   };
 
   setPlayhead = time => {
-    this.setState({ playhead: normalizeTime(time) });
+    this.setState({ playhead: time });
   }
 
   render() {
+    const {
+      duration,
+      isLooping,
+      isPlaying,
+      isReversed,
+      playhead
+    } = this.state;
+
     return (
       <Context.Provider
         value={{
-          ...this.state,
+          duration,
+          isLooping,
+          isPlaying,
+          isReversed,
+          playhead: normalizeTime(playhead),
+
           setDuration: this.setDuration,
           setLooping: this.setLooping,
           setReversed: this.setReversed,

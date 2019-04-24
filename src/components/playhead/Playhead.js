@@ -1,14 +1,16 @@
 import React from 'react';
+import classnames from 'classnames';
 
 import { TIME_STEP_SECONDS } from '../../utils/time';
-import MediaStore from '../../stores/MediaStore';
+
+import { MediaStore } from 'stores';
 
 import styles from './Playhead.scss';
 
-const Playhead = () => (
+const Playhead = ({ className }) => (
   <MediaStore.Consumer>
     {({ playhead, setPlayhead }) => (
-      <div className={styles.container}>
+      <div className={classnames(styles.container, className)}>
         <div className={styles.timeDisplay}>{playhead}</div>
         <input
           className={styles.slider}

@@ -8,11 +8,6 @@ import PlayheadCursor from './components/PlayheadCursor';
 
 import styles from './Timeline.scss';
 
-
-
-
-
-
 const Timeline = ({ className }) => (
   <div className={classnames(styles.container, className)}>
     {/* PLAYHEAD VERTICAL LINE */}

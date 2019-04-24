@@ -1,10 +1,11 @@
 import React from 'react';
+import classnames from 'classnames';
 
 import { AnimationStore, MediaStore, UIStore } from 'stores';
 
 import Drag from '../shared/Drag';
 
-import style from './AnimInstance.scss';
+import styles from './AnimInstance.scss';
 
 const AnimInstance = ({ anim, tweens }) => (
   <UIStore.Consumer>
@@ -16,14 +17,16 @@ const AnimInstance = ({ anim, tweens }) => (
               <MediaStore.Consumer>
                 {({ playhead }) => (
                   <div
+                    className={classnames(styles.container, {
+                      [styles.dragging]: isDragging
+                    })}
                     style={{
-                      position: 'absolute',
                       top: anim.offset.y,
                       left: anim.offset.x
                     }}
                   >
                     <div
-                      className={style.container}
+                      className={styles.inner}
                       onMouseDown={e => {
                         if (e.button !== 0) return;
 
@@ -38,7 +41,6 @@ const AnimInstance = ({ anim, tweens }) => (
                         })
                       }}
                       style={{
-                        border: isDragging ? '2px solid yellow' : undefined,
                         width: 30,
                         height: 30,
                         backgroundColor: 'blue',

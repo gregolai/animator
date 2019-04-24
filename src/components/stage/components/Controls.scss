@@ -1,8 +1,25 @@
+@import "../../../constants.scss";
+
 :local {
+  $control-width-px: $grid-px * 14;
+
   .container {
     position: absolute;
     right: 0;
     bottom: 0;
     z-index: 1;
+    display: flex;
+  }
+
+  .showGrid {
+    width: $control-width-px;
+  }
+
+  .gridSize {
+    width: $control-width-px;
+  }
+
+  .createInstance {
+    width: $control-width-px;
   }
 }

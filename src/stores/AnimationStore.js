@@ -139,7 +139,7 @@ export default class AnimationStore extends React.Component {
   }
 
   // CREATE - Animation
-  addAnimation = () => {
+  createAnimation = () => {
     const { list: animations, item, index } = db.createOne(this.state.animations, createAnimation({
       offset: { x: 0, y: 0 }
     }));
@@ -183,7 +183,7 @@ export default class AnimationStore extends React.Component {
   }
 
   // CREATE - Tween
-  addTween = (animId, propName) => {
+  createTween = (animId, propName) => {
 
     const definition = getPropDefinitionFromName(propName);
 
@@ -249,7 +249,7 @@ export default class AnimationStore extends React.Component {
     }
   }
 
-  addKeyframe = (tweenId, time, value) => {
+  createKeyframe = (tweenId, time, value) => {
     time = normalizeTime(time);
 
     const tween = this.getTween(tweenId);
@@ -307,7 +307,7 @@ export default class AnimationStore extends React.Component {
     const keyframe = this.getKeyframeAtTime(tweenId, time);
     return keyframe ?
       this.setKeyframeValue(keyframe.id, value) :
-      this.addKeyframe(tweenId, time, value);
+      this.createKeyframe(tweenId, time, value);
   }
 
   setTweenPosition = (tweenId, time) => {
@@ -367,6 +367,10 @@ export default class AnimationStore extends React.Component {
   }
 
   getUnusedPropDefinitions = (animId) => {
+    if (animId === -1) {
+      return [];
+    }
+
     return difference(
       getPropDefinitionList(),
       this.getTweens(animId).map(t => t.definition)
@@ -410,15 +414,15 @@ export default class AnimationStore extends React.Component {
         value={{
           importAnimations: this.importAnimations,
 
-          addAnimation: this.addAnimation, // CREATE
+          createAnimation: this.createAnimation, // CREATE
           setAnimationOffset: this.setAnimationOffset,
           removeAnimation: this.removeAnimation, // DELETE
 
-          addTween: this.addTween, // CREATE
+          createTween: this.createTween, // CREATE
           setTweenPosition: this.setTweenPosition,
           removeTween: this.removeTween, // DELETE
 
-          addKeyframe: this.addKeyframe, // CREATE
+          createKeyframe: this.createKeyframe, // CREATE
           // TODO: DELETE
 
           setKeyframeTime: this.setKeyframeTime,

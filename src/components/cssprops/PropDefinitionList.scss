@@ -1,0 +1,19 @@
+@import "../../constants.scss";
+
+:local {
+  .container {
+    display: flex;
+    flex-direction: column;
+
+    &.hidden {
+      display: none;
+    }
+  }
+
+  .label {}
+
+  .list {
+    background-color: $color-bg-0;
+    overflow-y: scroll;
+  }
+}

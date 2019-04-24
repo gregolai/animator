@@ -1,8 +1,6 @@
 import React from 'react';
 import color from 'color';
-import ColorField from '@sqs/core-components/fields/ColorField';
-import NumberField from '@sqs/core-components/fields/NumberField';
-import RangeField from '@sqs/core-components/fields/RangeField';
+import { ColorField, NumberField, RangeField } from 'components/core';
 
 export const toPx = v => (typeof v === 'number' ? `${v}px` : v);
 

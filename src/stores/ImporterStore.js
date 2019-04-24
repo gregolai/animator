@@ -42,10 +42,24 @@ export default class ImporterStore extends React.Component {
   }
 
   render() {
+    const {
+      replace,
+      canImport,
+      isOpen,
+      value,
+      errors,
+      warnings
+    } = this.state;
+
     return (
       <Context.Provider
         value={{
-          ...this.state,
+          replace,
+          canImport,
+          isOpen,
+          value,
+          errors,
+          warnings,
 
           setReplace: this.setReplace,
           setOpen: this.setOpen,

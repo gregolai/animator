@@ -1,9 +1,8 @@
 import React from 'react';
 import classnames from 'classnames';
 import clamp from 'lodash/clamp';
-import ContextField from '@sqs/core-components/fields/ContextField';
-import Icon from '@sqs/core-components/primitives/Icon';
-import IconButton from '@sqs/core-components/primitives/IconButton';
+
+import {ContextField, Icon, IconButton} from 'components/core';
 
 import { AnimationStore, MediaStore, UIStore } from 'stores';
 

@@ -1,11 +1,5 @@
 import React from 'react';
-import BooleanField from '@sqs/core-components/fields/BooleanField';
-import ButtonPrimitive from '@sqs/core-components/primitives/Button';
-import ErrorText from '@sqs/core-components/primitives/ErrorText';
-import TextareaField from '@sqs/core-components/fields/TextareaField';
-
-import { Modal } from '@sqs/experimental-components';
-
+import { BooleanField, ButtonPrimitive, ErrorText, TextareaField, Modal } from 'components/core';
 import { AnimationStore, ImporterStore } from 'stores'
 
 import styles from './ImportCSSModal.scss';

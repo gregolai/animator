@@ -1,9 +1,9 @@
 import React from 'react';
-import ButtonField from '@sqs/core-components/fields/ButtonField';
-import BooleanField from '@sqs/core-components/fields/BooleanField';
-import NumberField from '@sqs/core-components/fields/NumberField';
+import classnames from 'classnames';
 
-import MediaStore from '../../stores/MediaStore';
+import { ButtonField, BooleanField, NumberField } from 'components/core';
+
+import { MediaStore } from 'stores';
 
 import styles from './MediaControls.scss';
 
@@ -13,10 +13,10 @@ const MIN_DURATION_MS = 100;
 const MAX_DURATION_MS = 10000;
 
 // PLAY PAUSE CONTROLS
-const MediaControls = () => (
+const MediaControls = ({ className }) => (
   <MediaStore.Consumer>
     {({ duration, isLooping, isReversed, isPlaying, playhead, setDuration, setLooping, setReversed, setPaused, setPlaying, setStopped }) => (
-      <div className={styles.container}>
+      <div className={classnames(styles.container, className)}>
         <div style={{ display: 'flex' }}>
           <div style={{ flex: 1 }}>
             <ButtonField

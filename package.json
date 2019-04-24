@@ -55,6 +55,7 @@
     "react-app-polyfill": "^0.2.2",
     "react-dev-utils": "^8.0.0",
     "react-dom": "^16.8.4",
+    "react-split-pane": "^0.1.87",
     "react-transition-group": "git+https://github.com/gregolai/react-transition-group.git",
     "resolve": "1.10.0",
     "rework": "^1.0.1",

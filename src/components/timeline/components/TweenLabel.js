@@ -1,9 +1,6 @@
 import React from 'react';
 import classnames from 'classnames';
-
-import ButtonField from '@sqs/core-components/fields/ButtonField';
-import Icon from '@sqs/core-components/primitives/Icon';
-import IconButton from '@sqs/core-components/primitives/IconButton';
+import {ButtonField, Icon, IconButton} from 'components/core';
 
 import Hover from '../../shared/Hover';
 

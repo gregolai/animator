@@ -1,0 +1,58 @@
+@import "./constants.scss";
+
+:local {
+  .container {
+    background-color: $color-bg-1;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .top {
+    flex: 1;
+    display: flex;
+    padding: $grid-px;
+
+    .topLeft {
+      width: $grid-px * 22;
+      padding-right: $grid-px;
+      display: flex;
+      flex-direction: column;
+
+      .importButton {}
+
+      .propList {
+        flex: 1;
+        padding-bottom: $grid-px;
+        overflow: hidden;
+      }
+    }
+
+    .topRight {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+
+      .stage {
+        flex: 1;
+      }
+
+      .mediaControls {
+        margin-top: $grid-px;
+      }
+    }
+  }
+
+  .bottom {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+
+    .playhead {
+      border-bottom: 1px solid $color-border-0;
+    }
+
+    .timeline {
+      flex: 1;
+    }
+  }
+}
