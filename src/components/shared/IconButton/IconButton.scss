@@ -1,0 +1,9 @@
+@import "../../../constants.scss";
+
+:local {
+  .container {
+    justify-content: center;
+    height: $common-height-px;
+    width: $common-height-px;
+  }
+}

@@ -1,32 +1,9 @@
 @import "../../../constants.scss";
 
 :local {
-  $head-height: $grid-px * 3;
   $keyframe-width-px: 8px;
 
   .container {}
-
-  .head {
-    padding-top: $grid-px;
-    display: flex;
-    width: $timeline-left-width;
-  }
-
-  .btnDeleteAnimation {
-    height: $head-height;
-    width: $head-height;
-
-    transition: opacity 250ms ease-out;
-    opacity: 1;
-
-    &.hidden {
-      opacity: 0;
-    }
-  }
-
-  .animTitle {
-    padding-left: $grid-px * 4;
-  }
 
   .tweens {}
 

@@ -10,23 +10,7 @@ export default () => (
     {({ showGrid, gridSize, setShowGrid, setGridSize }) => (
       <div className={styles.container}>
         <div className={styles.leftControls}>
-          <UIStore.Consumer>
-            {({ selectedAnimId }) => (
-              <StageStore.Consumer>
-                {({ createInstance }) => (
-                  <ButtonField
-                    inverted
-                    flush
-                    className={styles.createInstance}
-                    size="small"
-                    isDisabled={selectedAnimId === -1}
-                    label="Create Instance"
-                    onClick={() => createInstance({ animId: selectedAnimId })}
-                  />
-                )}
-              </StageStore.Consumer>
-            )}
-          </UIStore.Consumer>
+          {/* NOTHING HERE? */}
         </div>
 
         <div className={styles.rightControls}>

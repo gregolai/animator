@@ -1,0 +1,31 @@
+@import "../../../../constants.scss";
+
+:local {
+  $head-height: $grid-px * 3;
+
+  .container {
+    padding-top: $grid-px;
+    display: flex;
+    width: $timeline-left-width;
+  }
+
+  .definitions {
+    min-width: $grid-px * 11;
+  }
+
+  .title {
+    padding-left: $grid-px * 4;
+  }
+
+  .delete {
+    height: $head-height;
+    width: $head-height;
+
+    transition: opacity 250ms ease-out;
+    opacity: 1;
+
+    &.hidden {
+      opacity: 0;
+    }
+  }
+}

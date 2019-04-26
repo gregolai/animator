@@ -1,8 +1,7 @@
 import React from 'react';
 import classnames from 'classnames';
 
-import { Icon } from 'components/core';
-import Button from 'components/shared/Button';
+import IconButton from 'components/shared/IconButton';
 import Hover from 'components/shared/Hover';
 import ValueButton from 'components/shared/ValueButton';
 import { getDefinition } from 'utils/definitions';
@@ -11,19 +10,10 @@ import { AnimationStore, MediaStore, UIStore } from 'stores'
 
 import styles from './TweenControls.scss';
 
-const SmallButton = ({ className, icon, ...rest }) => (
-  <Button
-    {...rest}
-    className={classnames(styles.btnSmall, className)}
-  >
-    <Icon name={icon} />
-  </Button>
-)
-
 const ToggleLock = ({ tween }) => (
   <UIStore.Consumer>
     {({ isTweenLocked, setTweenLocked, setTweenExpanded }) => (
-      <SmallButton
+      <IconButton
         icon="lock"
         isToggled={isTweenLocked(tween.id)}
         onClick={() => {
@@ -38,7 +28,7 @@ const ToggleLock = ({ tween }) => (
 const ToggleVisible = ({ tween }) => (
   <UIStore.Consumer>
     {({ isTweenHidden, setTweenHidden, setTweenExpanded }) => (
-      <SmallButton
+      <IconButton
         icon="passwordshow"
         isToggled={isTweenHidden(tween.id)}
         onClick={() => {
@@ -57,7 +47,7 @@ const DeleteTween = ({ isHovering, tween }) => (
       <AnimationStore.Consumer>
         {({ deleteTween }) => (
 
-          <SmallButton
+          <IconButton
             className={classnames(styles.btnDelete, {
               [styles.hidden]: !isHovering || isTweenLocked(tween.id) || isTweenHidden(tween.id)
             })}

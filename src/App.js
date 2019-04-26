@@ -11,7 +11,6 @@ import Stage from './components/stage/Stage';
 import ImportCSSModal from './components/importer/ImportCSSModal';
 import MediaControls from './components/media/MediaControls';
 import Playhead from './components/playhead/Playhead';
-import PropDefinitionList from './components/cssprops/PropDefinitionList';
 import Timeline from './components/timeline/Timeline';
 
 import styles from './App.scss';
@@ -74,9 +73,6 @@ const App = withStores(() => (
               />
             )}
           </ImporterStore.Consumer>
-
-          {/* DEFINITION LISTS */}
-          <PropDefinitionList className={styles.propList} />
 
           {/* ADD ANIMATION */}
           <UIStore.Consumer>

@@ -4,6 +4,7 @@ import classnames from 'classnames';
 import { AnimationStore, MediaStore, StageStore, UIStore } from 'stores';
 import { getDefinition } from 'utils/definitions';
 import Drag from 'components/shared/Drag';
+import Hover from 'components/shared/Hover';
 
 import styles from './AnimInstance.scss';
 
@@ -12,65 +13,76 @@ const Inner = ({ anim, instance }) => (
     {({ interpolate, getTweens }) => (
       <UIStore.Consumer>
         {({ setSelectedInstance }) => (
-          <Drag>
-            {({ isDragging, startDrag }) => (
-              <StageStore.Consumer>
-                {({ getInstanceDefinitionValue, setInstanceDefinitionValue }) => (
+          <Hover>
+            {({ hoverRef, isHovering }) => (
 
-                  <MediaStore.Consumer>
-                    {({ playhead }) => (
-                      <div
-                        className={classnames(styles.container, {
-                          [styles.dragging]: isDragging
-                        })}
-                      >
-                        <div
-                          className={styles.inner}
-                          onMouseDown={event => {
-                            if (event.button !== 0) return;
 
-                            setSelectedInstance(instance.id);
+              <Drag>
+                {({ isDragging, startDrag }) => (
+                  <StageStore.Consumer>
+                    {({ getInstanceDefinitionValue, setInstanceDefinitionValue }) => (
 
-                            const initX = getInstanceDefinitionValue(instance.id, 'left') || 0;
-                            const initY = getInstanceDefinitionValue(instance.id, 'top') || 0;
-                            startDrag({
-                              event,
-                              onUpdate: ({ deltaX, deltaY }) => {
-                                setInstanceDefinitionValue(instance.id, 'left', initX + deltaX);
-                                setInstanceDefinitionValue(instance.id, 'top', initY + deltaY);
-                              }
-                            })
-                          }}
-                          style={{
-                            position: 'absolute',
-                            width: 30,
-                            height: 30,
-                            backgroundColor: 'blue',
+                      <MediaStore.Consumer>
+                        {({ playhead }) => (
+                          <div
+                            className={classnames(styles.container, {
+                              [styles.dragging]: isDragging
+                            })}
+                          >
+                            <div
+                              ref={hoverRef}
+                              className={styles.inner}
+                              onMouseDown={event => {
+                                if (event.button !== 0) return;
 
-                            ...Object.keys(instance.definitionValues).reduce((style, definitionId) => {
-                              const definition = getDefinition(definitionId);
-                              const value = instance.definitionValues[definitionId];
-                              style[definition.styleName] = definition.format(value);
-                              return style;
-                            }, {}),
+                                setSelectedInstance(instance.id);
 
-                            ...getTweens(anim.id).reduce((style, tween) => {
-                              const value = interpolate(tween.id, playhead);
-                              if (value !== undefined) {
-                                const definition = getDefinition(tween.definitionId);
-                                style[definition.styleName] = definition.format(value);
-                              }
-                              return style;
-                            }, {})
-                          }}
-                        />
-                      </div>
+                                const initX = getInstanceDefinitionValue(instance.id, 'left') || 0;
+                                const initY = getInstanceDefinitionValue(instance.id, 'top') || 0;
+                                startDrag({
+                                  event,
+                                  onUpdate: ({ deltaX, deltaY }) => {
+                                    setInstanceDefinitionValue(instance.id, 'left', initX + deltaX);
+                                    setInstanceDefinitionValue(instance.id, 'top', initY + deltaY);
+                                  }
+                                })
+                              }}
+                              style={{
+                                position: 'absolute',
+                                width: 30,
+                                height: 30,
+                                backgroundColor: 'blue',
+
+                                ...Object.keys(instance.definitionValues).reduce((style, definitionId) => {
+                                  const definition = getDefinition(definitionId);
+                                  const value = instance.definitionValues[definitionId];
+                                  style[definition.styleName] = definition.format(value);
+                                  return style;
+                                }, {}),
+
+                                ...getTweens(anim.id).reduce((style, tween) => {
+                                  const value = interpolate(tween.id, playhead);
+                                  if (value !== undefined) {
+                                    const definition = getDefinition(tween.definitionId);
+                                    style[definition.styleName] = definition.format(value);
+                                  }
+                                  return style;
+                                }, {})
+                              }}
+                            >
+                              {isHovering && (
+                                <div className={styles.name}>{instance.name}</div>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </MediaStore.Consumer>
                     )}
-                  </MediaStore.Consumer>
+                  </StageStore.Consumer>
                 )}
-              </StageStore.Consumer>
+              </Drag>
             )}
-          </Drag>
+          </Hover>
         )}
       </UIStore.Consumer>
     )}

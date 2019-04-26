@@ -139,6 +139,7 @@ export default class StageStore extends React.Component {
           setInstanceAnimation: this.setInstanceAnimation,
           getInstances: this.getInstances,
           getInstance: this.getInstance,
+          deleteInstance: this.deleteInstance,
 
           getInstanceDefinitionValue: this.getInstanceDefinitionValue,
           setInstanceDefinitionValue: this.setInstanceDefinitionValue,
