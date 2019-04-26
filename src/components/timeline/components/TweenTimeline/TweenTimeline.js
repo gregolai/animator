@@ -1,9 +1,51 @@
 import React from 'react';
 import classnames from 'classnames';
 import { AnimationStore, MediaStore, UIStore } from 'stores';
+import Canvas from 'components/shared/Canvas';
 import Drag from 'components/shared/Drag';
 
 import styles from './TweenTimeline.scss';
+
+const TICK_COLOR = '#a1a1a1';
+
+class Ticks extends React.Component {
+  onResize = ({ cvs, ctx }) => {
+    const { width, height } = cvs;
+    ctx.clearRect(0, 0, width, height);
+
+    const getHeight = i => {
+      if (i % 10 === 0) return 12;
+      if (i % 5 === 0) return 8;
+      return 4;
+    };
+
+    ctx.fillStyle = TICK_COLOR;
+
+    const spacing = 10;
+
+    let x = spacing;
+    let i = 1;
+
+    while (x < width) {
+      const h = getHeight(i);
+      const y = height - h;
+      ctx.fillRect(x, y, 1, h);
+      ++i;
+      x += spacing;
+    }
+  };
+
+  render() {
+    return (
+      <div
+        className={styles.ticks}
+        style={{ height: 12 }}
+      >
+        <Canvas onResize={this.onResize} />
+      </div>
+    );
+  }
+}
 
 const Keyframe = ({ keyframe, isDragging, onMouseDown }) => (
   <MediaStore.Consumer>
@@ -81,6 +123,7 @@ const TweenTimeline = ({ tween, tweenIndex }) => {
                       )}
                     </Drag>
                   ))}
+                  <Ticks />
                 </>
               )
             }}

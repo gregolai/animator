@@ -1,0 +1,34 @@
+@import "../../../constants.scss";
+
+:local {
+  .container {
+    position: relative;
+    padding-left: $grid-px * 2;
+  }
+
+  .accessory {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+  }
+
+  .title,
+  .title * {
+    height: $common-height-px;
+    line-height: $common-height-px;
+
+    transition: all 250ms ease-out;
+
+    &:hover,
+    &:hover * {
+      color: $color-font-0;
+    }
+
+    &.expanded,
+    &.expanded * {
+      color: $color-font-0;
+      font-size: $font-size-xl;
+    }
+  }
+}

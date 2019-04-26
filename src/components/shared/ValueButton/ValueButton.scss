@@ -3,6 +3,13 @@
 :local {
   .container {
     position: relative;
+    height: $common-height-px;
+
+    border: 1px solid transparent;
+
+    &:hover {
+      border-color: $color-border-0;
+    }
   }
 
   .disabled {

@@ -3,11 +3,8 @@ import rework from 'rework';
 import difference from 'lodash/difference';
 import { uniqueNamesGenerator } from 'unique-names-generator';
 
-import {
-  getPropDefinitionFromCSSName,
-  getPropDefinitionFromName,
-  getPropDefinitionList
-} from 'utils/cssProps';
+import { getDefinition, getDefinitions } from 'utils/definitions';
+
 import db from 'utils/db';
 import { normalizeTime } from 'utils/time';
 import interpolate from 'utils/interpolate';
@@ -19,10 +16,9 @@ const persist = createPersist('AnimationStore', {
   tweens: []
 });
 
-const createAnimation = ({ name = undefined, offset = { x: 0, y: 0 } }) => {
+const createAnimation = ({ name = undefined }) => {
   return {
-    name: name || uniqueNamesGenerator('-', true),
-    offset
+    name: name || uniqueNamesGenerator('-', true)
   }
 }
 
@@ -78,16 +74,13 @@ const fromCSSString = cssString => {
           // each "prop: value" pair
           keyframe.declarations.forEach(decl => {
 
-            // e.g. background-color
-            const cssName = decl.property;
-
-            const definition = getPropDefinitionFromCSSName(cssName);
+            const definition = getDefinition(decl.property);
             if (!definition) {
-              console.warn(`Definition for CSS prop not yet supported: ${cssName}`);
+              console.warn(`Definition for CSS prop not yet supported: ${decl.property}`);
               return; // EARLY EXIT
             }
 
-            const definitionId = definition.name; // use as ID for now
+            const definitionId = definition.id;
 
             // e.g. 100px => 100
             const value = definition.parse(decl.value);
@@ -149,9 +142,7 @@ export default class AnimationStore extends React.Component {
 
   // CREATE - Animation
   createAnimation = () => {
-    const { list: animations, item, index } = db.createOne(this.state.animations, createAnimation({
-      offset: { x: 0, y: 0 }
-    }));
+    const { list: animations, item, index } = db.createOne(this.state.animations, createAnimation({}));
 
     this.setState({ animations });
     persist.animations.write(animations);
@@ -184,22 +175,10 @@ export default class AnimationStore extends React.Component {
     };
   }
 
-  setAnimationOffset = (animId, offset = { x: 0, y: 0 }) => {
-    const { list: animations, item, index } = db.setOne(this.state.animations, animId, { offset });
-
-    this.setState({ animations });
-    persist.animations.write(animations);
-
-    return {
-      anim: item,
-      animIndex: index
-    };
-  }
-
   // CREATE - Tween
-  createTween = (animId, propName) => {
+  createTween = (animId, definitionId) => {
 
-    const definition = getPropDefinitionFromName(propName);
+    const definition = getDefinition(definitionId);
 
     // ensure definition and prevent duplicates
     if (
@@ -211,8 +190,6 @@ export default class AnimationStore extends React.Component {
         tweenIndex: -1
       };
     }
-
-    const definitionId = definition.name; // use as ID for now
 
     const { list: tweens, item, index } = db.createOne(this.state.tweens, createTween({
       animId,
@@ -348,7 +325,7 @@ export default class AnimationStore extends React.Component {
     const tween = this.getTween(tweenId);
     if (!tween) return undefined;
 
-    const definition = this.getDefinition(tween.definitionId)
+    const definition = getDefinition(tween.definitionId)
 
     return interpolate(
       this.getKeyframes(tweenId),
@@ -364,8 +341,8 @@ export default class AnimationStore extends React.Component {
     }
 
     return difference(
-      getPropDefinitionList(),
-      this.getTweens(animId).map(t => this.getDefinition(t.definitionId))
+      getDefinitions(),
+      this.getTweens(animId).map(t => getDefinition(t.definitionId))
     );
   }
 
@@ -400,10 +377,6 @@ export default class AnimationStore extends React.Component {
       .sort((a, b) => a.time < b.time ? -1 : 1); // sort by time
   }
 
-  getDefinition = definitionId => {
-    return getPropDefinitionFromName(definitionId);
-  }
-
   render() {
     return (
       <Context.Provider
@@ -411,7 +384,6 @@ export default class AnimationStore extends React.Component {
           importAnimations: this.importAnimations,
 
           createAnimation: this.createAnimation, // CREATE
-          setAnimationOffset: this.setAnimationOffset, // UPDATE
           deleteAnimation: this.deleteAnimation, // DELETE
 
           createTween: this.createTween, // CREATE
@@ -435,7 +407,6 @@ export default class AnimationStore extends React.Component {
           getKeyframes: this.getKeyframes,
 
           getUnusedPropDefinitions: this.getUnusedPropDefinitions,
-          getDefinition: this.getDefinition,
 
           interpolate: this.interpolate
         }}

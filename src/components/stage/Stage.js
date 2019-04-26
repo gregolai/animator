@@ -52,19 +52,16 @@ const StageCanvas = () => (
 export default ({ className, showControls }) => (
   <div className={classnames(styles.container, className)}>
     <StageCanvas />
-    <AnimationStore.Consumer>
-      {({ getAnimations, getTweens }) => (
+    <StageStore.Consumer>
+      {({ getInstances }) => (
         <div className={styles.instances}>
-          {getAnimations().map(anim => (
-            <AnimInstance
-              key={anim.id}
-              anim={anim}
-              tweens={getTweens(anim.id)}
-            />
+          {getInstances().map(instance => (
+            <AnimInstance key={instance.id} instance={instance} />
           ))}
         </div>
       )}
-    </AnimationStore.Consumer>
+
+    </StageStore.Consumer>
     {showControls && <Controls />}
   </div>
 );

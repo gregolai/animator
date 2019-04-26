@@ -2,6 +2,7 @@ import React from 'react';
 import classnames from 'classnames';
 
 import { ContextField, Icon, IconButton } from 'components/core';
+import ExpandingTitle from 'components/shared/ExpandingTitle';
 import Hover from 'components/shared/Hover';
 import ValueEditor from 'components/shared/ValueEditor';
 
@@ -52,26 +53,24 @@ const Head = ({ anim }) => (
         {({ isAnimationSelected, setSelectedAnim }) => (
           <AnimationStore.Consumer>
             {({ deleteAnimation }) => (
-              <div
-                ref={hoverRef}
-                className={styles.head}
-              >
-                <DeleteAnimation
-                  enabled={isHovering && isAnimationSelected(anim.id)}
-                  onClick={() => {
-                    const { animIndex, animations } = deleteAnimation(anim.id);
-
-                    const nextAnim = animations[animIndex] || animations[animIndex - 1];
-                    setSelectedAnim(nextAnim ? nextAnim.id : -1);
-                  }}
-                />
-                <ContextField
-                  className={classnames(styles.animName, {
-                    [styles.selected]: isAnimationSelected(anim.id)
-                  })}
-                  label={anim.name}
-                  fieldIndex={0}
+              <div className={styles.head}>
+                <ExpandingTitle
+                  ref={hoverRef}
+                  className={styles}
+                  isExpanded={isAnimationSelected(anim.id)}
                   onClick={() => setSelectedAnim(anim.id)}
+                  label={anim.name}
+                  accessory={
+                    <DeleteAnimation
+                      enabled={isHovering && isAnimationSelected(anim.id)}
+                      onClick={() => {
+                        const { animIndex, animations } = deleteAnimation(anim.id);
+
+                        const nextAnim = animations[animIndex] || animations[animIndex - 1];
+                        setSelectedAnim(nextAnim ? nextAnim.id : -1);
+                      }}
+                    />
+                  }
                 />
               </div>
             )}

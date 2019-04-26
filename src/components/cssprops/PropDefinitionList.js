@@ -20,12 +20,12 @@ const PropDefinitionList = ({ className }) => (
               fieldIndex={0}
             />
             <div className={styles.list}>
-              {getUnusedPropDefinitions(selectedAnimId).map(def => (
+              {getUnusedPropDefinitions(selectedAnimId).map(definition => (
                 <DisclosureField
-                  key={def.name}
+                  key={definition.id}
                   hoverable
-                  label={def.name}
-                  onClick={() => createTween(selectedAnimId, def.name)}
+                  label={definition.id}
+                  onClick={() => createTween(selectedAnimId, definition.id)}
                 />
               ))}
             </div>

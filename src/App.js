@@ -6,6 +6,7 @@ import cssbeautify from 'cssbeautify';
 import { ButtonField } from 'components/core';
 import { withStores, AnimationStore, ImporterStore, UIStore } from 'stores';
 
+import InstanceEditor from './components/instanceeditor/InstanceEditor';
 import Stage from './components/stage/Stage';
 import ImportCSSModal from './components/importer/ImportCSSModal';
 import MediaControls from './components/media/MediaControls';
@@ -54,14 +55,14 @@ const App = withStores(() => (
     <SplitPane
       split="horizontal"
       minSize={300}
-      maxSize={-200}
-      defaultSize={500}
+      maxSize={-300}
+    //defaultSize={-200}
     >
       {/* TOP REGION */}
       <div className={styles.top}>
 
-        {/* LEFT OF STAGE */}
-        <div className={styles.topLeft}>
+        {/* PROP DEFINITIONS */}
+        <div className={styles.col0}>
           {/* IMPORT CSS */}
           <ImporterStore.Consumer>
             {({ setOpen }) => (
@@ -73,17 +74,6 @@ const App = withStores(() => (
               />
             )}
           </ImporterStore.Consumer>
-
-          {/* GENERATED ANIMATION CSS */}
-          {/* <Store.Consumer>
-        {({ getCss }) => (
-          <TextareaField
-            fieldIndex={0}
-            label="Keyframe CSS"
-            value={getCss()}
-          />
-        )}
-      </Store.Consumer> */}
 
           {/* DEFINITION LISTS */}
           <PropDefinitionList className={styles.propList} />
@@ -109,8 +99,13 @@ const App = withStores(() => (
           </UIStore.Consumer>
         </div>
 
+        {/* INSTANCE EDITING */}
+        <div className={styles.col1}>
+          <InstanceEditor />
+        </div>
+
         {/* STAGE REGION */}
-        <div className={styles.topRight}>
+        <div className={styles.col2}>
           <Stage className={styles.stage} showControls />
           <MediaControls className={styles.mediaControls} />
         </div>

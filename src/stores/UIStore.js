@@ -5,7 +5,8 @@ const persist = createPersist('UIStore', {
   expandedTweenId: -1,
   hiddenTweens: {},
   lockedTweens: {},
-  selectedAnimId: -1
+  selectedAnimId: -1,
+  selectedInstanceId: -1
 });
 
 const INITIAL_STATE = {
@@ -13,6 +14,7 @@ const INITIAL_STATE = {
   hiddenTweens: persist.hiddenTweens.read(),
   lockedTweens: persist.lockedTweens.read(),
   selectedAnimId: persist.selectedAnimId.read(),
+  selectedInstanceId: persist.selectedInstanceId.read()
 }
 
 const Context = React.createContext(INITIAL_STATE);
@@ -30,6 +32,13 @@ export default class UIStore extends React.Component {
 
   isAnimationSelected = animId => {
     return this.state.selectedAnimId === animId;
+  }
+
+  setSelectedInstance = instanceId => {
+    const selectedInstanceId = instanceId;
+
+    this.setState({ selectedInstanceId });
+    persist.selectedInstanceId.write(selectedInstanceId);
   }
 
   isTweenExpanded = tweenId => {
@@ -84,6 +93,9 @@ export default class UIStore extends React.Component {
           selectedAnimId: this.state.selectedAnimId,
           setSelectedAnim: this.setSelectedAnim,
           isAnimationSelected: this.isAnimationSelected,
+
+          selectedInstanceId: this.state.selectedInstanceId,
+          setSelectedInstance: this.setSelectedInstance,
 
           isTweenExpanded: this.isTweenExpanded,
           setTweenExpanded: this.setTweenExpanded,

@@ -1,71 +1,91 @@
 import React from 'react';
 import classnames from 'classnames';
 
-import { AnimationStore, MediaStore, UIStore } from 'stores';
+import { AnimationStore, MediaStore, StageStore, UIStore } from 'stores';
+import { getDefinition } from 'utils/definitions';
 import Drag from 'components/shared/Drag';
 
 import styles from './AnimInstance.scss';
 
-const AnimInstance = ({ anim, tweens }) => (
-  <UIStore.Consumer>
-    {({ setSelectedAnim }) => (
-      <AnimationStore.Consumer>
-        {({ interpolate, setAnimationOffset, getDefinition }) => (
+const Inner = ({ anim, instance }) => (
+  <AnimationStore.Consumer>
+    {({ interpolate, getTweens }) => (
+      <UIStore.Consumer>
+        {({ setSelectedInstance }) => (
           <Drag>
             {({ isDragging, startDrag }) => (
-              <MediaStore.Consumer>
-                {({ playhead }) => (
-                  <div
-                    className={classnames(styles.container, {
-                      [styles.dragging]: isDragging
-                    })}
-                    style={{
-                      top: anim.offset.y,
-                      left: anim.offset.x
-                    }}
-                  >
-                    <div
-                      className={styles.inner}
-                      onMouseDown={event => {
-                        if (event.button !== 0) return;
+              <StageStore.Consumer>
+                {({ getInstanceDefinitionValue, setInstanceDefinitionValue }) => (
 
-                        setSelectedAnim(anim.id);
+                  <MediaStore.Consumer>
+                    {({ playhead }) => (
+                      <div
+                        className={classnames(styles.container, {
+                          [styles.dragging]: isDragging
+                        })}
+                      >
+                        <div
+                          className={styles.inner}
+                          onMouseDown={event => {
+                            if (event.button !== 0) return;
 
-                        const init = anim.offset;
+                            setSelectedInstance(instance.id);
 
-                        startDrag({
-                          event,
-                          onUpdate: ({ deltaX, deltaY }) => {
-                            setAnimationOffset(anim.id, {
-                              x: init.x + deltaX,
-                              y: init.y + deltaY
+                            const initX = getInstanceDefinitionValue(instance.id, 'left') || 0;
+                            const initY = getInstanceDefinitionValue(instance.id, 'top') || 0;
+                            startDrag({
+                              event,
+                              onUpdate: ({ deltaX, deltaY }) => {
+                                setInstanceDefinitionValue(instance.id, 'left', initX + deltaX);
+                                setInstanceDefinitionValue(instance.id, 'top', initY + deltaY);
+                              }
                             })
-                          }
-                        })
-                      }}
-                      style={{
-                        width: 30,
-                        height: 30,
-                        backgroundColor: 'blue',
-                        ...tweens.reduce((style, tween) => {
-                          const value = interpolate(tween.id, playhead);
-                          if (value !== undefined) {
-                            const definition = getDefinition(tween.definitionId);
-                            style[definition.name] = value;
-                          }
-                          return style;
-                        }, {})
-                      }}
-                    />
-                  </div>
+                          }}
+                          style={{
+                            position: 'absolute',
+                            width: 30,
+                            height: 30,
+                            backgroundColor: 'blue',
+
+                            ...Object.keys(instance.definitionValues).reduce((style, definitionId) => {
+                              const definition = getDefinition(definitionId);
+                              const value = instance.definitionValues[definitionId];
+                              style[definition.styleName] = definition.format(value);
+                              return style;
+                            }, {}),
+
+                            ...getTweens(anim.id).reduce((style, tween) => {
+                              const value = interpolate(tween.id, playhead);
+                              if (value !== undefined) {
+                                const definition = getDefinition(tween.definitionId);
+                                style[definition.styleName] = definition.format(value);
+                              }
+                              return style;
+                            }, {})
+                          }}
+                        />
+                      </div>
+                    )}
+                  </MediaStore.Consumer>
                 )}
-              </MediaStore.Consumer>
+              </StageStore.Consumer>
             )}
           </Drag>
         )}
-      </AnimationStore.Consumer>
+      </UIStore.Consumer>
     )}
-  </UIStore.Consumer>
+  </AnimationStore.Consumer>
+)
+
+const AnimInstance = ({ instance }) => (
+  <AnimationStore.Consumer>
+    {({ getAnimation }) => (
+      <Inner
+        anim={getAnimation(instance.animId)}
+        instance={instance}
+      />
+    )}
+  </AnimationStore.Consumer>
 )
 
 export default AnimInstance;

@@ -1,10 +1,11 @@
 import React from 'react';
 import classnames from 'classnames';
-import { Icon } from 'components/core';
 
+import { Icon } from 'components/core';
 import Button from 'components/shared/Button';
 import Hover from 'components/shared/Hover';
 import ValueButton from 'components/shared/ValueButton';
+import { getDefinition } from 'utils/definitions';
 
 import { AnimationStore, MediaStore, UIStore } from 'stores'
 
@@ -84,7 +85,7 @@ const TweenLabel = ({ tween }) => (
         {({ playhead }) => (
 
           <AnimationStore.Consumer>
-            {({ interpolate, getDefinition }) => (
+            {({ interpolate }) => (
 
               <Hover>
                 {({ hoverRef, isHovering }) => (
@@ -97,7 +98,6 @@ const TweenLabel = ({ tween }) => (
                     })}
                     definition={getDefinition(tween.definitionId)}
                     isToggled={isTweenExpanded(tween.id)}
-                    label={getDefinition(tween.definitionId).name}
                     onClick={() => {
                       const canExpand = !isTweenLocked(tween.id) && !isTweenHidden(tween.id);
                       if (canExpand) {

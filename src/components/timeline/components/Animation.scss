@@ -26,25 +26,6 @@
     }
   }
 
-  .animName,
-  .animName * {
-    height: $head-height;
-    line-height: $head-height;
-
-    transition: all 250ms ease-out;
-
-    &:hover,
-    &:hover * {
-      color: $color-font-0;
-    }
-
-    &.selected,
-    &.selected * {
-      color: $color-font-0;
-      font-size: $font-size-xl;
-    }
-  }
-
   .tweens {}
 
   .tween {

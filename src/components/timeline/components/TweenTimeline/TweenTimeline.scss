@@ -26,7 +26,16 @@
     }
   }
 
+  .ticks {
+    z-index: 1;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+  }
+
   .bar {
+    z-index: 2;
     position: absolute;
     top: 50%;
     height: $bar-size;
@@ -39,6 +48,7 @@
   }
 
   .keyframe {
+    z-index: 3;
     position: absolute;
     top: 50%;
     width: $diamond-size;
