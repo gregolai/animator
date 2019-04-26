@@ -1,0 +1,13 @@
+@import "../../constants.scss";
+
+:local {
+  .definitions {
+    // 2 column
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .definition {
+    width: 50%;
+  }
+}

@@ -56,7 +56,7 @@ const Head = ({ anim }) => (
               <div className={styles.head}>
                 <ExpandingTitle
                   ref={hoverRef}
-                  className={styles}
+                  className={styles.animTitle}
                   isExpanded={isAnimationSelected(anim.id)}
                   onClick={() => setSelectedAnim(anim.id)}
                   label={anim.name}

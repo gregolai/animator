@@ -8,9 +8,7 @@
 
   .head {
     padding-top: $grid-px;
-    cursor: pointer;
     display: flex;
-
     width: $timeline-left-width;
   }
 
@@ -24,6 +22,10 @@
     &.hidden {
       opacity: 0;
     }
+  }
+
+  .animTitle {
+    padding-left: $grid-px * 4;
   }
 
   .tweens {}

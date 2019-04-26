@@ -7,6 +7,8 @@ export { default as NumberField } from '@sqs/core-components/fields/NumberField'
 export { default as RangeField } from '@sqs/core-components/fields/RangeField';
 export { default as TextareaField } from '@sqs/core-components/fields/TextareaField';
 
+export { default as DropdownSelect } from '@sqs/core-components/components/DropdownSelect';
+
 export { default as ButtonPrimitive } from '@sqs/core-components/primitives/Button';
 export { default as ErrorText } from '@sqs/core-components/primitives/ErrorText';
 export { default as Icon } from '@sqs/core-components/primitives/Icon';

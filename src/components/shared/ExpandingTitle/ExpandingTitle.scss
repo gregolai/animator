@@ -3,7 +3,7 @@
 :local {
   .container {
     position: relative;
-    padding-left: $grid-px * 2;
+    cursor: pointer;
   }
 
   .accessory {
@@ -17,6 +17,9 @@
   .title * {
     height: $common-height-px;
     line-height: $common-height-px;
+
+    padding-left: 0;
+    padding-right: 0;
 
     transition: all 250ms ease-out;
 
