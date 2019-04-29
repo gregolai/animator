@@ -279,12 +279,18 @@ export default class AnimationStore extends React.Component {
       return;
     }
 
+    const definitionValues = {
+      ...instance.definitionValues,
+      [definitionId]: value
+    };
+    // special case when undefined - delete key
+    if (value === undefined) {
+      delete definitionValues[definitionId];
+    }
+
     const { list: instances } = db.setOne(this.state.instances, instanceId, {
       ...instance,
-      definitionValues: {
-        ...instance.definitionValues,
-        [definitionId]: value
-      }
+      definitionValues
     });
 
     this.setState({ instances });
@@ -425,6 +431,15 @@ export default class AnimationStore extends React.Component {
       this.createKeyframe(tweenId, time, value);
   }
 
+  deleteKeyframe = (keyframeId) => {
+    const { list: keyframes, item } = db.deleteOne(this.state.keyframes, keyframeId);
+
+    this.setState({ keyframes });
+    persist.keyframes.write(keyframes);
+
+    return item;
+  }
+
   interpolate = (tweenId, time) => {
     const tween = this.getTween(tweenId);
     if (!tween) return undefined;
@@ -503,6 +518,7 @@ export default class AnimationStore extends React.Component {
 
           createKeyframe: this.createKeyframe, // CREATE
           // TODO: DELETE
+          deleteKeyframe: this.deleteKeyframe,
 
           setKeyframeTime: this.setKeyframeTime,
           setKeyframeValue: this.setKeyframeValue,

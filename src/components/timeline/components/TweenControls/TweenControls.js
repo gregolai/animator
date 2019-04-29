@@ -65,50 +65,65 @@ const DeleteTween = ({ isHovering, tween }) => (
   </UIStore.Consumer>
 )
 
-const TweenLabel = ({ tween }) => (
-  <UIStore.Consumer>
-    {({ isTweenLocked, isTweenHidden, isTweenExpanded, setTweenExpanded }) => (
+const TweenLabel = ({ time, tween, value }) => (
+  <AnimationStore.Consumer>
+    {({ createKeyframe, deleteKeyframe, getKeyframeAtTime }) => (
+      <UIStore.Consumer>
+        {({ isTweenLocked, isTweenHidden, isTweenExpanded, setTweenExpanded }) => (
+          <Hover>
+            {({ hoverRef, isHovering }) => (
+              <ValueButton
+                ref={hoverRef}
+                accessory={<DeleteTween isHovering={isHovering} tween={tween} />}
+                className={classnames(styles.btnValue, {
+                  [styles.locked]: isTweenLocked(tween.id),
+                  [styles.hidden]: isTweenHidden(tween.id)
+                })}
+                definition={getDefinition(tween.definitionId)}
+                isToggled={isTweenExpanded(tween.id)}
 
-      <MediaStore.Consumer>
-        {({ playhead }) => (
-
-          <AnimationStore.Consumer>
-            {({ interpolate }) => (
-
-              <Hover>
-                {({ hoverRef, isHovering }) => (
-                  <ValueButton
-                    ref={hoverRef}
-                    accessory={<DeleteTween isHovering={isHovering} tween={tween} />}
-                    className={classnames(styles.btnValue, {
-                      [styles.locked]: isTweenLocked(tween.id),
-                      [styles.hidden]: isTweenHidden(tween.id)
-                    })}
-                    definition={getDefinition(tween.definitionId)}
-                    isToggled={isTweenExpanded(tween.id)}
-                    onClick={() => {
-                      const canExpand = !isTweenLocked(tween.id) && !isTweenHidden(tween.id);
-                      if (canExpand) {
-                        setTweenExpanded(tween.id, !isTweenExpanded(tween.id))
-                      }
-                    }}
-                    value={interpolate(tween.id, playhead)}
-                  />
-                )}
-              </Hover>
+                canClear={true}
+                onClear={() => {
+                  const keyframe = getKeyframeAtTime(tween.id, time);
+                  if (keyframe) {
+                    deleteKeyframe(keyframe.id);
+                  } else {
+                    createKeyframe(tween.id, time, value);
+                    setTweenExpanded(tween.id, true);
+                  }
+                }}
+                onClick={() => {
+                  const canExpand = !isTweenLocked(tween.id) && !isTweenHidden(tween.id);
+                  if (canExpand) {
+                    setTweenExpanded(tween.id, !isTweenExpanded(tween.id))
+                  }
+                }}
+                value={value}
+              />
             )}
-          </AnimationStore.Consumer>
-
+          </Hover>
         )}
-      </MediaStore.Consumer>
-
+      </UIStore.Consumer>
     )}
-  </UIStore.Consumer>
+  </AnimationStore.Consumer>
 );
 
 const TweenControls = ({ tween, tweenIndex }) => (
   <div className={styles.container}>
-    <TweenLabel tween={tween} />
+    <AnimationStore.Consumer>
+      {({ interpolate }) => (
+        <MediaStore.Consumer>
+          {({ playhead }) => (
+            <TweenLabel
+              time={playhead}
+              value={interpolate(tween.id, playhead)}
+              tween={tween}
+            />
+          )}
+        </MediaStore.Consumer>
+      )}
+    </AnimationStore.Consumer>
+
     <ToggleLock tween={tween} />
     <ToggleVisible tween={tween} />
   </div>

@@ -5,7 +5,7 @@ import { Button } from 'components/shared';
 import styles from './ValueButton.scss';
 
 const ValueButton = React.forwardRef(
-  ({ accessory, className, definition, isDisabled, isToggled, onClick, value }, ref) => (
+  ({ accessory, canClear, className, definition, isDisabled, isToggled, onClick, onClear, value }, ref) => (
     <Button
       ref={ref}
       className={classnames(styles.container, {
@@ -21,6 +21,19 @@ const ValueButton = React.forwardRef(
       <span className={styles.value}>
         {value === undefined ? '•' : definition.format(value)}
       </span>
+      {canClear && value !== undefined && (
+        <div
+          role="button"
+          className={styles.clear}
+          onClick={e => {
+            e.preventDefault();
+            e.stopPropagation();
+            onClear();
+          }}
+        >
+          clear
+        </div>
+      )}
     </Button>
   ));
 

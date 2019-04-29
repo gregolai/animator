@@ -1,11 +1,14 @@
 import React from 'react';
 import classnames from 'classnames';
 
-import { TIME_STEP_SECONDS } from '../../utils/time';
-
+import { TIME_STEP_SECONDS } from 'utils/time';
+//import { Canvas } from 'components/shared';
 import { MediaStore } from 'stores';
 
 import styles from './Playhead.scss';
+
+
+
 
 const Playhead = ({ className }) => (
   <MediaStore.Consumer>

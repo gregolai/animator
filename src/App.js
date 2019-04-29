@@ -55,7 +55,7 @@ const App = withStores(() => (
       split="horizontal"
       minSize={300}
       maxSize={-300}
-      defaultSize={window.innerHeight / 2}
+      defaultSize={window.innerHeight * 0.6}
     >
       {/* TOP REGION */}
       <div className={styles.top}>

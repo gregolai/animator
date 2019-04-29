@@ -1,14 +1,35 @@
 @import "../../../constants.scss";
 
 :local {
+  $value-width: $grid-px * 6;
+
   .container {
     position: relative;
     height: $common-height-px;
-
     border: 1px solid transparent;
+
+    .clear {
+      position: absolute;
+      font-size: $font-size-xs;
+      right: 0;
+      bottom: 0;
+      width: $value-width;
+      height: $font-size-xs;
+      text-align: center;
+      background-color: $color-bg-2;
+      display: none;
+
+      &:hover {
+        background-color: $color-bg-0;
+      }
+    }
 
     &:hover {
       border-color: $color-border-0;
+
+      .clear {
+        display: block;
+      }
     }
   }
 
@@ -35,6 +56,6 @@
   .value {
     text-align: center;
     font-size: $font-size-sm;
-    width: $grid-px * 6;
+    width: $value-width;
   }
 }

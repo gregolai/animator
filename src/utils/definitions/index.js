@@ -2,7 +2,11 @@ import React from 'react';
 import color from 'color';
 import camelCase from 'lodash/camelCase';
 import { Dropdown } from 'components/basic';
-import { ColorField, RangeField } from 'components/core';
+import { DropdownSelect, ColorField, RangeField } from 'components/core';
+
+const constants = {
+  positions: ['static', 'relative', 'absolute', 'sticky', 'fixed']
+}
 
 const toPx = v => (typeof v === 'number' ? `${v}px` : v);
 
@@ -30,6 +34,16 @@ const renderPosition = ({ onChange, value = 0 }) => (
     max={1000}
     min={-1000}
     step={1}
+    onChange={onChange}
+    value={value}
+  />
+)
+
+const renderRatio = ({ onChange, value = 1 }) => (
+  <RangeField
+    max={1}
+    min={0}
+    step={0.01}
     onChange={onChange}
     value={value}
   />
@@ -113,16 +127,28 @@ export const definitionMap = {
     parse: parseNumber,
     render: renderMargin
   },
+  'opacity': {
+    format: v => v,
+    lerp: lerpNumber,
+    parse: parseNumber,
+    render: renderRatio
+  },
   'position': {
-    format: formatPixels,
+    format: v => v,
     lerp: (from, to, t) => from, // todo: no animate
     parse: str => {
-      return ['static', 'relative', 'absolute', 'sticky', 'fixed'].indexOf(str) !== -1 ? str : undefined
+      return constants.positions.indexOf(str) !== -1 ? str : undefined
     },
-    render: props => (
-      <Dropdown
-        options={['static', 'relative', 'absolute', 'sticky', 'fixed']}
-        {...props}
+    render: ({ onChange, value }) => (
+      <DropdownSelect
+        isFloating={false}
+        placeholder="Position"
+        options={constants.positions.map(p => ({
+          label: p,
+          value: p
+        }))}
+        onChange={onChange}
+        value={value}
       />
     )
   },

@@ -10,12 +10,14 @@ import InstanceHead from './InstanceHead';
 
 const EditButton = ({ definition, isToggled, onClick, instance }) => (
   <AnimationStore.Consumer>
-    {({ getInstanceDefinitionValue }) => (
+    {({ setInstanceDefinitionValue, getInstanceDefinitionValue }) => (
       <ValueButton
+        canClear={true}
         className={styles.definition}
         definition={definition}
         isToggled={isToggled}
         onClick={onClick}
+        onClear={() => setInstanceDefinitionValue(instance.id, definition.id, undefined)}
         value={getInstanceDefinitionValue(instance.id, definition.id)}
       />
     )}
