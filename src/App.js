@@ -55,7 +55,7 @@ const App = withStores(() => (
       split="horizontal"
       minSize={300}
       maxSize={-300}
-    //defaultSize={-200}
+      defaultSize={window.innerHeight / 2}
     >
       {/* TOP REGION */}
       <div className={styles.top}>
@@ -73,26 +73,6 @@ const App = withStores(() => (
               />
             )}
           </ImporterStore.Consumer>
-
-          {/* ADD ANIMATION */}
-          <UIStore.Consumer>
-            {({ setSelectedAnim }) => (
-              <AnimationStore.Consumer>
-                {({ createAnimation }) => (
-                  <ButtonField
-                    flush
-                    inverted
-                    size="small"
-                    label="Add Animation"
-                    onClick={() => {
-                      const { anim } = createAnimation();
-                      setSelectedAnim(anim.id);
-                    }}
-                  />
-                )}
-              </AnimationStore.Consumer>
-            )}
-          </UIStore.Consumer>
         </div>
 
         {/* INSTANCE EDITING */}

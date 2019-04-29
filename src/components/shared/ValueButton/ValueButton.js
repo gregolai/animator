@@ -1,6 +1,6 @@
 import React from 'react';
 import classnames from 'classnames';
-import Button from 'components/shared/Button';
+import { Button } from 'components/shared';
 
 import styles from './ValueButton.scss';
 

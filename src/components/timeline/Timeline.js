@@ -2,6 +2,7 @@ import React from 'react';
 import classnames from 'classnames';
 
 import { AnimationStore } from 'stores';
+import { ButtonField } from 'components/core';
 
 import Animation from './components/Animation';
 import PlayheadCursor from './components/PlayheadCursor';
@@ -13,7 +14,23 @@ const Timeline = ({ className }) => (
     {/* PLAYHEAD VERTICAL LINE */}
     <PlayheadCursor className={styles.playhead} />
 
+    {/* ADD ANIMATION */}
+    <AnimationStore.Consumer>
+      {({ createAnimation }) => (
+        <div className={styles.addAnimation}>
+          <ButtonField
+            color="primary"
+            size="small"
+            label="Create Animation"
+            onClick={() => createAnimation()}
+          />
+        </div>
+      )}
+    </AnimationStore.Consumer>
+
     <div className={styles.scrollContainer}>
+
+
 
       <div className={styles.content}>
         <AnimationStore.Consumer>

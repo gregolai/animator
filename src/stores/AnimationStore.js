@@ -12,6 +12,7 @@ import { createPersist } from 'utils/persist';
 
 const persist = createPersist('AnimationStore', {
   animations: [],
+  instances: [],
   keyframes: [],
   tweens: []
 });
@@ -19,6 +20,18 @@ const persist = createPersist('AnimationStore', {
 const createAnimation = ({ name = undefined }) => {
   return {
     name: name || uniqueNamesGenerator('-', true)
+  }
+}
+
+const createInstance = ({
+  animId,
+  definitionValues = {},
+  name = uniqueNamesGenerator('-', true)
+}) => {
+  return {
+    animId,
+    definitionValues,
+    name
   }
 }
 
@@ -44,6 +57,7 @@ const createKeyframe = ({ animId, tweenId, time, value }) => {
 const fromCSSString = cssString => {
   // mutable lists
   const animations = [];
+  const instances = [];
   const keyframes = [];
   const tweens = [];
 
@@ -53,9 +67,12 @@ const fromCSSString = cssString => {
     parseValue: true,
     parseCustomProperty: true,
   }).use((node, fn) => {
+
+
     node.rules.forEach(rule => {
 
-      if (rule.keyframes) {
+      // @keyframes
+      if (rule.type === 'keyframes') {
 
         const anim = db.createOne(animations, createAnimation({ name: rule.name }), true).item;
 
@@ -97,27 +114,71 @@ const fromCSSString = cssString => {
 
             times.forEach(time => {
 
-              let keyframe = db.getOne(keyframes, kf => kf.tweenId === tween.id && kf.time === time).item
+              const keyframe = db.getOne(keyframes, kf => kf.tweenId === tween.id && kf.time === time).item
               if (!keyframe) {
-                keyframe = db.createOne(keyframes, createKeyframe({
+                db.createOne(keyframes, createKeyframe({
                   animId: anim.id,
                   tweenId: tween.id,
                   time,
                   value
-                }), true).item;
+                }), true);
               }
             });
           })
         });
       }
+
+      if (rule.type === 'rule') {
+
+        rule.selectors.forEach(selector => {
+
+          let animation;
+          const instanceName = selector;
+          const definitionValues = {};
+
+          rule.declarations.forEach(decl => {
+
+            if (decl.property === 'animation') {
+
+              // PARSE ANIMATION
+              const parts = decl.value.split(' ');
+              const animName = parts[0];
+              const duration = parts[1]; // TODO
+              const repeat = parts[2]; // TODO
+
+              // FIND ANIMATION BY NAME
+              animation = animations.find(anim => anim.name === animName);
+            } else {
+              const definition = getDefinition(decl.property);
+              if (!definition) {
+                console.warn(`Definition for CSS prop not yet supported: ${decl.property}`);
+                return; // EARLY EXIT
+              }
+              definitionValues[definition.id] = definition.parse(decl.value);
+            }
+
+          });
+
+          if (animation) {
+            // INSERT INSTANCE
+            db.createOne(instances, createInstance({
+              animId: animation.id,
+              definitionValues,
+              name: instanceName
+            }), true);
+          }
+        });
+      }
+
     });
   });
 
-  return { animations, keyframes, tweens };
+  return { animations, instances, keyframes, tweens };
 }
 
 const INITIAL_STATE = {
   animations: persist.animations.read(),
+  instances: persist.instances.read(),
   keyframes: persist.keyframes.read(),
   tweens: persist.tweens.read(),
 }
@@ -129,15 +190,16 @@ export default class AnimationStore extends React.Component {
   state = INITIAL_STATE;
 
   importAnimations = (cssString, replace = false) => {
-    let { animations, keyframes, tweens } = fromCSSString(cssString);
+    let { animations, instances, keyframes, tweens } = fromCSSString(cssString);
 
     if (!replace) {
       animations = [...this.state.animations, ...animations];
+      instances = [...this.state.instances, ...instances];
       keyframes = [...this.state.keyframes, ...keyframes];
       tweens = [...this.state.tweens, ...tweens];
     }
 
-    this.setState({ animations, keyframes, tweens });
+    this.setState({ animations, instances, keyframes, tweens });
   }
 
   // CREATE - Animation
@@ -175,6 +237,71 @@ export default class AnimationStore extends React.Component {
     };
   }
 
+  createInstance = ({ animId }) => {
+    const { list: instances, item, index } = db.createOne(this.state.instances,
+      createInstance({ animId })
+    );
+
+    this.setState({ instances });
+    persist.instances.write(instances);
+
+    return item;
+  }
+
+  setInstanceAnimation = (instanceId, animId) => {
+    const { list: instances, item, index } = db.setOne(this.state.instances, instanceId, { animId });
+
+    this.setState({ instances });
+    persist.instances.write(instances);
+
+    return {
+      instance: item,
+      instanceIndex: index
+    }
+  };
+
+  getInstanceDefinitionValue = (instanceId, definitionId) => {
+    const instance = this.getInstance(instanceId);
+    const definition = getDefinition(definitionId);
+
+    if (!instance || !definition) {
+      return undefined;
+    }
+
+    return instance.definitionValues[definitionId];
+  };
+
+  setInstanceDefinitionValue = (instanceId, definitionId, value) => {
+    const instance = this.getInstance(instanceId);
+    const definition = getDefinition(definitionId);
+
+    if (!instance || !definition) {
+      return;
+    }
+
+    const { list: instances } = db.setOne(this.state.instances, instanceId, {
+      ...instance,
+      definitionValues: {
+        ...instance.definitionValues,
+        [definitionId]: value
+      }
+    });
+
+    this.setState({ instances });
+    persist.instances.write(instances);
+  };
+
+  deleteInstance = (instanceId) => {
+    const { list: instances, item, index } = db.deleteOne(this.state.instances, instanceId);
+
+    this.setState({ instances });
+
+    return {
+      instance: item,
+      instanceIndex: index
+    }
+  }
+
   // CREATE - Tween
   createTween = (animId, definitionId) => {
 
@@ -198,29 +325,6 @@ export default class AnimationStore extends React.Component {
 
     this.setState({ tweens });
     persist.tweens.write(tweens);
-
-    // SAMPLE
-    // {
-    //   const keyframes = [...this.state.keyframes];
-
-    //   db.createOne(keyframes, createKeyframe({
-    //     animId,
-    //     tweenId: item.id,
-    //     time: 0.2,
-    //     //value: 20
-    //     value: '#00ff00'
-    //   }), true);
-
-    //   db.createOne(keyframes, createKeyframe({
-    //     animId,
-    //     tweenId: item.id,
-    //     time: 0.8,
-    //     //value: 80
-    //     value: '#ff0000'
-    //   }), true)
-
-    //   this.setState({ keyframes });
-    // }
 
     return {
       tween: item,
@@ -354,6 +458,14 @@ export default class AnimationStore extends React.Component {
     return [...this.state.animations];
   }
 
+  getInstance = instanceId => {
+    return db.getOne(this.state.instances, instanceId).item;
+  }
+
+  getInstances = () => {
+    return [...this.state.instances];
+  }
+
   getTween = tweenId => {
     return db.getOne(this.state.tweens, tweenId).item;
   }
@@ -398,6 +510,14 @@ export default class AnimationStore extends React.Component {
 
           getAnimation: this.getAnimation,
           getAnimations: this.getAnimations,
+
+          createInstance: this.createInstance,
+          setInstanceAnimation: this.setInstanceAnimation,
+          setInstanceDefinitionValue: this.setInstanceDefinitionValue,
+          getInstances: this.getInstances,
+          getInstance: this.getInstance,
+          getInstanceDefinitionValue: this.getInstanceDefinitionValue,
+          deleteInstance: this.deleteInstance,
 
           getTween: this.getTween,
           getTweens: this.getTweens,

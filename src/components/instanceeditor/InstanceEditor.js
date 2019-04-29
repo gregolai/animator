@@ -1,117 +1,117 @@
 import React from 'react';
-import { AnimationStore, StageStore, UIStore } from 'stores';
+import chunk from 'lodash/chunk';
+import { AnimationStore, UIStore } from 'stores';
 import { getDefinitions } from 'utils/definitions';
-import AddDropdown from 'components/shared/AddDropdown';
-import ExpandingTitle from 'components/shared/ExpandingTitle';
-import IconButton from 'components/shared/IconButton';
-import ValueButton from 'components/shared/ValueButton';
+import { ValueButton, ValueEditor } from 'components/shared';
 import CreateInstance from './CreateInstance';
 import styles from './InstanceEditor.scss';
 
-// const DeleteButton = ({ onClick, enabled }) => (
-//   <IconButton
-//     className={classnames(styles.btnDeleteAnimation, {
-//       [styles.hidden]: !enabled
-//     })}
-//     isDisabled={!enabled}
-//     onClick={onClick}
-//   >
-//     <Icon name="close" />
-//   </IconButton>
-// )
+import InstanceHead from './InstanceHead';
 
-const InstanceHead = ({ instance }) => (
-
-  <UIStore.Consumer>
-    {({ selectedInstanceId, setSelectedInstance }) => (
-      <div className={styles.head}>
-        <ExpandingTitle
-          accessory={
-            <StageStore.Consumer>
-              {({ deleteInstance }) => (
-                <IconButton
-                  icon="close"
-                  onClick={() => deleteInstance(instance.id)}
-                />
-              )}
-            </StageStore.Consumer>
-          }
-          className={styles.title}
-          isExpanded={selectedInstanceId === instance.id}
-          label={instance.name}
-          onClick={() => setSelectedInstance(instance.id)}
-        />
-        <StageStore.Consumer>
-          {({ setInstanceAnimation }) => (
-            <AnimationStore.Consumer>
-              {({ getAnimation, getAnimations }) => (
-                <AddDropdown
-                  icon="desktop"
-                  label="Animation"
-                  label2={getAnimation(instance.animId).name}
-                  options={
-                    getAnimations()
-                      .map(anim => ({
-                        label: anim.name,
-                        value: anim.id
-                      }))
-                  }
-                  onSelect={animId => {
-                    setInstanceAnimation(instance.id, animId)
-                  }}
-                  value={instance.animId}
-                />
-              )}
-            </AnimationStore.Consumer>
-
-          )}
-        </StageStore.Consumer>
-      </div>
+const EditButton = ({ definition, isToggled, onClick, instance }) => (
+  <AnimationStore.Consumer>
+    {({ getInstanceDefinitionValue }) => (
+      <ValueButton
+        className={styles.definition}
+        definition={definition}
+        isToggled={isToggled}
+        onClick={onClick}
+        value={getInstanceDefinitionValue(instance.id, definition.id)}
+      />
     )}
-  </UIStore.Consumer>
-);
+  </AnimationStore.Consumer>
+)
 
-const Instance = ({ instance }) => (
-  <UIStore.Consumer>
-    {({ selectedInstanceId }) => (
-      <div>
-        <InstanceHead instance={instance} />
-        {selectedInstanceId === instance.id && (
-          <div className={styles.definitions}>
-            {getDefinitions().map(definition => (
-              <ValueButton
-                key={definition.id}
-                className={styles.definition}
-                definition={definition}
-                isToggled={false}
-                onClick={() => { }}
-                value={instance.definitionValues[definition.id]}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-    )}
-  </UIStore.Consumer>
-);
+const Definitions = ({ instance }) => {
+  const [expandedDefinitionId, setExpandedDefinition] = React.useState('');
 
-const InstanceEditor = () => {
+  const toggleExpanded = definitionId =>
+    setExpandedDefinition(expandedDefinitionId === definitionId ? -1 : definitionId);
+
+  const rows = chunk(getDefinitions(), 2);
+
   return (
     <div>
-      <CreateInstance />
-      <StageStore.Consumer>
-        {({ getInstances }) => (
-          <div>
-            {getInstances().map(instance => (
-              <Instance
-                key={instance.id}
+      {rows.map(([definition1, definition2]) => (
+        <React.Fragment key={definition1.id}>
+          <div className={styles.buttons}>
+            <EditButton
+              definition={definition1}
+              isToggled={expandedDefinitionId === definition1.id}
+              onClick={() => toggleExpanded(definition1.id)}
+              instance={instance}
+            />
+            {definition2 && (
+              <EditButton
+                definition={definition2}
+                isToggled={expandedDefinitionId === definition2.id}
+                onClick={() => toggleExpanded(definition2.id)}
                 instance={instance}
               />
-            ))}
+            )}
           </div>
-        )}
-      </StageStore.Consumer>
+
+          {
+            (expandedDefinitionId === definition1.id ||
+              (definition2 && expandedDefinitionId === definition2.id))
+            && (
+              <AnimationStore.Consumer>
+                {({ getInstanceDefinitionValue, setInstanceDefinitionValue }) => (
+                  <ValueEditor
+                    definitionId={expandedDefinitionId}
+                    value={getInstanceDefinitionValue(instance.id, expandedDefinitionId)}
+                    onChange={value =>
+                      setInstanceDefinitionValue(instance.id, expandedDefinitionId, value)
+                    }
+                  />
+                )}
+              </AnimationStore.Consumer>
+            )}
+        </React.Fragment>
+      ))}
     </div>
   );
+}
+
+const Instance = ({ instance }) => {
+  return (
+    <UIStore.Consumer>
+      {({ selectedInstanceId }) => (
+        <div>
+          <InstanceHead instance={instance} />
+          {selectedInstanceId === instance.id && (
+            <Definitions instance={instance} />
+          )}
+        </div>
+      )}
+    </UIStore.Consumer>
+  );
+}
+
+class InstanceEditor extends React.Component {
+
+  state = {
+    expandedDefinitionId: ''
+  }
+
+  render() {
+    return (
+      <div>
+        <CreateInstance />
+        <AnimationStore.Consumer>
+          {({ getInstances }) => (
+            <div>
+              {getInstances().map(instance => (
+                <Instance
+                  key={instance.id}
+                  instance={instance}
+                />
+              ))}
+            </div>
+          )}
+        </AnimationStore.Consumer>
+      </div>
+    );
+  }
 };
 export default InstanceEditor;

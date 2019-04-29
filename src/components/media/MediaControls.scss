@@ -7,4 +7,21 @@
     border-radius: $border-radius-px;
     padding-top: $grid-px;
   }
+
+  .top,
+  .bottom {
+    display: flex;
+  }
+
+  .play,
+  .pause,
+  .stop {
+    flex: 1;
+  }
+
+  .duration,
+  .loop,
+  .reverse {
+    flex: 1;
+  }
 }

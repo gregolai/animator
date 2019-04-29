@@ -11,7 +11,7 @@ export default class Canvas extends React.Component {
   _startFrameLoop(onFrame) {
     const cvs = this.cvs;
     const ctx = this.cvs.getContext('2d');
-    
+
     const startTime = Date.now();
     let prevTime = startTime;
 
@@ -34,11 +34,11 @@ export default class Canvas extends React.Component {
   }
 
   componentDidMount() {
-    const observer = new ResizeObserver(els => {
+    this.observer = new ResizeObserver(els => {
       const { width, height } = els[0].contentRect;
       this.setState({ width, height });
     })
-    observer.observe(this.cvs);
+    this.observer.observe(this.cvs);
 
     const { onFrame } = this.props;
     if (onFrame) {
@@ -48,6 +48,9 @@ export default class Canvas extends React.Component {
 
   componentWillUnmount() {
     cancelAnimationFrame(this.raf);
+    if (this.observer) {
+      this.observer.disconnect();
+    }
   }
 
   componentDidUpdate() {
@@ -63,7 +66,7 @@ export default class Canvas extends React.Component {
   captureRef = ref => {
     this.cvs = ref;
   }
-  
+
   render() {
     const { width, height } = this.state;
     return (

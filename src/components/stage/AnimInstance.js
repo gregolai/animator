@@ -3,24 +3,26 @@ import classnames from 'classnames';
 
 import { AnimationStore, MediaStore, StageStore, UIStore } from 'stores';
 import { getDefinition } from 'utils/definitions';
-import Drag from 'components/shared/Drag';
-import Hover from 'components/shared/Hover';
+import { Drag, Hover } from 'components/shared';
 
 import styles from './AnimInstance.scss';
 
+// for grid snap
+const roundToInterval = (value, interval) => {
+  return Math.round(value / interval) * interval
+}
+
 const Inner = ({ anim, instance }) => (
   <AnimationStore.Consumer>
-    {({ interpolate, getTweens }) => (
+    {({ interpolate, getTweens, getInstanceDefinitionValue, setInstanceDefinitionValue }) => (
       <UIStore.Consumer>
         {({ setSelectedInstance }) => (
           <Hover>
             {({ hoverRef, isHovering }) => (
-
-
               <Drag>
                 {({ isDragging, startDrag }) => (
                   <StageStore.Consumer>
-                    {({ getInstanceDefinitionValue, setInstanceDefinitionValue }) => (
+                    {({ gridSize, gridSnap }) => (
 
                       <MediaStore.Consumer>
                         {({ playhead }) => (
@@ -42,8 +44,16 @@ const Inner = ({ anim, instance }) => (
                                 startDrag({
                                   event,
                                   onUpdate: ({ deltaX, deltaY }) => {
-                                    setInstanceDefinitionValue(instance.id, 'left', initX + deltaX);
-                                    setInstanceDefinitionValue(instance.id, 'top', initY + deltaY);
+
+                                    let x = initX + deltaX;
+                                    let y = initY + deltaY;
+                                    if (gridSnap) {
+                                      x = roundToInterval(x, gridSize);
+                                      y = roundToInterval(y, gridSize);
+                                    }
+
+                                    setInstanceDefinitionValue(instance.id, 'left', x);
+                                    setInstanceDefinitionValue(instance.id, 'top', y);
                                   }
                                 })
                               }}

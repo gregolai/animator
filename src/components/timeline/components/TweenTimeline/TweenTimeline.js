@@ -1,8 +1,7 @@
 import React from 'react';
 import classnames from 'classnames';
 import { AnimationStore, MediaStore, UIStore } from 'stores';
-import Canvas from 'components/shared/Canvas';
-import Drag from 'components/shared/Drag';
+import { Canvas, Drag } from 'components/shared';
 
 import styles from './TweenTimeline.scss';
 

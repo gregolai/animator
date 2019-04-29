@@ -2,7 +2,7 @@ import React from 'react';
 import classnames from 'classnames';
 
 import { CheckField } from 'components/core';
-import IconButton from 'components/shared/IconButton';
+import { IconButton } from 'components/shared';
 
 import styles from './AddDropdown.scss';
 

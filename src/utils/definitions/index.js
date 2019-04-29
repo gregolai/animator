@@ -73,6 +73,12 @@ export const definitionMap = {
     parse: parseNumber,
     render: renderPosition
   },
+  'height': {
+    format: formatPixels,
+    lerp: lerpNumber,
+    parse: parseNumber,
+    render: renderPosition
+  },
   'left': {
     format: formatPixels,
     lerp: lerpNumber,
@@ -131,7 +137,13 @@ export const definitionMap = {
     lerp: lerpNumber,
     parse: parseNumber,
     render: renderPosition
-  }
+  },
+  'width': {
+    format: formatPixels,
+    lerp: lerpNumber,
+    parse: parseNumber,
+    render: renderPosition
+  },
 }
 
 // Auto-apply CSS and Inline CSS names

@@ -1,9 +1,7 @@
 import React from 'react';
 import classnames from 'classnames';
 
-import IconButton from 'components/shared/IconButton';
-import Hover from 'components/shared/Hover';
-import ValueButton from 'components/shared/ValueButton';
+import { IconButton, Hover, ValueButton } from 'components/shared';
 import { getDefinition } from 'utils/definitions';
 
 import { AnimationStore, MediaStore, UIStore } from 'stores'

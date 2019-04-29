@@ -1,9 +1,9 @@
 import React from 'react';
 import classnames from 'classnames';
 
-import ValueEditor from 'components/shared/ValueEditor';
+import { ValueEditor } from 'components/shared';
 
-import { AnimationStore, UIStore } from 'stores';
+import { AnimationStore, MediaStore, UIStore } from 'stores';
 
 import AnimationHead from './AnimationHead';
 import TweenTimeline from './TweenTimeline';
@@ -16,7 +16,7 @@ const Animation = ({ className, anim }) => (
     <AnimationHead anim={anim} />
     <div className={styles.tweens}>
       <AnimationStore.Consumer>
-        {({ getTweens }) => (
+        {({ getTweens, interpolate, setKeyframeValueAtTime }) => (
           getTweens(anim.id).map((tween, tweenIndex) => (
             <div key={tween.id}>
               <div style={{ display: 'flex' }}>
@@ -32,7 +32,18 @@ const Animation = ({ className, anim }) => (
 
               <UIStore.Consumer>
                 {({ isTweenExpanded }) => isTweenExpanded(tween.id) && (
-                  <ValueEditor className={styles.valueEditor} tween={tween} />
+                  <MediaStore.Consumer>
+                    {({ playhead }) => (
+                      <ValueEditor
+                        className={styles.valueEditor}
+                        definitionId={tween.definitionId}
+                        onChange={value => {
+                          setKeyframeValueAtTime(tween.id, playhead, value);
+                        }}
+                        value={interpolate(tween.id, playhead)}
+                      />
+                    )}
+                  </MediaStore.Consumer>
                 )}
               </UIStore.Consumer>
 

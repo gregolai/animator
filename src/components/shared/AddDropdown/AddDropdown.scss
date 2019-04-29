@@ -15,7 +15,7 @@
 
     &:hover,
     &.open {
-      background-color: $color-bg-2;
+      background-color: $color-bg-3;
     }
 
     .labels {
@@ -40,9 +40,16 @@
     z-index: 1;
 
     .item {
-      cursor: pointer;
-      padding: $grid-px/2 $grid-px;
       white-space: nowrap;
+      // hacks
+      padding: 0 $grid-px !important;
+      min-height: auto !important;
+
+      // hacks
+      >* {
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+      }
 
       &:hover {
         background-color: $color-bg-1

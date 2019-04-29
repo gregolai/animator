@@ -1,0 +1,15 @@
+@import "../../constants.scss";
+
+:local {
+  .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .title {
+    flex: 1;
+    padding-left: $grid-px * 3;
+    margin-right: $grid-px;
+  }
+}

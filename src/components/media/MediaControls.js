@@ -7,8 +7,6 @@ import { MediaStore } from 'stores';
 
 import styles from './MediaControls.scss';
 
-const GRID_PX = 11;
-
 const MIN_DURATION_MS = 100;
 const MAX_DURATION_MS = 10000;
 
@@ -17,64 +15,57 @@ const MediaControls = ({ className }) => (
   <MediaStore.Consumer>
     {({ duration, isLooping, isReversed, isPlaying, playhead, setDuration, setLooping, setReversed, setPaused, setPlaying, setStopped }) => (
       <div className={classnames(styles.container, className)}>
-        <div style={{ display: 'flex' }}>
-          <div style={{ flex: 1 }}>
-            <ButtonField
-              inverted
-              size="small"
-              isDisabled={isPlaying}
-              label="Play"
-              onClick={setPlaying}
-            />
-          </div>
-          <div style={{ flex: 1 }}>
-            <ButtonField
-              inverted
-              size="small"
-              isDisabled={!isPlaying}
-              label="Pause"
-              onClick={setPaused}
-            />
-          </div>
-          <div style={{ flex: 1 }}>
-            <ButtonField
-              inverted
-              size="small"
-              isDisabled={playhead === 0}
-              label="Stop"
-              onClick={setStopped}
-            />
-          </div>
+        <div className={styles.top}>
+          <ButtonField
+            inverted
+            className={styles.play}
+            size="small"
+            isDisabled={isPlaying}
+            label="Play"
+            onClick={setPlaying}
+          />
+          <ButtonField
+            inverted
+            className={styles.pause}
+            size="small"
+            isDisabled={!isPlaying}
+            label="Pause"
+            onClick={setPaused}
+          />
+          <ButtonField
+            inverted
+            className={styles.stop}
+            size="small"
+            isDisabled={playhead === 0}
+            label="Stop"
+            onClick={setStopped}
+          />
         </div>
 
-        <div style={{ display: 'flex' }}>
-          <div style={{ flex: 1, marginRight: GRID_PX }}>
-            <NumberField
-              underlined={false}
-              label="Duration"
-              min={MIN_DURATION_MS}
-              max={MAX_DURATION_MS}
-              onChange={setDuration}
-              value={duration}
-            />
-          </div>
-
-          <div style={{ flex: 1, marginRight: GRID_PX }}>
-            <BooleanField
-              label="Loop"
-              onChange={setLooping}
-              value={isLooping}
-              underlined={false}
-            />
-          </div>
-          <div style={{ flex: 1 }}>
-            <BooleanField
-              label="Reverse"
-              onChange={setReversed}
-              value={isReversed}
-              underlined={false}
-            />
-          </div>
+        <div className={styles.bottom}>
+          <NumberField
+            className={styles.duration}
+            underlined={false}
+            label="Duration"
+            min={MIN_DURATION_MS}
+            max={MAX_DURATION_MS}
+            onChange={setDuration}
+            value={duration}
+          />
+          <BooleanField
+            className={styles.loop}
+            label="Loop"
+            onChange={setLooping}
+            value={isLooping}
+            underlined={false}
+          />
+          <BooleanField
+            className={styles.reverse}
+            label="Reverse"
+            onChange={setReversed}
+            value={isReversed}
+            underlined={false}
+          />
         </div>
       </div>
     )}

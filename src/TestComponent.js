@@ -2,19 +2,7 @@ import React from 'react';
 import noop from 'lodash/noop';
 import { createPersist } from 'utils/persist';
 import db from 'utils/db';
-
-class Command {
-  constructor(executeFn, undoFn) {
-    this._execute = executeFn;
-    this._undo = undoFn;
-  }
-  execute() {
-    this.data = this._execute(this.data);
-  }
-  undo() {
-    this.data = this._undo(this.data);
-  }
-}
+import UndoRedo from 'utils/UndoRedo';
 
 const createCRUD = ({ onCreate = noop, onUpdate = noop, onDelete = noop }) => {
   const CREATE = 'create';
@@ -95,106 +83,122 @@ const Anim = ({ anim }) => <div>Anim #{anim.id}</div>;
 
 const Tween = ({ tween }) => (
   <div>
-    Tween #{tween.id} - anim ${tween.animId}
+    Tween #{tween.id} - anim #{tween.animId}
   </div>
 );
 
 export default class TestComponent extends React.Component {
-  undoStack = [];
-  undoPointer = 0;
+  undoRedo = new UndoRedo();
 
-  constructor(props) {
-    super(props);
+  state = {
+    animations: persist.animations.read(),
+    keyframes: persist.keyframes.read(),
+    tweens: persist.animations.read(),
+  }
 
-    const animations = persist.animations.read();
-    const tweens = persist.animations.read();
+  deleteAnimation = (animId) => {
 
-    this.CRUD = {
-      animations: createCRUD({
-        onCreate: ({ list }) => {
-          this.setState({ animations: list });
-          persist.animations.write(list);
+    const anim = this.getAnimation(animId);
+    if (anim) {
+
+      new DeleteCommand(
+        () => {
+          const { list: animations, item: deletedAnimation } = db.deleteOne(this.state.animations, anim.id);
+          const { list: tweens, items: deletedTweens } = db.deleteMany(this.state.tweens, t => t.animId === anim.id);
+          const { list: keyframes, items: deletedKeyframes } = db.deleteMany(this.state.keyframes, kf => kf.animId === anim.id);
+
+          this.setState({ animations, tweens, keyframes });
+
+          return [deletedAnimation, deletedTweens, deletedKeyframes];
         },
-        onUpdate: ({ list }) => {
-          this.setState({ animations: list });
-          persist.animations.write(list);
-        },
-        onDelete: ({ list, items: deleted }) => {
-          deleted.forEach(anim => {
-            this.CRUD.tweens.deleteMany(
-              this.state.tweens,
-              t => t.animId === anim
-            );
-          });
+        ([deletedAnimation, deletedTweens, deletedKeyframes]) => {
+          const { list: animations } = db.createOne(this.state.animations, deletedAnimation);
+          const { list: tweens } = db.createMany(this.state.tweens, deletedTweens);
+          const { list: keyframes } = db.createMany(this.state.keyframes, deletedKeyframes);
 
-          this.setState({ animations: list });
-          persist.animations.write(list);
+          this.setState({ animations, tweens, keyframes });
         }
-      }),
-      tweens: createCRUD({
-        onCreate: ({ list }) => {
-          this.setState({ tweens: list });
-          persist.tweens.write(list);
-        },
-        onUpdate: ({ list }) => {
-          this.setState({ tweens: list });
-          persist.tweens.write(list);
-        },
-        onDelete: ({ list }) => {
-          this.setState({ tweens: list });
-          persist.tweens.write(list);
-        }
-      })
-    };
-
-    this.state = { animations, tweens };
+      )
+    }
   }
 
   componentDidMount() {
     document.addEventListener('keydown', e => {
-      const getRandomAnim = () => {
-        const list = this.CRUD.animations.getMany();
-        return list.length > 0
-          ? list[Math.floor(Math.random() * list.length)]
-          : undefined;
-      };
 
       if (e.code === 'KeyZ' && e.metaKey) {
-        const cmd = this.undoStack[this.undoPointer - 1];
-
-        if (cmd) {
-          if (e.shiftKey) {
-            // redo
-            cmd.execute();
-            this.undoPointer++;
-          } else {
-            // undo
-            cmd.undo();
-            this.undoPointer--;
-          }
+        e.preventDefault();
+        if (e.shiftKey) {
+          this.undoRedo.redo();
+        } else {
+          this.undoRedo.undo();
         }
       }
 
       if (e.code === 'KeyE') {
-        const cmd = new Command(
-          maybeData => {
-            // TODO: REDO DELETED TWEENS?
-            return this.CRUD.animations.createOne(this.state.animations, {
+        this.undoRedo.execute(
+          () => {
+            const { list: animations, item: addedAnimation } = db.createOne(this.state.animations, {
               num: Math.floor(Math.random() * 2000)
             });
+
+            this.setState({ animations });
+
+            return addedAnimation;
           },
 
-          item => {
-            return this.CRUD.animations.deleteOne(
-              this.state.animations,
-              item.id
-            );
+          addedAnimation => {
+            const { list: animations } = db.deleteOne(this.state.animations, addedAnimation.id)
+
+            this.setState({ animations });
           }
-        );
-        cmd.execute();
-        this.undoStack[this.undoPointer] = cmd;
-        this.undoPointer++;
+        )
       }
+
+      if (e.code === 'KeyT') {
+        const anim = this.state.animations[Math.floor(Math.random() * this.state.animations.length)];
+        if (anim) {
+          this.undoRedo.execute(
+            () => {
+              const { list: tweens, item: createdTween } = db.createOne(this.state.tweens, { animId: anim.id })
+
+              this.setState({ tweens });
+              return createdTween;
+            },
+            createdTween => {
+              const { list: tweens } = db.deleteOne(this.state.tweens, createdTween.id);
+
+              this.setState({ tweens })
+            }
+          )
+        }
+      }
+
+      if (e.code === 'KeyD') {
+        const anim = this.state.animations[Math.floor(Math.random() * this.state.animations.length)];
+        if (anim) {
+          this.undoRedo.execute(
+            () => {
+
+
+              const { list: animations, item: deletedAnimation } = db.deleteOne(this.state.animations, anim.id);
+              const { list: tweens, items: deletedTweens } = db.deleteMany(this.state.tweens, t => t.animId === anim.id);
+              const { list: keyframes, items: deletedKeyframes } = db.deleteMany(this.state.keyframes, kf => kf.animId === anim.id);
+
+              this.setState({ animations, tweens, keyframes });
+
+              return [deletedAnimation, deletedTweens, deletedKeyframes];
+            },
+            ([deletedAnimation, deletedTweens, deletedKeyframes]) => {
+              const { list: animations } = db.createOne(this.state.animations, deletedAnimation);
+              const { list: tweens } = db.createMany(this.state.tweens, deletedTweens);
+              const { list: keyframes } = db.createMany(this.state.keyframes, deletedKeyframes);
+
+              this.setState({ animations, tweens, keyframes });
+            }
+          )
+        }
+      }
+
     });
   }
 
@@ -210,8 +214,8 @@ export default class TestComponent extends React.Component {
         </div>
         <div>Tweens</div>
         <div>
-          {tweens.map(anim => (
-            <Anim key={tweens.id} anim={tweens} />
+          {tweens.map(tween => (
+            <Tween key={tween.id} tween={tween} />
           ))}
         </div>
       </div>

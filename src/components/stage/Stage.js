@@ -2,7 +2,7 @@ import React from 'react';
 import classnames from 'classnames';
 
 import { AnimationStore, StageStore } from 'stores';
-import Canvas from 'components/shared/Canvas';
+import { Canvas } from 'components/shared';
 
 import Controls from './components/Controls';
 
@@ -49,19 +49,22 @@ const StageCanvas = () => (
   </StageStore.Consumer>
 )
 
+const Instances = ({ instances }) => (
+  <div className={styles.instances}>
+    {instances.map(instance => (
+      <AnimInstance key={instance.id} instance={instance} />
+    ))}
+  </div>
+)
+
 export default ({ className, showControls }) => (
   <div className={classnames(styles.container, className)}>
     <StageCanvas />
-    <StageStore.Consumer>
+    <AnimationStore.Consumer>
       {({ getInstances }) => (
-        <div className={styles.instances}>
-          {getInstances().map(instance => (
-            <AnimInstance key={instance.id} instance={instance} />
-          ))}
-        </div>
+        <Instances instances={getInstances()} />
       )}
-
-    </StageStore.Consumer>
+    </AnimationStore.Consumer>
     {showControls && <Controls />}
   </div>
 );

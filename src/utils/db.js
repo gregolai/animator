@@ -40,8 +40,8 @@ const getMany = (list, ids) => {
 
 const db = {
 	/**
-	 * @param {Array<object>} list 
-	 * @param {any} value
+	 * @param {Array<object>} list
+	 * @param {object} value
 	 * @param {boolean} mutateList
 	 */
   createOne: (list, value, mutateList = false) => {
@@ -50,14 +50,37 @@ const db = {
     }
 
     const item = {
-      ...value,
-      id: uid(8)
+      id: uid(8),
+      ...value
     };
     const index = list.length;
-
     list.push(item);
-
     return { list, item, index };
+  },
+
+	/**
+	 * @param {Array<object>} list
+	 * @param {Array<object>} values
+	 * @param {boolean} mutateList
+	 */
+  createMany: (list, values, mutateList = false) => {
+    if (!mutateList) {
+      list = [...list];
+    }
+
+    const items = [];
+    const indices = [];
+
+    values.forEach(value => {
+      const { item, index } = db.createOne(list, {
+        id: uid(8),
+        ...value
+      }, true);
+      items.push(item);
+      indices.push(index);
+    });
+
+    return { list, items, indices };
   },
 
 	/**
@@ -94,11 +117,36 @@ const db = {
       list[index] = {
         ...item,
         ...value,
-        id: item.id
+        id: item.id // retain the id
       };
     }
 
     return { list, index, item };
+  },
+
+	/**
+	 * @param {Array<object>} list 
+	 * @param {Function|Array<string>} ids
+	 * @param {object} value
+	 * @param {boolean} mutateList
+	 */
+  setMany: (list, ids, value, mutateList = false) => {
+    if (!mutateList) {
+      list = [...list];
+    }
+
+    const { indices, items } = getMany(list, ids);
+    for (let i = 0; i < indices.length; ++i) {
+      const index = indices[i];
+      const item = items[i];
+      list[index] = {
+        ...item,
+        ...value,
+        id: item.id // retain the id
+      };
+    }
+
+    return { list, indices, items };
   },
 
 	/**
@@ -132,8 +180,8 @@ const db = {
     const { items, indices } = getMany(list, ids);
 
     // splice backwards because length changes
-    for (let i = indices.length - 1; i > 0; --i) {
-      list.splice(i, 1);
+    for (let i = indices.length - 1; i >= 0; --i) {
+      list.splice(indices[i], 1);
     }
 
     return { list, items, indices };

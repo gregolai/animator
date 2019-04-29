@@ -1,13 +1,13 @@
 import React from 'react';
-import { BooleanField, ButtonField, NumberField } from 'components/core';
+import { BooleanField, NumberField } from 'components/core';
 
-import { StageStore, UIStore } from 'stores';
+import { StageStore } from 'stores';
 
 import styles from './Controls.scss';
 
 export default () => (
   <StageStore.Consumer>
-    {({ showGrid, gridSize, setShowGrid, setGridSize }) => (
+    {({ showGrid, setShowGrid, gridSnap, setGridSnap, gridSize, setGridSize }) => (
       <div className={styles.container}>
         <div className={styles.leftControls}>
           {/* NOTHING HERE? */}
@@ -20,6 +20,13 @@ export default () => (
             label="Show Grid"
             onChange={setShowGrid}
             value={showGrid}
+          />
+          <BooleanField
+            flush
+            className={styles.gridSnap}
+            label="Snap To Grid"
+            onChange={setGridSnap}
+            value={gridSnap}
           />
           <NumberField
             flush

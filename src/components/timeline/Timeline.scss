@@ -3,13 +3,17 @@
 :local {
   .container {
     position: relative;
+    background-color: $color-bg-0;
+  }
+
+  .addAnimation {
+    width: $timeline-left-width;
   }
 
   .scrollContainer {
     position: relative;
     overflow-y: scroll;
     overflow-x: hidden;
-    background-color: $color-bg-0;
     height: 100%;
   }
 

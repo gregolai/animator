@@ -1,32 +1,39 @@
 import React from 'react';
-import { AnimationStore, StageStore } from 'stores';
+import { AnimationStore, UIStore } from 'stores';
 
-import AddDropdown from 'components/shared/AddDropdown';
+import { AddDropdown } from 'components/shared';
 
 const CreateInstance = () => {
   return (
     <div style={{ display: 'flex' }}>
-      <StageStore.Consumer>
-        {({ createInstance }) => (
+      <UIStore.Consumer>
+        {({ setSelectedInstance }) => (
+
           <AnimationStore.Consumer>
-            {({ getAnimations }) => (
-              <AddDropdown
-                label="Create Instance"
-                options={
-                  getAnimations()
-                    .map(anim => ({
-                      label: anim.name,
-                      value: anim.id
-                    }))
-                }
-                onSelect={animId => {
-                  createInstance({ animId });
-                }}
-              />
-            )}
+            {({ createInstance, getAnimations }) => {
+              const animations = getAnimations();
+              if (animations.length === 0) return null;
+
+              return (
+                <AddDropdown
+                  label="Create Instance"
+                  options={
+                    animations
+                      .map(anim => ({
+                        label: anim.name,
+                        value: anim.id
+                      }))
+                  }
+                  onSelect={animId => {
+                    const instance = createInstance({ animId });
+                    setSelectedInstance(instance.id);
+                  }}
+                />
+              )
+            }}
           </AnimationStore.Consumer>
         )}
-      </StageStore.Consumer>
+      </UIStore.Consumer>
     </div>
   );
 }

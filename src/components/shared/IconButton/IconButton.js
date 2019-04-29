@@ -2,7 +2,7 @@ import React from 'react';
 import classnames from 'classnames';
 
 import { Icon } from 'components/core';
-import Button from 'components/shared/Button';
+import { Button } from 'components/shared';
 
 import styles from './IconButton.scss';
 
