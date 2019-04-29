@@ -5,7 +5,7 @@ import { ButtonField, BooleanField, NumberField } from 'components/core';
 
 import { MediaStore } from 'stores';
 
-import styles from './MediaControls.scss';
+import styles from './MediaControls.module.scss';
 
 const MIN_DURATION_MS = 100;
 const MAX_DURATION_MS = 10000;

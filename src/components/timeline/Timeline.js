@@ -30,16 +30,19 @@ const Timeline = ({ className }) => (
 
     <div className={styles.scrollContainer}>
 
-
-
       <div className={styles.content}>
         <AnimationStore.Consumer>
-          {({ getAnimations }) => (
+          {({ getAnimations, getInstances }) => (
             getAnimations().map(anim => (
-              <Animation
-                key={anim.id}
-                anim={anim}
-              />
+              <div key={anim.id}>
+                <Animation
+                  //key={anim.id}
+                  anim={anim}
+                />
+                {getInstances(i => i.animId === anim.id).map(instance => {
+                  return <div key={instance.id}>{instance.name}</div>;
+                })}
+              </div>
             ))
           )}
         </AnimationStore.Consumer>

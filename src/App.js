@@ -3,8 +3,10 @@ import React from 'react';
 import SplitPane from 'react-split-pane';
 import cssbeautify from 'cssbeautify';
 
-import { ButtonField } from 'components/core';
+import { ButtonField, RangeField } from 'components/core';
 import { withStores, AnimationStore, ImporterStore, UIStore } from 'stores';
+import { DropdownCustom } from 'components/shared';
+import { getEasingArray } from 'utils/easing';
 
 import InstanceEditor from './components/instanceeditor/InstanceEditor';
 import Stage from './components/stage/Stage';
@@ -73,6 +75,7 @@ const App = withStores(() => (
               />
             )}
           </ImporterStore.Consumer>
+
         </div>
 
         {/* INSTANCE EDITING */}

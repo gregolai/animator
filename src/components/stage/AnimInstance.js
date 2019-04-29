@@ -1,16 +1,12 @@
 import React from 'react';
 import classnames from 'classnames';
 
+import { roundToInterval } from 'utils';
 import { AnimationStore, MediaStore, StageStore, UIStore } from 'stores';
 import { getDefinition } from 'utils/definitions';
 import { Drag, Hover } from 'components/shared';
 
 import styles from './AnimInstance.scss';
-
-// for grid snap
-const roundToInterval = (value, interval) => {
-  return Math.round(value / interval) * interval
-}
 
 const Inner = ({ anim, instance }) => (
   <AnimationStore.Consumer>

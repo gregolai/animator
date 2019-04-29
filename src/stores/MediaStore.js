@@ -1,12 +1,15 @@
 import React from 'react';
+import clamp from 'lodash/clamp';
 import { normalizeTime } from '../utils/time';
 import { createPersist } from 'utils/persist';
+import { INTERVAL_MS } from 'utils/constants';
 
 const persist = createPersist('MediaStore', {
   duration: 3000,
   isLooping: true,
   isReversed: false,
-  playhead: 0
+  playhead: 0,
+  tickSpacing: 4
 });
 
 const INITIAL_STATE = {
@@ -14,7 +17,8 @@ const INITIAL_STATE = {
   isLooping: persist.isLooping.read(),
   isPlaying: false,
   isReversed: persist.isReversed.read(),
-  playhead: persist.playhead.read()
+  playhead: persist.playhead.read(),
+  tickSpacing: persist.tickSpacing.read()
 }
 
 const Context = React.createContext(INITIAL_STATE);
@@ -32,21 +36,21 @@ export default class MediaStore extends React.Component {
       const loop = () => {
         const curTime = Date.now();
 
-        const timeStep = (curTime - prevTime) * (1 / this.state.duration);
+        const timeStep = (curTime - prevTime);
 
         let stop = false;
         let nextPlayhead = this.state.playhead + (this.state.isReversed ? -timeStep : timeStep);
 
-        if (nextPlayhead >= 1) {
+        if (nextPlayhead >= this.state.duration) {
           if (this.state.isLooping) {
-            nextPlayhead -= 1; // loop
+            nextPlayhead -= this.state.duration; // loop
           } else {
-            nextPlayhead = 1; // clamp
+            nextPlayhead = this.state.duration; // clamp
             stop = true;
           }
         } else if (nextPlayhead < 0) {
           if (this.state.isLooping) {
-            nextPlayhead += 1; // loop
+            nextPlayhead += this.state.duration; // loop
           } else {
             nextPlayhead = 0;
             stop = true;
@@ -110,15 +114,15 @@ export default class MediaStore extends React.Component {
         break;
       case 'ArrowRight':
         e.preventDefault();
-        this.setPlayhead(e.metaKey ? 1 : this.state.playhead + 0.01);
+        this.setPlayhead(e.metaKey ? 1 : this.state.playhead + INTERVAL_MS);
         break;
       case 'ArrowLeft':
         e.preventDefault();
-        this.setPlayhead(e.metaKey ? 0 : this.state.playhead - 0.01);
+        this.setPlayhead(e.metaKey ? 0 : this.state.playhead - INTERVAL_MS);
         break;
       case 'End':
         e.preventDefault();
-        this.setPlayhead(1)
+        this.setPlayhead(this.state.duration);
         break;
       case 'Home':
         e.preventDefault();
@@ -148,9 +152,10 @@ export default class MediaStore extends React.Component {
         e.preventDefault();
 
         const time = e.code === 'Digit0' ?
-          100 : e.code === 'Backquote' ?
+          this.state.duration :
+          e.code === 'Backquote' ?
             0 :
-            parseInt(e.code.replace('Digit', '')) * 0.1;
+            parseInt(e.code.replace('Digit', '')) / INTERVAL_MS * this.state.duration;
         this.setPlayhead(time);
         break;
       default:
@@ -193,10 +198,17 @@ export default class MediaStore extends React.Component {
   };
 
   setPlayhead = time => {
-    const playhead = time;
+    const playhead = clamp(time, 0, this.state.duration);
 
     this.setState({ playhead });
     persist.playhead.write(playhead);
+  }
+
+  setTickSpacing = tickSpacing => {
+    tickSpacing = clamp(tickSpacing, 3, 20);
+
+    this.setState({ tickSpacing });
+    persist.tickSpacing.write(tickSpacing);
   }
 
   render() {
@@ -205,7 +217,8 @@ export default class MediaStore extends React.Component {
       isLooping,
       isPlaying,
       isReversed,
-      playhead
+      playhead,
+      tickSpacing
     } = this.state;
 
     return (
@@ -215,7 +228,8 @@ export default class MediaStore extends React.Component {
           isLooping,
           isPlaying,
           isReversed,
-          playhead: normalizeTime(playhead),
+          playhead: normalizeTime(playhead), // display
+          tickSpacing,
 
           setDuration: this.setDuration,
           setLooping: this.setLooping,
@@ -224,6 +238,7 @@ export default class MediaStore extends React.Component {
           setPaused: this.setPaused,
           setStopped: this.setStopped,
           setPlayhead: this.setPlayhead,
+          setTickSpacing: this.setTickSpacing
         }}
       >
         {this.props.children}

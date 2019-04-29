@@ -1,8 +1,9 @@
 import React from 'react';
 import color from 'color';
 import camelCase from 'lodash/camelCase';
-import { Dropdown } from 'components/basic';
+import { getEasingArray, getEasingOptions } from 'utils/easing';
 import { DropdownSelect, ColorField, RangeField } from 'components/core';
+import { DropdownCustom } from 'components/shared';
 
 const constants = {
   positions: ['static', 'relative', 'absolute', 'sticky', 'fixed']
@@ -49,7 +50,72 @@ const renderRatio = ({ onChange, value = 1 }) => (
   />
 )
 
+
+const BezierComponent = ({ value, onChange }) => (
+  <RangeField
+    min={0}
+    max={1}
+    step={0.01}
+    onChange={onChange}
+    value={value}
+  />
+)
+
 export const definitionMap = {
+  // 'animation-delay': {
+  // },
+  // 'animation-direction': {
+  // },
+  // 'animation-duration': {
+  // },
+  // 'animation-iteration-count': {
+  // },
+  'animation-timing-function': {
+    format: v => {
+      return typeof v === 'string' ?
+        v :
+        `cubic-bezier(${v[0]}, ${v[1]}, ${v[2]}, ${v[3]})`;
+    },
+    parse: str => {
+      return getEasingArray(str);
+    },
+    render: ({ onChange, value }) => (
+      <DropdownCustom
+        customOption={{
+          label: 'Custom Cubic Bezier',
+          value
+        }}
+        renderCustom={({ onChange, value }) => {
+          const [x0, y0, x1, y1] = getEasingArray(value);
+
+          return (
+            <>
+              <BezierComponent
+                onChange={x0 => onChange([x0, y0, x1, y1])}
+                value={x0}
+              />
+              <BezierComponent
+                onChange={y0 => onChange([x0, y0, x1, y1])}
+                value={y0}
+              />
+              <BezierComponent
+                onChange={x1 => onChange([x0, y0, x1, y1])}
+                value={x1}
+              />
+              <BezierComponent
+                onChange={y1 => onChange([x0, y0, x1, y1])}
+                value={y1}
+              />
+            </>
+          )
+        }}
+        placeholder="Easing"
+        onChange={onChange}
+        options={getEasingOptions()}
+        value={value}
+      />
+    )
+  },
   'background-color': {
     format: v => color(v).hex(),
     lerp: (from, to, t) => {
@@ -183,6 +249,11 @@ const definitionArray = Object.keys(definitionMap)
   .sort((a, b) => a.name < b.name ? -1 : 1);
 
 export const getDefinition = definitionId => definitionMap[definitionId];
-export const getDefinitions = filterFn => {
-  return filterFn ? definitionArray.filter(filterFn) : definitionArray;
+
+export const getAnimatedDefinitions = () => {
+  return definitionArray.filter(definition => definition.lerp !== undefined);
+}
+
+export const getInstanceDefinitions = () => {
+  return definitionArray.filter(definition => definition.lerp === undefined);
 }

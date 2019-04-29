@@ -6,6 +6,7 @@ export { default as ContextField } from '@sqs/core-components/fields/ContextFiel
 export { default as DisclosureField } from '@sqs/core-components/fields/DisclosureField';
 export { default as NumberField } from '@sqs/core-components/fields/NumberField';
 export { default as RangeField } from '@sqs/core-components/fields/RangeField';
+export { default as StringField } from '@sqs/core-components/fields/StringField';
 export { default as TextareaField } from '@sqs/core-components/fields/TextareaField';
 
 export { default as Cell } from '@sqs/core-components/components/Cell';

@@ -10,11 +10,18 @@ const EASING_MAP = {
   'ease-in-out': [0.42, 0, 0.58, 1]
 };
 
-const getEasingArray = easing => {
+export const getEasingArray = easing => {
   return Array.isArray(easing) ?
     easing :
     EASING_MAP[easing] || EASING_MAP.linear;
 }
+
+export const getEasingOptions = () =>
+  Object.keys(EASING_MAP)
+    .map(name => ({
+      label: name,
+      value: name
+    }))
 
 // https://stackoverflow.com/questions/8217346/cubic-bezier-curves-get-y-for-given-x
 // P0 = (X0,Y0)

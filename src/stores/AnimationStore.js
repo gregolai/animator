@@ -3,7 +3,7 @@ import rework from 'rework';
 import difference from 'lodash/difference';
 import { uniqueNamesGenerator } from 'unique-names-generator';
 
-import { getDefinition, getDefinitions } from 'utils/definitions';
+import { getDefinition, getAnimatedDefinitions } from 'utils/definitions';
 
 import db from 'utils/db';
 import { normalizeTime } from 'utils/time';
@@ -26,11 +26,21 @@ const createAnimation = ({ name = undefined }) => {
 const createInstance = ({
   animId,
   definitionValues = {},
+  delay = 0,
+  direction = 'normal',
+  duration = 3000,
+  easing = 'linear',
+  iterations = 'infinite',
   name = uniqueNamesGenerator('-', true)
 }) => {
   return {
     animId,
+    direction,
     definitionValues,
+    delay,
+    duration,
+    easing,
+    iterations,
     name
   }
 }
@@ -369,7 +379,7 @@ export default class AnimationStore extends React.Component {
       }
     }
 
-    const { list: keyframes, item, index } = db.createOne(this.state.keyframes, createKeyframe({
+    const { list: keyframes, item: keyframe } = db.createOne(this.state.keyframes, createKeyframe({
       animId: tween.animId,
       tweenId,
       time,
@@ -378,11 +388,7 @@ export default class AnimationStore extends React.Component {
 
     this.setState({ keyframes });
     persist.keyframes.write(keyframes);
-
-    return {
-      keyframe: item,
-      keyframeIndex: index
-    };
+    return keyframe;
   }
 
   setKeyframeTime = (keyframeId, time) => {
@@ -460,7 +466,7 @@ export default class AnimationStore extends React.Component {
     }
 
     return difference(
-      getDefinitions(),
+      getAnimatedDefinitions(),
       this.getTweens(animId).map(t => getDefinition(t.definitionId))
     );
   }
@@ -477,8 +483,10 @@ export default class AnimationStore extends React.Component {
     return db.getOne(this.state.instances, instanceId).item;
   }
 
-  getInstances = () => {
-    return [...this.state.instances];
+  getInstances = (ids) => {
+    if (ids === undefined) return [...this.state.instances];
+
+    return db.getMany(this.state.instances, ids).items;
   }
 
   getTween = tweenId => {

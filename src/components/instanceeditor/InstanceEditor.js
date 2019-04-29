@@ -1,7 +1,7 @@
 import React from 'react';
 import chunk from 'lodash/chunk';
 import { AnimationStore, UIStore } from 'stores';
-import { getDefinitions } from 'utils/definitions';
+import { getAnimatedDefinitions, getInstanceDefinitions } from 'utils/definitions';
 import { ValueButton, ValueEditor } from 'components/shared';
 import CreateInstance from './CreateInstance';
 import styles from './InstanceEditor.scss';
@@ -24,13 +24,13 @@ const EditButton = ({ definition, isToggled, onClick, instance }) => (
   </AnimationStore.Consumer>
 )
 
-const Definitions = ({ instance }) => {
+const Definitions = ({ instance, definitions }) => {
   const [expandedDefinitionId, setExpandedDefinition] = React.useState('');
 
   const toggleExpanded = definitionId =>
     setExpandedDefinition(expandedDefinitionId === definitionId ? -1 : definitionId);
 
-  const rows = chunk(getDefinitions(), 2);
+  const rows = chunk(definitions, 2);
 
   return (
     <div>
@@ -82,7 +82,16 @@ const Instance = ({ instance }) => {
         <div>
           <InstanceHead instance={instance} />
           {selectedInstanceId === instance.id && (
-            <Definitions instance={instance} />
+            <>
+              <Definitions
+                instance={instance}
+                definitions={getInstanceDefinitions()}
+              />
+              <Definitions
+                instance={instance}
+                definitions={getAnimatedDefinitions()}
+              />
+            </>
           )}
         </div>
       )}

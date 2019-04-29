@@ -1,6 +1,7 @@
 export { default as AddDropdown } from './AddDropdown';
 export { default as Button } from './Button';
 export { default as Canvas } from './Canvas';
+export { default as DropdownCustom } from './DropdownCustom';
 export { default as ExpandingTitle } from './ExpandingTitle';
 export { default as IconButton } from './IconButton';
 export { default as ValueButton } from './ValueButton';
