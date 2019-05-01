@@ -1,23 +1,30 @@
 import React from 'react';
 import chunk from 'lodash/chunk';
-import { AnimationStore, UIStore } from 'stores';
+import { AnimationStore, MediaStore, UIStore } from 'stores';
+import { INTERVAL_MS } from 'utils/constants';
 import { getAnimatedDefinitions, getInstanceDefinitions } from 'utils/definitions';
-import { ValueButton, ValueEditor } from 'components/shared';
+import { IconButton, Ticks, ValueButton, ValueEditor } from 'components/shared';
 import CreateInstance from './CreateInstance';
-import styles from './InstanceEditor.scss';
-
 import InstanceHead from './InstanceHead';
+
+import styles from './InstanceEditor.module.scss';
 
 const EditButton = ({ definition, isToggled, onClick, instance }) => (
   <AnimationStore.Consumer>
     {({ setInstanceDefinitionValue, getInstanceDefinitionValue }) => (
       <ValueButton
-        canClear={true}
+        //canClear={false}
+        accessory={
+          <IconButton
+            icon="close"
+            onClick={() => setInstanceDefinitionValue(instance.id, definition.id, undefined)}
+          />
+        }
         className={styles.definition}
         definition={definition}
         isToggled={isToggled}
         onClick={onClick}
-        onClear={() => setInstanceDefinitionValue(instance.id, definition.id, undefined)}
+        //onClear={() => setInstanceDefinitionValue(instance.id, definition.id, undefined)}
         value={getInstanceDefinitionValue(instance.id, definition.id)}
       />
     )}
@@ -75,6 +82,46 @@ const Definitions = ({ instance, definitions }) => {
   );
 }
 
+const Timeline = ({ duration = 100, delay = 0 }) => {
+  const SPACING = 5;
+  return (
+    <MediaStore.Consumer>
+      {({ playhead }) => (
+        <>
+          <Ticks.PixelSpaced
+            max={duration / INTERVAL_MS}
+            spacing={SPACING}
+            ticks={[
+              {
+                mod: 20,
+                height: 20,
+                drawExtra: ({ ctx, index, x, y }) => {
+                  ctx.font = '12px "Helvetica Neue", sans-serif';
+                  const text = `${index / 100}`;
+                  const measured = ctx.measureText(text);
+                  ctx.fillText(text, x - (measured.width / 2), y - 4);
+                }
+              },
+              { mod: 10, height: 10 },
+              { mod: 1, height: 5 }
+            ]}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              backgroundColor: 'black',
+              top: 0,
+              width: 1,
+              height: '100%',
+              left: playhead / INTERVAL_MS * SPACING
+            }}
+          />
+        </>
+      )}
+    </MediaStore.Consumer>
+  )
+}
+
 const Instance = ({ instance }) => {
   return (
     <UIStore.Consumer>
@@ -91,6 +138,16 @@ const Instance = ({ instance }) => {
                 instance={instance}
                 definitions={getAnimatedDefinitions()}
               />
+              <div style={{ position: 'relative', height: 50 }}>
+                <AnimationStore.Consumer>
+                  {({ getInstanceDefinitionValue }) => (
+                    <Timeline
+                      delay={getInstanceDefinitionValue(instance.id, 'animation-delay')}
+                      duration={getInstanceDefinitionValue(instance.id, 'animation-duration')}
+                    />
+                  )}
+                </AnimationStore.Consumer>
+              </div>
             </>
           )}
         </div>

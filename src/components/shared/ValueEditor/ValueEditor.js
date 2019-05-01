@@ -2,7 +2,7 @@ import React from 'react';
 import classnames from 'classnames';
 import { getDefinition } from 'utils/definitions';
 
-import styles from './ValueEditor.scss';
+import styles from './ValueEditor.module.scss';
 
 const ValueEditor = ({ className, definitionId, value, onChange }) => (
   <div className={classnames(styles.container, className)}>

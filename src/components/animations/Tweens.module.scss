@@ -1,0 +1,13 @@
+@import "../../constants.scss";
+
+:local {
+  .container {}
+
+  .tween {
+    display: flex;
+  }
+
+  .timeline {
+    flex: 1;
+  }
+}

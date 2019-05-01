@@ -1,7 +1,7 @@
 import React from 'react';
 import classnames from 'classnames';
 
-import styles from './Button.scss';
+import styles from './Button.module.scss';
 
 const Button = React.forwardRef(
   ({ children, className, onClick, isToggled }, ref) => (

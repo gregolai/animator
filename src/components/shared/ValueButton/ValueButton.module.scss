@@ -8,6 +8,10 @@
     height: $common-height-px;
     border: 1px solid transparent;
 
+    &.hasAccessory {
+      padding-left: $grid-px * 3;
+    }
+
     .clear {
       position: absolute;
       font-size: $font-size-xs;

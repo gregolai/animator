@@ -2,7 +2,7 @@ import React from 'react';
 import { AnimationStore, StageStore, UIStore } from 'stores';
 import { AddDropdown, IconButton, ExpandingTitle } from 'components/shared';
 
-import styles from './InstanceHead.scss';
+import styles from './InstanceHead.module.scss';
 
 const CloseButton = ({ instance }) => (
   <AnimationStore.Consumer>

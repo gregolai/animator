@@ -1,0 +1,26 @@
+@import "../../constants.scss";
+
+:local {
+  .container {
+    overflow-y: scroll;
+    overflow-x: hidden;
+    height: 100%;
+  }
+
+  .animation {
+    .head {
+      display: flex;
+
+      .left {
+        display: flex;
+        justify-content: space-between;
+        width: $animations-left-width;
+      }
+
+      .right {
+        position: relative;
+        flex: 1;
+      }
+    }
+  }
+}

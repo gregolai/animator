@@ -6,14 +6,23 @@ import { DropdownSelect, ColorField, RangeField } from 'components/core';
 import { DropdownCustom } from 'components/shared';
 
 const constants = {
+  animationDirections: ['normal', 'reverse', 'alternate', 'alternate-reverse'],
   positions: ['static', 'relative', 'absolute', 'sticky', 'fixed']
 }
 
 const toPx = v => (typeof v === 'number' ? `${v}px` : v);
 
-const parseNumber = v => parseFloat(v);
-const parseColor = v => color(v).hex();
+const parseEnum = (str, list) => {
+  return list.indexOf(str) !== -1 ? str : undefined;
+}
+const parseNumber = str => parseFloat(str);
+const parseColor = str => color(str).hex();
+const parseMilliseconds = str => {
+  const num = parseFloat(str);
+  return Math.floor(str.endsWith('s') ? num * 1000 : num);
+}
 
+const formatMilliseconds = v => `${v}ms`;
 const formatPixels = v => toPx(Math.round(v));
 
 const lerpNumber = (from, to, t) => from + t * (to - from);
@@ -62,23 +71,61 @@ const BezierComponent = ({ value, onChange }) => (
 )
 
 export const definitionMap = {
-  // 'animation-delay': {
-  // },
-  // 'animation-direction': {
-  // },
-  // 'animation-duration': {
-  // },
-  // 'animation-iteration-count': {
-  // },
+  'animation-delay': {
+    defaultValue: 0,
+    format: formatMilliseconds,
+    parse: parseMilliseconds,
+    render: ({ onChange, value = 0 }) => (
+      <RangeField
+        detail="ms"
+        max={10000}
+        min={0}
+        step={50}
+        onChange={onChange}
+        value={value}
+      />
+    )
+  },
+  'animation-direction': {
+    format: v => v,
+    parse: str => parseEnum(str, constants.animationDirections),
+    render: ({ onChange, value }) => (
+      <DropdownSelect
+        isFloating={false}
+        placeholder="Animation Direction"
+        options={constants.animationDirections.map(p => ({
+          label: p,
+          value: p
+        }))}
+        onChange={onChange}
+        value={value}
+      />
+    )
+  },
+  'animation-duration': {
+    defaultValue: 1000,
+    format: formatMilliseconds,
+    parse: parseMilliseconds,
+    render: ({ onChange, value }) => (
+      <RangeField
+        detail="ms"
+        max={10000}
+        min={100}
+        step={100}
+        onChange={onChange}
+        value={value}
+      />
+    )
+  },
   'animation-timing-function': {
-    format: v => {
-      return typeof v === 'string' ?
-        v :
+    format: (v, friendly) => {
+      if (typeof v === 'string') return v;
+
+      return friendly ?
+        `(${v[0]}, ${v[1]}) (${v[2]}, ${v[3]})` :
         `cubic-bezier(${v[0]}, ${v[1]}, ${v[2]}, ${v[3]})`;
     },
-    parse: str => {
-      return getEasingArray(str);
-    },
+    parse: str => getEasingArray(str),
     render: ({ onChange, value }) => (
       <DropdownCustom
         customOption={{
@@ -202,9 +249,7 @@ export const definitionMap = {
   'position': {
     format: v => v,
     lerp: (from, to, t) => from, // todo: no animate
-    parse: str => {
-      return constants.positions.indexOf(str) !== -1 ? str : undefined
-    },
+    parse: str => parseEnum(str, constants.positions),
     render: ({ onChange, value }) => (
       <DropdownSelect
         isFloating={false}

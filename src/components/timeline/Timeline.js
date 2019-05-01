@@ -2,31 +2,16 @@ import React from 'react';
 import classnames from 'classnames';
 
 import { AnimationStore } from 'stores';
-import { ButtonField } from 'components/core';
 
 import Animation from './components/Animation';
 import PlayheadCursor from './components/PlayheadCursor';
 
-import styles from './Timeline.scss';
+import styles from './Timeline.module.scss';
 
 const Timeline = ({ className }) => (
   <div className={classnames(styles.container, className)}>
     {/* PLAYHEAD VERTICAL LINE */}
     <PlayheadCursor className={styles.playhead} />
-
-    {/* ADD ANIMATION */}
-    <AnimationStore.Consumer>
-      {({ createAnimation }) => (
-        <div className={styles.addAnimation}>
-          <ButtonField
-            color="primary"
-            size="small"
-            label="Create Animation"
-            onClick={() => createAnimation()}
-          />
-        </div>
-      )}
-    </AnimationStore.Consumer>
 
     <div className={styles.scrollContainer}>
 

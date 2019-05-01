@@ -1,20 +1,29 @@
-import React from 'react';
-import classnames from 'classnames';
-
+import { React, cx } from 'utils';
 import { CheckField } from 'components/core';
 import { IconButton } from 'components/shared';
 
-import styles from './AddDropdown.scss';
+import styles from './AddDropdown.module.scss';
 
-const AddDropdown = ({ className, icon = 'addBlock', label, label2, onSelect, options, value }) => {
+const anchorStyleMap = {
+  'down-left': styles.downLeft,
+  'down-left-side': styles.downLeftSide,
+  'up-left': styles.upLeft,
+  'up-left-side': styles.upLeftSide,
+  'down-right': styles.downRight,
+  'down-right-side': styles.downRightSide,
+  'up-right': styles.upRight,
+  'up-right-side': styles.upRightSide
+}
+
+const AddDropdown = ({ anchor = 'down-left', className, icon = 'addBlock', label, label2, onSelect, options, value }) => {
   const [isOpen, onOpen] = React.useState(false);
 
   return (
-    <div className={classnames(styles.container, className)}>
+    <div className={cx(styles.container, className)}>
       <div
         role="button"
         onClick={() => onOpen(!isOpen)}
-        className={classnames(styles.inner, {
+        className={cx(styles.inner, {
           [styles.open]: isOpen
         })}
       >
@@ -27,7 +36,7 @@ const AddDropdown = ({ className, icon = 'addBlock', label, label2, onSelect, op
         <IconButton icon={icon} />
       </div>
       {isOpen && (
-        <div className={styles.dropdown}>
+        <div className={cx(styles.dropdown, anchorStyleMap[anchor])}>
           {options.map(opt => (
             <CheckField
               key={opt.value}

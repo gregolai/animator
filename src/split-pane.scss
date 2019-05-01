@@ -5,6 +5,14 @@
   $hover-size-px: 4px;
   $hover-color: $color-border-2;
 
+  .Pane {
+    display: flex;
+
+    >* {
+      flex: 1;
+    }
+  }
+
   // https://github.com/tomkp/react-split-pane
   .Resizer {
     background-color: $color-border-1;

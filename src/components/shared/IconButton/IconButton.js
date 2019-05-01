@@ -4,7 +4,7 @@ import classnames from 'classnames';
 import { Icon } from 'components/core';
 import { Button } from 'components/shared';
 
-import styles from './IconButton.scss';
+import styles from './IconButton.module.scss';
 
 const IconButton = ({ className, icon, ...rest }) => (
   <Button

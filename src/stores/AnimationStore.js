@@ -36,7 +36,13 @@ const createInstance = ({
   return {
     animId,
     direction,
-    definitionValues,
+    definitionValues: {
+      // 'animation-duration': 3000,
+      // 'animation-delay': 0,
+      // 'animation-direction': 'normal',
+      // 'animation-timing-function': 'linear',
+      ...definitionValues
+    },
     delay,
     duration,
     easing,
@@ -214,60 +220,53 @@ export default class AnimationStore extends React.Component {
 
   // CREATE - Animation
   createAnimation = () => {
-    const { list: animations, item, index } = db.createOne(this.state.animations, createAnimation({}));
+    const { list: animations, item: animation } = db.createOne(this.state.animations, createAnimation({}));
 
     this.setState({ animations });
     persist.animations.write(animations);
 
-    return {
-      anim: item,
-      animIndex: index
-    }
+    return animation;
   }
 
   // DELETE - Animation
   deleteAnimation = (animId) => {
-    const { list: animations, item, index } = db.deleteOne(this.state.animations, animId);
+    const { list: animations, item: animation } = db.deleteOne(this.state.animations, animId);
+    const { list: instances } = db.deleteMany(this.state.instances, instance => instance.animId === animId);
     const { list: tweens } = db.deleteMany(this.state.tweens, tween => tween.animId === animId);
     const { list: keyframes } = db.deleteMany(this.state.keyframes, kf => kf.animId === animId);
 
     this.setState({
       animations,
+      instances,
       tweens,
       keyframes
     });
     persist.animations.write(animations);
+    persist.instances.write(instances);
     persist.tweens.write(tweens);
     persist.keyframes.write(keyframes);
 
-    return {
-      animations,
-      anim: item,
-      animIndex: index
-    };
+    return animation;
   }
 
   createInstance = ({ animId }) => {
-    const { list: instances, item, index } = db.createOne(this.state.instances,
+    const { list: instances, item: instance } = db.createOne(this.state.instances,
       createInstance({ animId })
     );
 
     this.setState({ instances });
     persist.instances.write(instances);
 
-    return item;
+    return instance;
   }
 
   setInstanceAnimation = (instanceId, animId) => {
-    const { list: instances, item, index } = db.setOne(this.state.instances, instanceId, { animId });
+    const { list: instances, item: instance } = db.setOne(this.state.instances, instanceId, { animId });
 
     this.setState({ instances });
     persist.instances.write(instances);
 
-    return {
-      instance: item,
-      instanceIndex: index
-    }
+    return instance;
   };
 
   getInstanceDefinitionValue = (instanceId, definitionId) => {
@@ -278,7 +277,11 @@ export default class AnimationStore extends React.Component {
       return undefined;
     }
 
-    return instance.definitionValues[definitionId];
+    let value = instance.definitionValues[definitionId];
+    if (value === undefined) {
+      value = definition.defaultValue;
+    }
+    return value;
   };
 
   setInstanceDefinitionValue = (instanceId, definitionId, value) => {
@@ -308,14 +311,12 @@ export default class AnimationStore extends React.Component {
   };
 
   deleteInstance = (instanceId) => {
-    const { list: instances, item, index } = db.deleteOne(this.state.instances, instanceId);
+    const { list: instances, item: instance } = db.deleteOne(this.state.instances, instanceId);
 
     this.setState({ instances });
+    persist.instances.write(instances);
 
-    return {
-      instance: item,
-      instanceIndex: index
-    }
+    return instance;
   }
 
   // CREATE - Tween
@@ -328,13 +329,10 @@ export default class AnimationStore extends React.Component {
       !definition ||
       db.getOne(this.state.tweens, t => t.animId === animId && t.definitionId === definitionId).item
     ) {
-      return {
-        tween: null,
-        tweenIndex: -1
-      };
+      return null;
     }
 
-    const { list: tweens, item, index } = db.createOne(this.state.tweens, createTween({
+    const { list: tweens, item: tween } = db.createOne(this.state.tweens, createTween({
       animId,
       definitionId
     }))
@@ -342,25 +340,19 @@ export default class AnimationStore extends React.Component {
     this.setState({ tweens });
     persist.tweens.write(tweens);
 
-    return {
-      tween: item,
-      tweenIndex: index
-    };
+    return tween;
   }
 
   // DELETE - Tween
   deleteTween = (tweenId) => {
-    const { list: tweens, item, index } = db.deleteOne(this.state.tweens, tweenId);
+    const { list: tweens, item: tween } = db.deleteOne(this.state.tweens, tweenId);
     const { list: keyframes } = db.deleteMany(this.state.keyframes, kf => kf.tweenId === tweenId);
 
     this.setState({ keyframes, tweens });
     persist.keyframes.write(keyframes);
     persist.tweens.write(tweens);
 
-    return {
-      tween: item,
-      tweenIndex: index
-    }
+    return tween;
   }
 
   createKeyframe = (tweenId, time, value) => {
@@ -373,10 +365,7 @@ export default class AnimationStore extends React.Component {
       !tween ||
       this.getKeyframeAtTime(tweenId, time)
     ) {
-      return {
-        keyframe: null,
-        keyframeIndex: -1
-      }
+      return null;
     }
 
     const { list: keyframes, item: keyframe } = db.createOne(this.state.keyframes, createKeyframe({
@@ -401,33 +390,24 @@ export default class AnimationStore extends React.Component {
       !keyframe ||
       this.getKeyframeAtTime(keyframe.tweenId, time)
     ) {
-      return {
-        keyframe: null,
-        keyframeIndex: -1
-      }
+      return null;
     }
 
-    const { list: keyframes, item, index } = db.setOne(this.state.keyframes, keyframeId, { time });
+    const { list: keyframes } = db.setOne(this.state.keyframes, keyframeId, { time });
 
     this.setState({ keyframes });
     persist.keyframes.write(keyframes);
 
-    return {
-      keyframe: item,
-      keyframeIndex: index
-    };
+    return keyframe;
   }
 
   setKeyframeValue = (keyframeId, value) => {
-    const { list: keyframes, item, index } = db.setOne(this.state.keyframes, keyframeId, { value });
+    const { list: keyframes, item: keyframe } = db.setOne(this.state.keyframes, keyframeId, { value });
 
     this.setState({ keyframes });
     persist.keyframes.write(keyframes);
 
-    return {
-      keyframe: item,
-      keyframeIndex: index
-    };
+    return keyframe;
   }
 
   setKeyframeValueAtTime = (tweenId, time, value) => {
@@ -438,12 +418,12 @@ export default class AnimationStore extends React.Component {
   }
 
   deleteKeyframe = (keyframeId) => {
-    const { list: keyframes, item } = db.deleteOne(this.state.keyframes, keyframeId);
+    const { list: keyframes, item: keyframe } = db.deleteOne(this.state.keyframes, keyframeId);
 
     this.setState({ keyframes });
     persist.keyframes.write(keyframes);
 
-    return item;
+    return keyframe;
   }
 
   interpolate = (tweenId, time) => {

@@ -1,40 +1,46 @@
 import React from 'react';
 import classnames from 'classnames';
-import { Button } from 'components/shared';
+import { Button, Hover } from 'components/shared';
 
-import styles from './ValueButton.scss';
+import styles from './ValueButton.module.scss';
 
-const ValueButton = React.forwardRef(
-  ({ accessory, canClear, className, definition, isDisabled, isToggled, onClick, onClear, value }, ref) => (
-    <Button
-      ref={ref}
-      className={classnames(styles.container, {
-        [styles.disabled]: isDisabled
-      }, className)}
-      isToggled={isToggled}
-      onClick={onClick}
-    >
-      {accessory && <div className={styles.accessory}>{accessory}</div>}
-      <span className={styles.label}>
-        {definition.id}
-      </span>
-      <span className={styles.value}>
-        {value === undefined ? '•' : definition.format(value)}
-      </span>
-      {canClear && value !== undefined && (
-        <div
-          role="button"
-          className={styles.clear}
-          onClick={e => {
-            e.preventDefault();
-            e.stopPropagation();
-            onClear();
-          }}
-        >
-          clear
+const ValueButton = ({ accessory, canClear, className, definition, isDisabled, isToggled, onClick, onClear, value }) => (
+  <Hover>
+    {({ hoverRef, isHovering }) => (
+      <Button
+        ref={hoverRef}
+        className={classnames(styles.container, {
+          [styles.hasAccessory]: accessory,
+          [styles.disabled]: isDisabled
+        }, className)}
+        isToggled={isToggled}
+        onClick={onClick}
+      >
+        {accessory && isHovering && (
+          <div className={styles.accessory}>{accessory}</div>
+        )}
+        <span className={styles.label}>
+          {definition.id}
+        </span>
+        <span className={styles.value}>
+          {value === undefined ? '•' : definition.format(value, true)}
+        </span>
+        {canClear && value !== undefined && (
+          <div
+            role="button"
+            className={styles.clear}
+            onClick={e => {
+              e.preventDefault();
+              e.stopPropagation();
+              onClear();
+            }}
+          >
+            clear
         </div>
-      )}
-    </Button>
-  ));
+        )}
+      </Button>
+    )}
+  </Hover>
+);
 
 export default ValueButton;

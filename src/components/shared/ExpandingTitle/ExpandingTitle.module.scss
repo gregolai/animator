@@ -3,7 +3,14 @@
 :local {
   .container {
     position: relative;
-    cursor: pointer;
+
+    &.clickable {
+      cursor: pointer;
+    }
+
+    &.hasAccessory {
+      padding-left: $grid-px * 3;
+    }
   }
 
   .accessory {

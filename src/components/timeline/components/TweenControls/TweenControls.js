@@ -1,12 +1,12 @@
 import React from 'react';
 import classnames from 'classnames';
 
-import { IconButton, Hover, ValueButton } from 'components/shared';
+import { IconButton, ValueButton } from 'components/shared';
 import { getDefinition } from 'utils/definitions';
 
 import { AnimationStore, MediaStore, UIStore } from 'stores'
 
-import styles from './TweenControls.scss';
+import styles from './TweenControls.module.scss';
 
 const ToggleLock = ({ tween }) => (
   <UIStore.Consumer>
@@ -38,7 +38,7 @@ const ToggleVisible = ({ tween }) => (
   </UIStore.Consumer>
 )
 
-const DeleteTween = ({ isHovering, tween }) => (
+const DeleteTween = ({ tween }) => (
   <UIStore.Consumer>
     {({ isTweenLocked, isTweenHidden }) => (
 
@@ -47,7 +47,7 @@ const DeleteTween = ({ isHovering, tween }) => (
 
           <IconButton
             className={classnames(styles.btnDelete, {
-              [styles.hidden]: !isHovering || isTweenLocked(tween.id) || isTweenHidden(tween.id)
+              [styles.hidden]: isTweenLocked(tween.id) || isTweenHidden(tween.id)
             })}
             icon="close"
             onClick={() => {
@@ -70,38 +70,33 @@ const TweenLabel = ({ time, tween, value }) => (
     {({ createKeyframe, deleteKeyframe, getKeyframeAtTime }) => (
       <UIStore.Consumer>
         {({ isTweenLocked, isTweenHidden, isTweenExpanded, setTweenExpanded }) => (
-          <Hover>
-            {({ hoverRef, isHovering }) => (
-              <ValueButton
-                ref={hoverRef}
-                accessory={<DeleteTween isHovering={isHovering} tween={tween} />}
-                className={classnames(styles.btnValue, {
-                  [styles.locked]: isTweenLocked(tween.id),
-                  [styles.hidden]: isTweenHidden(tween.id)
-                })}
-                definition={getDefinition(tween.definitionId)}
-                isToggled={isTweenExpanded(tween.id)}
+          <ValueButton
+            accessory={<DeleteTween tween={tween} />}
+            className={classnames(styles.btnValue, {
+              [styles.locked]: isTweenLocked(tween.id),
+              [styles.hidden]: isTweenHidden(tween.id)
+            })}
+            definition={getDefinition(tween.definitionId)}
+            isToggled={isTweenExpanded(tween.id)}
 
-                canClear={true}
-                onClear={() => {
-                  const keyframe = getKeyframeAtTime(tween.id, time);
-                  if (keyframe) {
-                    deleteKeyframe(keyframe.id);
-                  } else {
-                    createKeyframe(tween.id, time, value);
-                    setTweenExpanded(tween.id, true);
-                  }
-                }}
-                onClick={() => {
-                  const canExpand = !isTweenLocked(tween.id) && !isTweenHidden(tween.id);
-                  if (canExpand) {
-                    setTweenExpanded(tween.id, !isTweenExpanded(tween.id))
-                  }
-                }}
-                value={value}
-              />
-            )}
-          </Hover>
+            canClear={true}
+            onClear={() => {
+              const keyframe = getKeyframeAtTime(tween.id, time);
+              if (keyframe) {
+                deleteKeyframe(keyframe.id);
+              } else {
+                createKeyframe(tween.id, time, value);
+                setTweenExpanded(tween.id, true);
+              }
+            }}
+            onClick={() => {
+              const canExpand = !isTweenLocked(tween.id) && !isTweenHidden(tween.id);
+              if (canExpand) {
+                setTweenExpanded(tween.id, !isTweenExpanded(tween.id))
+              }
+            }}
+            value={value}
+          />
         )}
       </UIStore.Consumer>
     )}

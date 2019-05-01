@@ -6,6 +6,7 @@
   .container {
     padding-top: $grid-px;
     display: flex;
+    justify-content: space-between;
     width: $timeline-left-width;
   }
 
@@ -17,15 +18,8 @@
     padding-left: $grid-px * 4;
   }
 
-  .delete {
-    height: $head-height;
-    width: $head-height;
-
-    transition: opacity 250ms ease-out;
-    opacity: 1;
-
-    &.hidden {
-      opacity: 0;
-    }
+  .btnAddTween {
+    margin-right: $grid-px;
   }
+
 }

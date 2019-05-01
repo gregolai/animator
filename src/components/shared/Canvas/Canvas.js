@@ -1,6 +1,6 @@
 import React from 'react';
 
-import styles from './Canvas.scss';
+import styles from './Canvas.module.scss';
 
 export default class Canvas extends React.Component {
   state = {
@@ -131,7 +131,7 @@ export default class Canvas extends React.Component {
     return (
       <canvas
         ref={this.captureRef}
-        className={styles.canvas}
+        className={styles.container}
         height={height}
         width={width}
 

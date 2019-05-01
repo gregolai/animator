@@ -15,7 +15,10 @@ import MediaControls from './components/media/MediaControls';
 import Playhead from './components/playhead/Playhead';
 import Timeline from './components/timeline/Timeline';
 
-import styles from './App.scss';
+import Animations from './components/animations/Animations';
+import Instances from './components/instances/Instances';
+
+import styles from './App.module.scss';
 
 // getCss = animations => {
 //   const css = this.state.animations.map(anim => {
@@ -48,58 +51,91 @@ import styles from './App.scss';
 //   });
 // }
 
-const App = withStores(() => (
-  <div className={styles.container}>
-    {/* IMPORT DIALOGUE */}
-    <ImportCSSModal />
+const App = withStores(() => {
+  const [debug, toggleDebug] = React.useState(true);
 
-    <SplitPane
-      split="horizontal"
-      minSize={300}
-      maxSize={-300}
-      defaultSize={window.innerHeight * 0.6}
-    >
-      {/* TOP REGION */}
-      <div className={styles.top}>
+  return (
+    <div className={styles.container}>
+      {/* DEBUG */}
+      <label
+        style={{ userSelect: 'none', position: 'fixed', zIndex: 999, top: 0, left: 0 }}
+      >
+        Debug <input type="checkbox" onChange={() => toggleDebug(!debug)} checked={debug} />
+      </label>
 
-        {/* PROP DEFINITIONS */}
-        <div className={styles.col0}>
-          {/* IMPORT CSS */}
-          <ImporterStore.Consumer>
-            {({ setOpen }) => (
-              <ButtonField
-                flush
-                className={styles.importButton}
-                onClick={() => setOpen(true)}
-                label="Import CSS"
-              />
-            )}
-          </ImporterStore.Consumer>
+      {/* IMPORT DIALOGUE */}
+      <ImportCSSModal />
 
+      <SplitPane
+        split="horizontal"
+        minSize={300}
+        maxSize={-300}
+        defaultSize={window.innerHeight * 0.7}
+      >
+        {/* TOP REGION */}
+        <SplitPane
+          split="vertical"
+          minSize={300}
+          maxSize={1200}
+          defaultSize={window.innerWidth * 0.5}
+        >
+          <div className={styles.topLeft}>
+            <div className={styles.menu}>
+              {/* IMPORT CSS */}
+              <ImporterStore.Consumer>
+                {({ setOpen }) => (
+                  <div className={styles.menuItem}>
+                    <ButtonField
+                      size="small"
+                      color="warning"
+                      onClick={() => setOpen(true)}
+                      label="Import CSS"
+                    />
+                  </div>
+                )}
+              </ImporterStore.Consumer>
+
+              {/* ADD ANIMATION */}
+              <AnimationStore.Consumer>
+                {({ createAnimation }) => (
+                  <div className={styles.menuItem}>
+                    <ButtonField
+                      size="small"
+                      color="primary"
+                      label="Create Animation"
+                      onClick={() => createAnimation()}
+                    />
+                  </div>
+                )}
+              </AnimationStore.Consumer>
+            </div>
+
+            {/* KEYFRAME TIMELINES */}
+            {!debug && <Timeline className={styles.timeline} />}
+            {debug && <Animations className={styles.timeline} />}
+
+          </div>
+
+          {/* STAGE REGION */}
+          <div className={styles.topRight}>
+            <Stage className={styles.stage} showControls />
+            <MediaControls className={styles.mediaControls} />
+          </div>
+        </SplitPane>
+
+        {/* BOTTOM REGION */}
+        <div className={styles.bottom}>
+          {/* <Playhead className={styles.playhead} /> */}
+
+          {/* INSTANCE EDITING */}
+          {debug && <Instances />}
+          {!debug && <InstanceEditor />}
         </div>
 
-        {/* INSTANCE EDITING */}
-        <div className={styles.col1}>
-          <InstanceEditor />
-        </div>
-
-        {/* STAGE REGION */}
-        <div className={styles.col2}>
-          <Stage className={styles.stage} showControls />
-          <MediaControls className={styles.mediaControls} />
-        </div>
-
-      </div>
-
-      {/* BOTTOM REGION */}
-      <div className={styles.bottom}>
-        <Playhead className={styles.playhead} />
-        <Timeline className={styles.timeline} />
-      </div>
-
-    </SplitPane>
-  </div>
-));
+      </SplitPane>
+    </div>
+  );
+});
 
 export default App;
 

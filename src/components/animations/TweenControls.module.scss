@@ -1,0 +1,12 @@
+@import "../../constants.scss";
+
+:local {
+  .container {
+    display: flex;
+    width: $animations-left-width;
+
+    .btnValue {
+      flex: 1;
+    }
+  }
+}
