@@ -22,15 +22,25 @@
   }
 
   .body {
+    position: relative;
     flex: 1;
-    overflow-y: scroll;
+    overflow-y: auto;
   }
 
   .instance {
     display: flex;
 
     .controls {
+      position: relative;
       width: $timeline-left-width;
+
+      .editor {
+        width: 100%;
+        padding: $grid-px;
+        background-color: $color-bg-0;
+        border-radius: $border-radius-px;
+        border: 1px solid $color-border-0;
+      }
     }
 
     .timeline {

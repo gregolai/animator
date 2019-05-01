@@ -3,6 +3,8 @@
 :local {
   .container {
     position: relative;
+    display: flex;
+    align-items: center;
 
     &.clickable {
       cursor: pointer;
@@ -18,6 +20,10 @@
     left: 0;
     top: 0;
     bottom: 0;
+  }
+
+  .color {
+    margin-right: $grid-px;
   }
 
   .title,
@@ -40,5 +46,9 @@
       color: $color-font-0;
       font-size: $font-size-xl;
     }
+  }
+
+  .editString {
+    width: 200px;
   }
 }

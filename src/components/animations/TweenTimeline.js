@@ -6,10 +6,9 @@ import { Ticks } from 'components/shared';
 import styles from './TweenTimeline.module.scss';
 
 
-const TweenTimeline = ({ className, tween }) => {
+const TweenTimeline = ({ className }) => {
   return (
     <div className={cx(styles.container, className)}>
-
       <Ticks.EvenSpaced
         count={100}
         ticks={[

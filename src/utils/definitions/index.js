@@ -1,9 +1,10 @@
 import React from 'react';
 import color from 'color';
+import palettes from 'nice-color-palettes';
 import camelCase from 'lodash/camelCase';
 import { getEasingArray, getEasingOptions } from 'utils/easing';
 import { DropdownSelect, ColorField, RangeField } from 'components/core';
-import { DropdownCustom } from 'components/shared';
+import { ColorSquare, DropdownCustom } from 'components/shared';
 
 const constants = {
   animationDirections: ['normal', 'reverse', 'alternate', 'alternate-reverse'],
@@ -73,7 +74,9 @@ const BezierComponent = ({ value, onChange }) => (
 export const definitionMap = {
   'animation-delay': {
     defaultValue: 0,
+    friendlyLabel: 'Delay',
     format: formatMilliseconds,
+    preview: formatMilliseconds,
     parse: parseMilliseconds,
     render: ({ onChange, value = 0 }) => (
       <RangeField
@@ -87,7 +90,10 @@ export const definitionMap = {
     )
   },
   'animation-direction': {
+    defaultValue: 'normal',
+    friendlyLabel: 'Direction',
     format: v => v,
+    preview: v => v,
     parse: str => parseEnum(str, constants.animationDirections),
     render: ({ onChange, value }) => (
       <DropdownSelect
@@ -104,27 +110,26 @@ export const definitionMap = {
   },
   'animation-duration': {
     defaultValue: 1000,
+    friendlyLabel: 'Duration',
     format: formatMilliseconds,
+    preview: formatMilliseconds,
     parse: parseMilliseconds,
     render: ({ onChange, value }) => (
       <RangeField
         detail="ms"
         max={10000}
         min={100}
-        step={100}
+        step={50}
         onChange={onChange}
         value={value}
       />
     )
   },
   'animation-timing-function': {
-    format: (v, friendly) => {
-      if (typeof v === 'string') return v;
-
-      return friendly ?
-        `(${v[0]}, ${v[1]}) (${v[2]}, ${v[3]})` :
-        `cubic-bezier(${v[0]}, ${v[1]}, ${v[2]}, ${v[3]})`;
-    },
+    defaultValue: 'linear',
+    friendlyLabel: 'Easing',
+    format: v => typeof v === 'string' ? v : `cubic-bezier(${v[0]}, ${v[1]}, ${v[2]}, ${v[3]})`,
+    preview: v => typeof v === 'string' ? v : `(${v[0]}, ${v[1]}) (${v[2]}, ${v[3]})`,
     parse: str => getEasingArray(str),
     render: ({ onChange, value }) => (
       <DropdownCustom
@@ -165,6 +170,12 @@ export const definitionMap = {
   },
   'background-color': {
     format: v => color(v).hex(),
+    preview: v => (
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        <div>{color(v).hex()}</div>
+        <ColorSquare color={v} />
+      </div>
+    ),
     lerp: (from, to, t) => {
       from = color(from);
       to = color(to);
@@ -179,35 +190,31 @@ export const definitionMap = {
         value={{
           color: props.value,
           palette: [
-            '#123456',
-            '#842134',
-            '#abc123',
-            '#984fff',
-            '#123456',
-            '#ffffff',
-            '#000000',
-            '#909090',
-            '#101010',
-            '#203123'
-          ]
+            ...palettes[0],
+            ...palettes[1],
+            ...palettes[2],
+          ],
         }}
       />
     )
   },
   'bottom': {
     format: formatPixels,
+    preview: formatPixels,
     lerp: lerpNumber,
     parse: parseNumber,
     render: renderPosition
   },
   'height': {
     format: formatPixels,
+    preview: formatPixels,
     lerp: lerpNumber,
     parse: parseNumber,
     render: renderPosition
   },
   'left': {
     format: formatPixels,
+    preview: formatPixels,
     lerp: lerpNumber,
     parse: parseNumber,
     render: renderPosition
@@ -215,6 +222,7 @@ export const definitionMap = {
   'margin-bottom': {
     computedGroup: 'margin',
     format: formatPixels,
+    preview: formatPixels,
     lerp: lerpNumber,
     parse: parseNumber,
     render: renderMargin
@@ -222,6 +230,7 @@ export const definitionMap = {
   'margin-left': {
     computedGroup: 'margin',
     format: formatPixels,
+    preview: formatPixels,
     lerp: lerpNumber,
     parse: parseNumber,
     render: renderMargin
@@ -229,6 +238,7 @@ export const definitionMap = {
   'margin-right': {
     computedGroup: 'margin',
     format: formatPixels,
+    preview: formatPixels,
     lerp: lerpNumber,
     parse: parseNumber,
     render: renderMargin
@@ -236,18 +246,21 @@ export const definitionMap = {
   'margin-top': {
     computedGroup: 'margin',
     format: formatPixels,
+    preview: formatPixels,
     lerp: lerpNumber,
     parse: parseNumber,
     render: renderMargin
   },
   'opacity': {
     format: v => v,
+    preview: v => v,
     lerp: lerpNumber,
     parse: parseNumber,
     render: renderRatio
   },
   'position': {
     format: v => v,
+    preview: v => v,
     lerp: (from, to, t) => from, // todo: no animate
     parse: str => parseEnum(str, constants.positions),
     render: ({ onChange, value }) => (
@@ -265,18 +278,21 @@ export const definitionMap = {
   },
   'right': {
     format: formatPixels,
+    preview: formatPixels,
     lerp: lerpNumber,
     parse: parseNumber,
     render: renderPosition
   },
   'top': {
     format: formatPixels,
+    preview: formatPixels,
     lerp: lerpNumber,
     parse: parseNumber,
     render: renderPosition
   },
   'width': {
     format: formatPixels,
+    preview: formatPixels,
     lerp: lerpNumber,
     parse: parseNumber,
     render: renderPosition

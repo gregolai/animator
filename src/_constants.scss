@@ -20,8 +20,13 @@ $font-size-md: 14px;
 $font-size-lg: 16px;
 $font-size-xl: 18px;
 
+$z-index-low-priority: 1;
+$z-index-medium-priority: 2;
+$z-index-high-priority: 3;
+$z-index-highest-priority: 4;
+
 $common-height-px: $grid-px * 3;
 
 $animations-left-width: 340px;
-$timeline-left-width: 420px;
+$timeline-left-width: 600px;
 $timeline-tween-height: $grid-px * 3;

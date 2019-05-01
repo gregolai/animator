@@ -2,6 +2,7 @@ import React from 'react';
 import rework from 'rework';
 import difference from 'lodash/difference';
 import { uniqueNamesGenerator } from 'unique-names-generator';
+import randomColor from 'randomcolor';
 
 import { getDefinition, getAnimatedDefinitions } from 'utils/definitions';
 
@@ -19,6 +20,7 @@ const persist = createPersist('AnimationStore', {
 
 const createAnimation = ({ name = undefined }) => {
   return {
+    color: randomColor(),
     name: name || uniqueNamesGenerator('-', true)
   }
 }
@@ -228,6 +230,15 @@ export default class AnimationStore extends React.Component {
     return animation;
   }
 
+  setAnimationName = (animId, name) => {
+    const { list: animations, item: animation } = db.setOne(this.state.animations, animId, { name })
+
+    this.setState({ animations });
+    persist.animations.write(animations);
+
+    return animation;
+  };
+
   // DELETE - Animation
   deleteAnimation = (animId) => {
     const { list: animations, item: animation } = db.deleteOne(this.state.animations, animId);
@@ -268,6 +279,15 @@ export default class AnimationStore extends React.Component {
 
     return instance;
   };
+
+  setInstanceName = (instanceId, name) => {
+    const { list: instances, item: instance } = db.setOne(this.state.instances, instanceId, { name })
+
+    this.setState({ instances });
+    persist.instances.write(instances);
+
+    return instance;
+  }
 
   getInstanceDefinitionValue = (instanceId, definitionId) => {
     const instance = this.getInstance(instanceId);
@@ -499,6 +519,7 @@ export default class AnimationStore extends React.Component {
           importAnimations: this.importAnimations,
 
           createAnimation: this.createAnimation, // CREATE
+          setAnimationName: this.setAnimationName, // UPDATE
           deleteAnimation: this.deleteAnimation, // DELETE
 
           createTween: this.createTween, // CREATE
@@ -517,6 +538,7 @@ export default class AnimationStore extends React.Component {
 
           createInstance: this.createInstance,
           setInstanceAnimation: this.setInstanceAnimation,
+          setInstanceName: this.setInstanceName,
           setInstanceDefinitionValue: this.setInstanceDefinitionValue,
           getInstances: this.getInstances,
           getInstance: this.getInstance,

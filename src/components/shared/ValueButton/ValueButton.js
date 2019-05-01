@@ -19,12 +19,12 @@ const ValueButton = ({ accessory, canClear, className, definition, isDisabled, i
         {accessory && isHovering && (
           <div className={styles.accessory}>{accessory}</div>
         )}
-        <span className={styles.label}>
-          {definition.id}
-        </span>
-        <span className={styles.value}>
-          {value === undefined ? '•' : definition.format(value, true)}
-        </span>
+        <div className={styles.label}>
+          {definition.friendlyLabel || definition.id}
+        </div>
+        <div className={styles.value}>
+          {value === undefined ? '•' : definition.preview(value)}
+        </div>
         {canClear && value !== undefined && (
           <div
             role="button"

@@ -1,0 +1,8 @@
+@import "../../../constants.scss";
+
+:local {
+  .container {
+    width: $grid-px;
+    height: $grid-px;
+  }
+}

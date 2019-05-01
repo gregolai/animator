@@ -2,11 +2,20 @@
 
 :local {
   .container {
+    position: relative;
     display: flex;
     width: $animations-left-width;
 
     .btnValue {
       flex: 1;
     }
+  }
+
+  .editor {
+    width: 100%;
+    padding: $grid-px;
+    background-color: $color-bg-1;
+    border-radius: $border-radius-px;
+    border: 1px solid $color-border-0;
   }
 }

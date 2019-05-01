@@ -1,19 +1,8 @@
 import { React, cx } from 'utils';
 import { CheckField } from 'components/core';
-import { IconButton } from 'components/shared';
+import { IconButton, Popover } from 'components/shared';
 
 import styles from './AddDropdown.module.scss';
-
-const anchorStyleMap = {
-  'down-left': styles.downLeft,
-  'down-left-side': styles.downLeftSide,
-  'up-left': styles.upLeft,
-  'up-left-side': styles.upLeftSide,
-  'down-right': styles.downRight,
-  'down-right-side': styles.downRightSide,
-  'up-right': styles.upRight,
-  'up-right-side': styles.upRightSide
-}
 
 const AddDropdown = ({ anchor = 'down-left', className, icon = 'addBlock', label, label2, onSelect, options, value }) => {
   const [isOpen, onOpen] = React.useState(false);
@@ -36,12 +25,13 @@ const AddDropdown = ({ anchor = 'down-left', className, icon = 'addBlock', label
         <IconButton icon={icon} />
       </div>
       {isOpen && (
-        <div className={cx(styles.dropdown, anchorStyleMap[anchor])}>
+        <Popover anchor={anchor} className={styles.dropdown}>
           {options.map(opt => (
             <CheckField
               key={opt.value}
               flush
               className={styles.item}
+              icon={opt.icon}
               onClick={() => {
                 onOpen(false);
                 onSelect(opt.value)
@@ -50,7 +40,7 @@ const AddDropdown = ({ anchor = 'down-left', className, icon = 'addBlock', label
               value={opt.value === value}
             />
           ))}
-        </div>
+        </Popover>
       )}
     </div>
   )

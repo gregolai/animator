@@ -2,7 +2,7 @@
 
 :local {
   .container {
-    overflow-y: scroll;
+    overflow-y: auto;
     overflow-x: hidden;
     height: 100%;
   }
@@ -22,5 +22,13 @@
         flex: 1;
       }
     }
+  }
+
+  .playheadCursor {
+    z-index: 1;
+    position: absolute;
+    left: 0;
+    width: 100%;
+    top: 100%;
   }
 }

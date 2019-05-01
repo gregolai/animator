@@ -4,14 +4,12 @@ import { createPersist } from 'utils/persist';
 
 const persist = createPersist('StageStore', {
   gridSize: 22,
-  instances: [],
   showGrid: true,
   gridSnap: false
 })
 
 const INITIAL_STATE = {
   gridSize: persist.gridSize.read(),
-  instances: persist.instances.read(),
   showGrid: persist.showGrid.read(),
   gridSnap: persist.gridSnap.read()
 }
@@ -35,14 +33,6 @@ export default class StageStore extends React.Component {
   setGridSnap = gridSnap => {
     this.setState({ gridSnap });
     persist.gridSnap.write(gridSnap);
-  }
-
-  getInstance = instanceId => {
-    return db.getOne(this.state.instances, instanceId).item;
-  }
-
-  getInstances = () => {
-    return [...this.state.instances];
   }
 
   render() {
