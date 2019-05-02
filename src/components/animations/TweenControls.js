@@ -4,17 +4,18 @@ import { AnimationStore, MediaStore, UIStore } from 'stores';
 import { IconButton, Popover, ValueButton, ValueEditor } from 'components/shared';
 import { getDefinition } from 'utils/definitions';
 
+import LocalPlayheadStore from './LocalPlayheadStore';
 import styles from './TweenControls.module.scss';
 
 const TweenControls = ({ className, tween }) => (
-  <AnimationStore.Consumer>
-    {({ deleteTween, interpolate, setKeyframeValueAtTime }) => (
-      <UIStore.Consumer>
-        {({ isTweenHidden, setTweenHidden, isTweenLocked, setTweenLocked, isTweenExpanded, setTweenExpanded }) => (
-          <MediaStore.Consumer>
-            {({ playhead }) => {
+  <LocalPlayheadStore.Consumer>
+    {({ localPlayhead }) => (
+      <AnimationStore.Consumer>
+        {({ deleteTween, interpolate, setKeyframeValueAtTime }) => (
+          <UIStore.Consumer>
+            {({ isTweenHidden, setTweenHidden, isTweenLocked, setTweenLocked, isTweenExpanded, setTweenExpanded }) => {
               const definition = getDefinition(tween.definitionId);
-              const value = interpolate(tween.id, playhead);
+              const value = interpolate(tween.id, localPlayhead);
 
               const isLocked = isTweenLocked(tween.id);
               const isHidden = isTweenHidden(tween.id);
@@ -71,21 +72,22 @@ const TweenControls = ({ className, tween }) => (
                   {/* VALUE EDITOR */}
                   {isExpanded && (
                     <Popover anchor="down-left" className={styles.editor}>
+
                       <ValueEditor
                         definitionId={tween.definitionId}
                         value={value}
-                        onChange={value => setKeyframeValueAtTime(tween.id, playhead, value)}
+                        onChange={value => setKeyframeValueAtTime(tween.id, localPlayhead, value)}
                       />
+
                     </Popover>
                   )}
                 </div>
               );
-
             }}
-          </MediaStore.Consumer>
+          </UIStore.Consumer>
         )}
-      </UIStore.Consumer>
+      </AnimationStore.Consumer>
     )}
-  </AnimationStore.Consumer>
+  </LocalPlayheadStore.Consumer>
 )
 export default TweenControls;

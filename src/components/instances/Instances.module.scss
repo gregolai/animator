@@ -10,9 +10,27 @@
 
   .head {
     display: flex;
+    background-color: $color-bg-0;
+    border-bottom: 1px solid $color-border-1;
 
     .left {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
       width: $timeline-left-width;
+      padding-left: $grid-px;
+      padding-right: $grid-px;
+
+      .btnCreateInstance {
+        flex: 1;
+      }
+
+      .spacing {
+        [class^="Label-label-"] {
+          padding-right: 0;
+          width: auto;
+        }
+      }
     }
 
     .right {
@@ -28,20 +46,9 @@
   }
 
   .instance {
+    padding-top: $grid-px * 2;
     display: flex;
 
-    .controls {
-      position: relative;
-      width: $timeline-left-width;
-
-      .editor {
-        width: 100%;
-        padding: $grid-px;
-        background-color: $color-bg-0;
-        border-radius: $border-radius-px;
-        border: 1px solid $color-border-0;
-      }
-    }
 
     .timeline {
       position: relative;

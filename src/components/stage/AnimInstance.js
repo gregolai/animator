@@ -10,7 +10,7 @@ import styles from './AnimInstance.scss';
 
 const Inner = ({ anim, instance }) => (
   <AnimationStore.Consumer>
-    {({ interpolate, getTweens, getInstanceDefinitionValue, setInstanceDefinitionValue }) => (
+    {({ interpolateInstance, getTweens, getInstanceDefinitionValue, setInstanceDefinitionValue }) => (
       <UIStore.Consumer>
         {({ setSelectedInstance }) => (
           <Hover>
@@ -67,7 +67,7 @@ const Inner = ({ anim, instance }) => (
                                 }, {}),
 
                                 ...getTweens(anim.id).reduce((style, tween) => {
-                                  const value = interpolate(tween.id, playhead);
+                                  const value = interpolateInstance(instance.id, tween.id, playhead)
                                   if (value !== undefined) {
                                     const definition = getDefinition(tween.definitionId);
                                     style[definition.styleName] = definition.format(value);

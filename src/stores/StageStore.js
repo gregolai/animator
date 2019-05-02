@@ -1,5 +1,4 @@
 import React from 'react';
-import db from 'utils/db';
 import { createPersist } from 'utils/persist';
 
 const persist = createPersist('StageStore', {
@@ -8,17 +7,15 @@ const persist = createPersist('StageStore', {
   gridSnap: false
 })
 
-const INITIAL_STATE = {
-  gridSize: persist.gridSize.read(),
-  showGrid: persist.showGrid.read(),
-  gridSnap: persist.gridSnap.read()
-}
-
-const Context = React.createContext(INITIAL_STATE);
+const Context = React.createContext();
 export default class StageStore extends React.Component {
   static Consumer = Context.Consumer;
 
-  state = INITIAL_STATE;
+  state = {
+    gridSize: persist.gridSize.read(),
+    showGrid: persist.showGrid.read(),
+    gridSnap: persist.gridSnap.read()
+  };
 
   setGridSize = gridSize => {
     this.setState({ gridSize })

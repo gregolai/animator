@@ -1,4 +1,4 @@
-import React from 'react';
+import { React, normalizeRatio } from 'utils';
 import rework from 'rework';
 import difference from 'lodash/difference';
 import { uniqueNamesGenerator } from 'unique-names-generator';
@@ -7,7 +7,6 @@ import randomColor from 'randomcolor';
 import { getDefinition, getAnimatedDefinitions } from 'utils/definitions';
 
 import db from 'utils/db';
-import { normalizeTime } from 'utils/time';
 import interpolate from 'utils/interpolate';
 import { createPersist } from 'utils/persist';
 
@@ -28,27 +27,12 @@ const createAnimation = ({ name = undefined }) => {
 const createInstance = ({
   animId,
   definitionValues = {},
-  delay = 0,
-  direction = 'normal',
-  duration = 3000,
-  easing = 'linear',
-  iterations = 'infinite',
   name = uniqueNamesGenerator('-', true)
 }) => {
   return {
     animId,
-    direction,
-    definitionValues: {
-      // 'animation-duration': 3000,
-      // 'animation-delay': 0,
-      // 'animation-direction': 'normal',
-      // 'animation-timing-function': 'linear',
-      ...definitionValues
-    },
-    delay,
-    duration,
-    easing,
-    iterations,
+    color: randomColor(),
+    definitionValues,
     name
   }
 }
@@ -161,8 +145,8 @@ const fromCSSString = cssString => {
               // PARSE ANIMATION
               const parts = decl.value.split(' ');
               const animName = parts[0];
-              const duration = parts[1]; // TODO
-              const repeat = parts[2]; // TODO
+              // const duration = parts[1]; // TODO
+              // const repeat = parts[2]; // TODO
 
               // FIND ANIMATION BY NAME
               animation = animations.find(anim => anim.name === animName);
@@ -194,18 +178,17 @@ const fromCSSString = cssString => {
   return { animations, instances, keyframes, tweens };
 }
 
-const INITIAL_STATE = {
-  animations: persist.animations.read(),
-  instances: persist.instances.read(),
-  keyframes: persist.keyframes.read(),
-  tweens: persist.tweens.read(),
-}
 
 const Context = React.createContext();
 export default class AnimationStore extends React.Component {
   static Consumer = Context.Consumer;
 
-  state = INITIAL_STATE;
+  state = {
+    animations: persist.animations.read(),
+    instances: persist.instances.read(),
+    keyframes: persist.keyframes.read(),
+    tweens: persist.tweens.read(),
+  };
 
   importAnimations = (cssString, replace = false) => {
     let { animations, instances, keyframes, tweens } = fromCSSString(cssString);
@@ -376,7 +359,7 @@ export default class AnimationStore extends React.Component {
   }
 
   createKeyframe = (tweenId, time, value) => {
-    time = normalizeTime(time);
+    time = normalizeRatio(time);
 
     const tween = this.getTween(tweenId);
 
@@ -401,7 +384,7 @@ export default class AnimationStore extends React.Component {
   }
 
   setKeyframeTime = (keyframeId, time) => {
-    time = normalizeTime(time);
+    time = normalizeRatio(time);
 
     const keyframe = this.getKeyframe(keyframeId);
 
@@ -460,6 +443,26 @@ export default class AnimationStore extends React.Component {
     );
   }
 
+  interpolateInstance = (instanceId, tweenId, playheadTime) => {
+    const instance = this.getInstance(instanceId);
+    const tween = this.getTween(tweenId);
+    const definition = getDefinition(tween.definitionId)
+    if (!instance || !tween || !definition) return undefined;
+
+    const delay = this.getInstanceDefinitionValue(instanceId, 'animation-delay');
+    const duration = this.getInstanceDefinitionValue(instanceId, 'animation-duration');
+    const easing = this.getInstanceDefinitionValue(instanceId, 'animation-timing-function');
+
+    const scaledTime = (playheadTime - delay) / duration;
+
+    return interpolate(
+      this.getKeyframes(tweenId),
+      scaledTime,
+      definition.lerp,
+      easing
+    );
+  }
+
   getUnusedPropDefinitions = (animId) => {
     if (animId === -1) {
       return [];
@@ -502,7 +505,8 @@ export default class AnimationStore extends React.Component {
   }
 
   getKeyframeAtTime = (tweenId, time) => {
-    time = normalizeTime(time);
+    time = normalizeRatio(time);
+
     return db.getOne(this.state.keyframes, kf => kf.tweenId === tweenId && kf.time === time).item;
   }
 
@@ -554,7 +558,8 @@ export default class AnimationStore extends React.Component {
 
           getUnusedPropDefinitions: this.getUnusedPropDefinitions,
 
-          interpolate: this.interpolate
+          interpolate: this.interpolate,
+          interpolateInstance: this.interpolateInstance
         }}
       >
         {this.props.children}

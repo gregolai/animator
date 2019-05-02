@@ -1,43 +1,57 @@
 import { React, noop } from 'utils';
 
-const getPosition = (target, event) => {
-  const rect = target.getBoundingClientRect();
-  return { x: event.clientX - rect.left, y: event.clientY - rect.top };
-};
-
 const isLessThanDistance = (deltaX, deltaY, distance) => {
   return deltaX * deltaX + deltaY * deltaY < distance * distance;
 };
 
 export const startDrag = (
   mouseDownEvent,
-  { distance = 1, onDragStart = noop, onDrag = noop, onDragEnd = noop }
+  { distance = 1, measureLocalOffset = false, onDragStart = noop, onDrag = noop, onDragEnd = noop }
 ) => {
-  const { button, ctrlKey, shiftKey, metaKey, target } = mouseDownEvent;
-  const { x: startX, y: startY } = getPosition(target, mouseDownEvent);
+  if (mouseDownEvent.persist) {
+    mouseDownEvent.persist();
+  }
+
+  const {
+    clientX: startX,
+    clientY: startY,
+    button,
+    target: originalTarget
+  } = mouseDownEvent;
 
   let isDragging = false;
 
-  const _createArgs = ({ ctrlKey, shiftKey, metaKey, target: hoverTarget }, x, y) => ({
-    button,
-    ctrlKey,
-    shiftKey,
-    metaKey,
-    hoverTarget,
-    x,
-    y,
-    deltaX: x - startX,
-    deltaY: y - startY
-  });
+  const _createArgs = ({ clientX, clientY, ctrlKey, shiftKey, metaKey, target }) => {
+    const obj = {
+      button,
+      ctrlKey,
+      shiftKey,
+      metaKey,
+      hoverTarget: target,
+      clientX,
+      clientY,
+      deltaX: clientX - startX,
+      deltaY: clientY - startY
+    }
 
-  const _tryDragStart = (x, y) => {
+    if (measureLocalOffset) {
+      const rect = originalTarget.getBoundingClientRect();
+      obj.localX = clientX - rect.left;
+      obj.localY = clientY - rect.top;
+    }
+
+    return obj;
+  };
+
+  const _tryDragStart = (e) => {
     if (!isDragging) {
+      const { clientX, clientY } = e;
+      console.log({ clientX, clientY, distance, 'isLessThanDistance': isLessThanDistance(clientX - startX, clientY - startY, distance) })
       if (
         distance <= 0 ||
-        !isLessThanDistance(x - startX, y - startY, distance)
+        !isLessThanDistance(clientX - startX, clientY - startY, distance)
       ) {
-
-        onDragStart(_createArgs({ ctrlKey, shiftKey, metaKey, target }, x, y));
+        onDragStart(_createArgs(mouseDownEvent));
         isDragging = true;
       }
     }
@@ -52,25 +66,22 @@ export const startDrag = (
 
     if (!isDragging) return; // distance hasn't been satisfied
 
-    const { x, y } = getPosition(target, mouseUpEvent);
-
-    onDragEnd(_createArgs(mouseUpEvent, x, y));
+    onDragEnd(_createArgs(mouseUpEvent));
     mouseUpEvent.preventDefault();
   };
 
   const _onMouseMove = mouseMoveEvent => {
     if (mouseMoveEvent.button !== button) return;
 
-    const { x, y } = getPosition(target, mouseMoveEvent);
-    if (!_tryDragStart(x, y)) {
+    if (!_tryDragStart(mouseMoveEvent)) {
       return; //drag distance not met
     }
 
-    onDrag(_createArgs(mouseMoveEvent, x, y));
+    onDrag(_createArgs(mouseMoveEvent));
     mouseMoveEvent.preventDefault();
   };
 
-  if (_tryDragStart(startX, startY)) {
+  if (_tryDragStart(mouseDownEvent)) {
     mouseDownEvent.preventDefault();
   }
 

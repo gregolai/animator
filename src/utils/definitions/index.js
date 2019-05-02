@@ -8,6 +8,11 @@ import { ColorSquare, DropdownCustom } from 'components/shared';
 
 const constants = {
   animationDirections: ['normal', 'reverse', 'alternate', 'alternate-reverse'],
+  palette: [
+    ...palettes[0],
+    ...palettes[1],
+    ...palettes[2],
+  ],
   positions: ['static', 'relative', 'absolute', 'sticky', 'fixed']
 }
 
@@ -89,25 +94,25 @@ export const definitionMap = {
       />
     )
   },
-  'animation-direction': {
-    defaultValue: 'normal',
-    friendlyLabel: 'Direction',
-    format: v => v,
-    preview: v => v,
-    parse: str => parseEnum(str, constants.animationDirections),
-    render: ({ onChange, value }) => (
-      <DropdownSelect
-        isFloating={false}
-        placeholder="Animation Direction"
-        options={constants.animationDirections.map(p => ({
-          label: p,
-          value: p
-        }))}
-        onChange={onChange}
-        value={value}
-      />
-    )
-  },
+  // 'animation-direction': {
+  //   defaultValue: 'normal',
+  //   friendlyLabel: 'Direction',
+  //   format: v => v,
+  //   preview: v => v,
+  //   parse: str => parseEnum(str, constants.animationDirections),
+  //   render: ({ onChange, value }) => (
+  //     <DropdownSelect
+  //       isFloating={false}
+  //       placeholder="Animation Direction"
+  //       options={constants.animationDirections.map(p => ({
+  //         label: p,
+  //         value: p
+  //       }))}
+  //       onChange={onChange}
+  //       value={value}
+  //     />
+  //   )
+  // },
   'animation-duration': {
     defaultValue: 1000,
     friendlyLabel: 'Duration',
@@ -186,14 +191,10 @@ export const definitionMap = {
       <ColorField
         colorType="hex"
         providerType="passthrough"
-        onChange={v => props.onChange(v.color)}
+        onChange={v => console.log(v) || props.onChange(v.color)}
         value={{
           color: props.value,
-          palette: [
-            ...palettes[0],
-            ...palettes[1],
-            ...palettes[2],
-          ],
+          palette: constants.palette
         }}
       />
     )

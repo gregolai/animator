@@ -1,19 +1,14 @@
 
 import React from 'react';
 import SplitPane from 'react-split-pane';
-import cssbeautify from 'cssbeautify';
+// import cssbeautify from 'cssbeautify';
 
-import { ButtonField, RangeField } from 'components/core';
-import { withStores, AnimationStore, ImporterStore, UIStore } from 'stores';
-import { DropdownCustom } from 'components/shared';
-import { getEasingArray } from 'utils/easing';
+import { ButtonField } from 'components/core';
+import { withStores, AnimationStore, ImporterStore } from 'stores';
 
-import InstanceEditor from './components/instanceeditor/InstanceEditor';
 import Stage from './components/stage/Stage';
 import ImportCSSModal from './components/importer/ImportCSSModal';
 import MediaControls from './components/media/MediaControls';
-import Playhead from './components/playhead/Playhead';
-import Timeline from './components/timeline/Timeline';
 
 import Animations from './components/animations/Animations';
 import Instances from './components/instances/Instances';
@@ -62,6 +57,16 @@ const App = withStores(() => {
       >
         Debug <input type="checkbox" onChange={() => toggleDebug(!debug)} checked={debug} />
       </label>
+      <button
+        style={{ userSelect: 'none', position: 'fixed', zIndex: 999, top: 20, left: 0 }}
+        onClick={() => {
+          localStorage.clear();
+          window.location.reload();
+        }}
+      >
+        Reset Cache
+      </button>
+
 
       {/* IMPORT DIALOGUE */}
       <ImportCSSModal />
@@ -70,7 +75,7 @@ const App = withStores(() => {
         split="horizontal"
         minSize={300}
         maxSize={-300}
-        defaultSize={window.innerHeight * 0.7}
+        defaultSize={window.innerHeight * 0.5}
       >
         {/* TOP REGION */}
         <SplitPane
@@ -110,9 +115,8 @@ const App = withStores(() => {
               </AnimationStore.Consumer>
             </div>
 
-            {/* KEYFRAME TIMELINES */}
-            {!debug && <Timeline className={styles.timeline} />}
-            {debug && <Animations className={styles.timeline} />}
+            {/* KEYFRAME ANIMATIONS */}
+            <Animations className={styles.timeline} />
 
           </div>
 
@@ -128,8 +132,7 @@ const App = withStores(() => {
           {/* <Playhead className={styles.playhead} /> */}
 
           {/* INSTANCE EDITING */}
-          {debug && <Instances />}
-          {!debug && <InstanceEditor />}
+          <Instances />
         </div>
 
       </SplitPane>

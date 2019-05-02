@@ -6,10 +6,6 @@
     display: flex;
     align-items: center;
 
-    &.clickable {
-      cursor: pointer;
-    }
-
     &.hasAccessory {
       padding-left: $grid-px * 3;
     }
@@ -24,6 +20,11 @@
 
   .color {
     margin-right: $grid-px;
+  }
+
+  .clickable {
+    cursor: pointer;
+    flex: 1;
   }
 
   .title,
@@ -46,9 +47,5 @@
       color: $color-font-0;
       font-size: $font-size-xl;
     }
-  }
-
-  .editString {
-    width: 200px;
   }
 }

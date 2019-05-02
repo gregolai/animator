@@ -1,6 +1,4 @@
-import React from 'react';
-import clamp from 'lodash/clamp';
-import { normalizeTime } from '../utils/time';
+import { React, clamp, roundToInterval } from 'utils';
 import { createPersist } from 'utils/persist';
 import { INTERVAL_MS } from 'utils/constants';
 
@@ -12,20 +10,18 @@ const persist = createPersist('MediaStore', {
   tickSpacing: 4
 });
 
-const INITIAL_STATE = {
-  duration: persist.duration.read(),
-  isLooping: persist.isLooping.read(),
-  isPlaying: false,
-  isReversed: persist.isReversed.read(),
-  playhead: persist.playhead.read(),
-  tickSpacing: persist.tickSpacing.read()
-}
-
-const Context = React.createContext(INITIAL_STATE);
+const Context = React.createContext();
 export default class MediaStore extends React.Component {
   static Consumer = Context.Consumer;
 
-  state = INITIAL_STATE;
+  state = {
+    duration: persist.duration.read(),
+    isLooping: persist.isLooping.read(),
+    isPlaying: false,
+    isReversed: persist.isReversed.read(),
+    playhead: persist.playhead.read(),
+    tickSpacing: persist.tickSpacing.read()
+  };
 
   constructor(props) {
     super(props);
@@ -205,7 +201,7 @@ export default class MediaStore extends React.Component {
   }
 
   setTickSpacing = tickSpacing => {
-    tickSpacing = clamp(tickSpacing, 3, 20);
+    tickSpacing = Math.max(1, tickSpacing);
 
     this.setState({ tickSpacing });
     persist.tickSpacing.write(tickSpacing);
@@ -221,6 +217,8 @@ export default class MediaStore extends React.Component {
       tickSpacing
     } = this.state;
 
+    const normalizedPlayhead = Math.max(0, roundToInterval(playhead, INTERVAL_MS));
+
     return (
       <Context.Provider
         value={{
@@ -228,7 +226,7 @@ export default class MediaStore extends React.Component {
           isLooping,
           isPlaying,
           isReversed,
-          playhead: normalizeTime(playhead), // display
+          playhead: normalizedPlayhead, // display
           tickSpacing,
 
           setDuration: this.setDuration,

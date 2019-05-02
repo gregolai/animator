@@ -10,7 +10,6 @@
   .topLeft {
     background-color: $color-bg-0;
     width: $grid-px * 22;
-    padding-right: $grid-px;
     display: flex;
     flex-direction: column;
 
@@ -39,7 +38,6 @@
   }
 
   .bottom {
-    padding-top: $grid-px;
     height: 100%;
     display: flex;
     flex-direction: column;

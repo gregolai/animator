@@ -8,18 +8,16 @@ const persist = createPersist('UIStore', {
   selectedInstanceId: -1
 });
 
-const INITIAL_STATE = {
-  expandedTweenId: persist.expandedTweenId.read(),
-  hiddenTweens: persist.hiddenTweens.read(),
-  lockedTweens: persist.lockedTweens.read(),
-  selectedInstanceId: persist.selectedInstanceId.read()
-}
-
-const Context = React.createContext(INITIAL_STATE);
+const Context = React.createContext();
 export default class UIStore extends React.Component {
   static Consumer = Context.Consumer;
 
-  state = INITIAL_STATE;
+  state = {
+    expandedTweenId: persist.expandedTweenId.read(),
+    hiddenTweens: persist.hiddenTweens.read(),
+    lockedTweens: persist.lockedTweens.read(),
+    selectedInstanceId: persist.selectedInstanceId.read()
+  };
 
   setSelectedInstance = instanceId => {
     const selectedInstanceId = instanceId;
@@ -87,7 +85,7 @@ export default class UIStore extends React.Component {
           setTweenHidden: this.setTweenHidden,
 
           isTweenLocked: this.isTweenLocked,
-          setTweenLocked: this.setTweenLocked,
+          setTweenLocked: this.setTweenLocked
         }}
       >
         {this.props.children}

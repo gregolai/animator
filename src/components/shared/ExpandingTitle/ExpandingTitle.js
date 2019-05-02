@@ -1,17 +1,15 @@
 import React from 'react';
 import classnames from 'classnames';
-import { ContextField, StringField } from 'components/core';
-import { ColorSquare, Hover, IconButton } from 'components/shared';
+import { ContextField } from 'components/core';
+import { ColorSquare, Hover } from 'components/shared';
 
 import styles from './ExpandingTitle.module.scss';
 
 const ExpandingTitle =
   ({ accessory, className, color, isExpanded, label, onLabelChange, onClick }) => {
 
+    const [editLabel, setEditLabel] = React.useState(label);
     const [editing, setEditing] = React.useState(false);
-    const [editLabel, onEditLabelChange] = React.useState(label);
-
-    const canEdit = onLabelChange;
 
     return (
       <Hover>
@@ -19,14 +17,20 @@ const ExpandingTitle =
           <div
             ref={hoverRef}
             className={classnames(styles.container, {
-              [styles.clickable]: onClick,
               [styles.hasAccessory]: accessory
             }, className)}
           >
             {accessory && isHovering && <div className={styles.accessory}>{accessory}</div>}
             {color && <ColorSquare className={styles.color} color={color} />}
             {!editing && (
-              <>
+              <div
+                className={styles.clickable}
+                role="button"
+                onClick={() => {
+                  setEditLabel(label);
+                  setEditing(true);
+                }}
+              >
                 <ContextField
                   className={classnames(styles.title, {
                     [styles.expanded]: isExpanded
@@ -35,22 +39,25 @@ const ExpandingTitle =
                   fieldIndex={0}
                   onClick={onClick}
                 />
-                {isHovering && canEdit && <IconButton icon="blog" onClick={() => setEditing(true)} />}
-              </>
+              </div>
             )}
             {editing && (
-              <StringField
-                className={styles.editString}
+              <input
+                ref={ref => {
+                  if (ref) ref.focus();
+                }}
                 onKeyDown={e => {
                   if (e.key === 'Enter') e.target.blur(); // force blur
                 }}
                 onBlur={() => {
                   setEditing(false);
-                  if (editLabel !== label) {
-                    onLabelChange(editLabel);
+                  const trimmedLabel = editLabel.trim();
+                  if (trimmedLabel !== '' && trimmedLabel !== label) {
+                    onLabelChange(trimmedLabel);
                   }
                 }}
-                onChange={onEditLabelChange}
+                onChange={e => setEditLabel(e.target.value)}
+                type="text"
                 value={editLabel}
               />
             )}
@@ -59,4 +66,5 @@ const ExpandingTitle =
       </Hover>
     );
   };
+
 export default ExpandingTitle;

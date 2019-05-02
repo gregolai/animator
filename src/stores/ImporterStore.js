@@ -14,20 +14,18 @@ const persist = createPersist('ImporterStore', {
   replace: false
 })
 
-const INITIAL_STATE = {
-  isOpen: persist.isOpen.read(),
-  replace: persist.replace.read(),
-  canImport: false,
-  value: '',
-  errors: [],
-  warnings: [],
-}
-
-const Context = React.createContext(INITIAL_STATE);
+const Context = React.createContext();
 export default class ImporterStore extends React.Component {
   static Consumer = Context.Consumer;
 
-  state = INITIAL_STATE;
+  state = {
+    isOpen: persist.isOpen.read(),
+    replace: persist.replace.read(),
+    canImport: false,
+    value: '',
+    errors: [],
+    warnings: [],
+  };
 
   setReplace = replace => {
     this.setState({ replace });

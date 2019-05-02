@@ -1,7 +1,57 @@
 @import "../../constants.scss";
 
 :local {
+  $diamond-size: 12px;
+  $half-diamond-size: $diamond-size / 2;
+
+  $bar-height: 4px;
+  $half-bar-height: $bar-height / 2;
+
+  $hover-color-bg: dodgerblue;
+  $drag-color-bg: red;
+
+  $bar-color-bg: black;
+  $keyframe-color-bg: $color-bg-0;
+  $keyframe-color-border: black;
+
+
   .container {
     position: relative;
   }
+
+  .bar {
+    z-index: 2;
+    position: absolute;
+    top: 50%;
+    height: $bar-height;
+    transform: translateY(-$half-bar-height);
+    background-color: $bar-color-bg;
+
+    &:hover {
+      background-color: $hover-color-bg;
+    }
+  }
+
+  .keyframe {
+    z-index: 3;
+    position: absolute;
+    top: 50%;
+    width: $diamond-size;
+    height: $diamond-size;
+    transform: translate(-$half-diamond-size, -$half-diamond-size) rotate(-45deg);
+
+    background-color: $keyframe-color-bg;
+    border: 2px solid $keyframe-color-border;
+
+    &:hover {
+      cursor: none;
+      background-color: $hover-color-bg;
+    }
+
+    &.dragging {
+      cursor: none;
+      background-color: $drag-color-bg;
+    }
+  }
+
 }

@@ -14,8 +14,12 @@ const PlayheadCursor = ({ className }) => {
         <div
           className={cx(styles.container, className)}
           onMouseDown={e => {
+            const onDrag = ({ localX }) => setPlayhead(pixelsToTime(localX, tickSpacing));
             startDrag(e, {
-              onDrag: ({ x }) => setPlayhead(pixelsToTime(x, 4))
+              distance: 0,
+              measureLocalOffset: true,
+              onDragStart: onDrag,
+              onDrag
             })
           }}
         >

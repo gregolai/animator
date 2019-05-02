@@ -1,5 +1,5 @@
 import React from 'react';
-import { AnimationStore, StageStore, UIStore } from 'stores';
+import { AnimationStore, UIStore } from 'stores';
 import { AddDropdown, IconButton, ExpandingTitle } from 'components/shared';
 
 import styles from './InstanceHead.module.scss';

@@ -2,7 +2,6 @@ import React from 'react';
 import classnames from 'classnames';
 import { AnimationStore, MediaStore, UIStore } from 'stores';
 import { Drag, Ticks } from 'components/shared';
-import { INTERVAL_MS } from 'utils/constants';
 
 import styles from './TweenTimeline.scss';
 
