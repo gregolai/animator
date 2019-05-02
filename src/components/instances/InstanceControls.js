@@ -30,12 +30,7 @@ const InstanceControls = ({ instance }) => {
         <div className={styles.container}>
           <div className={styles.head}>
             <ExpandingTitle
-              accessory={
-                <IconButton
-                  icon="close"
-                  onClick={() => deleteInstance(instance.id)}
-                />
-              }
+              accessory={<IconButton icon="close" onClick={() => deleteInstance(instance.id)} />}
               className={styles.title}
               isExpanded={false /*selectedInstanceId === instance.id*/}
               label={instance.name}
@@ -49,9 +44,7 @@ const InstanceControls = ({ instance }) => {
               label2={
                 <div style={{ display: 'flex' }}>
                   <ColorSquare color={getAnimation(instance.animId).color} />
-                  <div style={{ paddingLeft: 11 }}>
-                    {getAnimation(instance.animId).name}
-                  </div>
+                  <div style={{ paddingLeft: 11 }}>{getAnimation(instance.animId).name}</div>
                 </div>
               }
               options={getAnimations().map(anim => ({
@@ -68,31 +61,24 @@ const InstanceControls = ({ instance }) => {
 
           <div className={styles.body}>
             <div className={styles.row}>
-              {[
-                'animation-delay',
-                'animation-duration',
-                'animation-timing-function'
-              ].map(definitionId => {
-                return (
-                  <ValueButton
-                    key={definitionId}
-                    className={styles.button}
-                    definition={getDefinition(definitionId)}
-                    isToggled={expandedDefinitionId === definitionId}
-                    onClick={() =>
-                      setExpandedDefinition(
-                        expandedDefinitionId === definitionId
-                          ? ''
-                          : definitionId
-                      )
-                    }
-                    value={getInstanceDefinitionValue(
-                      instance.id,
-                      definitionId
-                    )}
-                  />
-                );
-              })}
+              {['animation-delay', 'animation-duration', 'animation-timing-function'].map(
+                definitionId => {
+                  return (
+                    <ValueButton
+                      key={definitionId}
+                      className={styles.button}
+                      definition={getDefinition(definitionId)}
+                      isToggled={expandedDefinitionId === definitionId}
+                      onClick={() =>
+                        setExpandedDefinition(
+                          expandedDefinitionId === definitionId ? '' : definitionId
+                        )
+                      }
+                      value={getInstanceDefinitionValue(instance.id, definitionId)}
+                    />
+                  );
+                }
+              )}
             </div>
 
             {expandedDefinitionId && (
@@ -100,16 +86,9 @@ const InstanceControls = ({ instance }) => {
                 <ValueEditor
                   definitionId={expandedDefinitionId}
                   onChange={value =>
-                    setInstanceDefinitionValue(
-                      instance.id,
-                      expandedDefinitionId,
-                      value
-                    )
+                    setInstanceDefinitionValue(instance.id, expandedDefinitionId, value)
                   }
-                  value={getInstanceDefinitionValue(
-                    instance.id,
-                    expandedDefinitionId
-                  )}
+                  value={getInstanceDefinitionValue(instance.id, expandedDefinitionId)}
                 />
               </Popover>
             )}

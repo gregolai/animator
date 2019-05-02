@@ -37,13 +37,7 @@ const createInstance = ({
   };
 };
 
-const createTween = ({
-  animId,
-  definitionId,
-  easing = 'linear',
-  lerp,
-  name
-}) => {
+const createTween = ({ animId, definitionId, easing = 'linear', lerp, name }) => {
   return {
     animId,
     definitionId,
@@ -78,11 +72,7 @@ const fromCSSString = cssString => {
     node.rules.forEach(rule => {
       // @keyframes
       if (rule.type === 'keyframes') {
-        const anim = db.createOne(
-          animations,
-          createAnimation({ name: rule.name }),
-          true
-        ).item;
+        const anim = db.createOne(animations, createAnimation({ name: rule.name }), true).item;
 
         // each percent declaration
         rule.keyframes.forEach(keyframe => {
@@ -97,9 +87,7 @@ const fromCSSString = cssString => {
           keyframe.declarations.forEach(decl => {
             const definition = getDefinition(decl.property);
             if (!definition) {
-              console.warn(
-                `Definition for CSS prop not yet supported: ${decl.property}`
-              );
+              console.warn(`Definition for CSS prop not yet supported: ${decl.property}`);
               return; // EARLY EXIT
             }
 
@@ -109,8 +97,7 @@ const fromCSSString = cssString => {
             const value = definition.parse(decl.value);
 
             // get tween with definition
-            let tween = db.getOne(tweens, t => t.definitionId === definitionId)
-              .item;
+            let tween = db.getOne(tweens, t => t.definitionId === definitionId).item;
             if (!tween) {
               // create tween with definition
               tween = db.createOne(
@@ -164,9 +151,7 @@ const fromCSSString = cssString => {
             } else {
               const definition = getDefinition(decl.property);
               if (!definition) {
-                console.warn(
-                  `Definition for CSS prop not yet supported: ${decl.property}`
-                );
+                console.warn(`Definition for CSS prop not yet supported: ${decl.property}`);
                 return; // EARLY EXIT
               }
               definitionValues[definition.id] = definition.parse(decl.value);
@@ -231,11 +216,9 @@ export default class AnimationStore extends React.Component {
   };
 
   setAnimationName = (animId, name) => {
-    const { list: animations, item: animation } = db.setOne(
-      this.state.animations,
-      animId,
-      { name }
-    );
+    const { list: animations, item: animation } = db.setOne(this.state.animations, animId, {
+      name
+    });
 
     this.setState({ animations });
     persist.animations.write(animations);
@@ -245,22 +228,13 @@ export default class AnimationStore extends React.Component {
 
   // DELETE - Animation
   deleteAnimation = animId => {
-    const { list: animations, item: animation } = db.deleteOne(
-      this.state.animations,
-      animId
-    );
+    const { list: animations, item: animation } = db.deleteOne(this.state.animations, animId);
     const { list: instances } = db.deleteMany(
       this.state.instances,
       instance => instance.animId === animId
     );
-    const { list: tweens } = db.deleteMany(
-      this.state.tweens,
-      tween => tween.animId === animId
-    );
-    const { list: keyframes } = db.deleteMany(
-      this.state.keyframes,
-      kf => kf.animId === animId
-    );
+    const { list: tweens } = db.deleteMany(this.state.tweens, tween => tween.animId === animId);
+    const { list: keyframes } = db.deleteMany(this.state.keyframes, kf => kf.animId === animId);
 
     this.setState({
       animations,
@@ -289,11 +263,9 @@ export default class AnimationStore extends React.Component {
   };
 
   setInstanceAnimation = (instanceId, animId) => {
-    const { list: instances, item: instance } = db.setOne(
-      this.state.instances,
-      instanceId,
-      { animId }
-    );
+    const { list: instances, item: instance } = db.setOne(this.state.instances, instanceId, {
+      animId
+    });
 
     this.setState({ instances });
     persist.instances.write(instances);
@@ -302,11 +274,9 @@ export default class AnimationStore extends React.Component {
   };
 
   setInstanceName = (instanceId, name) => {
-    const { list: instances, item: instance } = db.setOne(
-      this.state.instances,
-      instanceId,
-      { name }
-    );
+    const { list: instances, item: instance } = db.setOne(this.state.instances, instanceId, {
+      name
+    });
 
     this.setState({ instances });
     persist.instances.write(instances);
@@ -356,10 +326,7 @@ export default class AnimationStore extends React.Component {
   };
 
   deleteInstance = instanceId => {
-    const { list: instances, item: instance } = db.deleteOne(
-      this.state.instances,
-      instanceId
-    );
+    const { list: instances, item: instance } = db.deleteOne(this.state.instances, instanceId);
 
     this.setState({ instances });
     persist.instances.write(instances);
@@ -374,10 +341,7 @@ export default class AnimationStore extends React.Component {
     // ensure definition and prevent duplicates
     if (
       !definition ||
-      db.getOne(
-        this.state.tweens,
-        t => t.animId === animId && t.definitionId === definitionId
-      ).item
+      db.getOne(this.state.tweens, t => t.animId === animId && t.definitionId === definitionId).item
     ) {
       return null;
     }
@@ -398,14 +362,8 @@ export default class AnimationStore extends React.Component {
 
   // DELETE - Tween
   deleteTween = tweenId => {
-    const { list: tweens, item: tween } = db.deleteOne(
-      this.state.tweens,
-      tweenId
-    );
-    const { list: keyframes } = db.deleteMany(
-      this.state.keyframes,
-      kf => kf.tweenId === tweenId
-    );
+    const { list: tweens, item: tween } = db.deleteOne(this.state.tweens, tweenId);
+    const { list: keyframes } = db.deleteMany(this.state.keyframes, kf => kf.tweenId === tweenId);
 
     this.setState({ keyframes, tweens });
     persist.keyframes.write(keyframes);
@@ -460,11 +418,9 @@ export default class AnimationStore extends React.Component {
   };
 
   setKeyframeValue = (keyframeId, value) => {
-    const { list: keyframes, item: keyframe } = db.setOne(
-      this.state.keyframes,
-      keyframeId,
-      { value }
-    );
+    const { list: keyframes, item: keyframe } = db.setOne(this.state.keyframes, keyframeId, {
+      value
+    });
 
     this.setState({ keyframes });
     persist.keyframes.write(keyframes);
@@ -480,10 +436,7 @@ export default class AnimationStore extends React.Component {
   };
 
   deleteKeyframe = keyframeId => {
-    const { list: keyframes, item: keyframe } = db.deleteOne(
-      this.state.keyframes,
-      keyframeId
-    );
+    const { list: keyframes, item: keyframe } = db.deleteOne(this.state.keyframes, keyframeId);
 
     this.setState({ keyframes });
     persist.keyframes.write(keyframes);
@@ -497,12 +450,7 @@ export default class AnimationStore extends React.Component {
 
     const definition = getDefinition(tween.definitionId);
 
-    return interpolate(
-      this.getKeyframes(tweenId),
-      time,
-      definition.lerp,
-      tween.easing
-    );
+    return interpolate(this.getKeyframes(tweenId), time, definition.lerp, tween.easing);
   };
 
   interpolateInstance = (instanceId, tweenId, playheadTime) => {
@@ -511,27 +459,13 @@ export default class AnimationStore extends React.Component {
     const definition = getDefinition(tween.definitionId);
     if (!instance || !tween || !definition) return undefined;
 
-    const delay = this.getInstanceDefinitionValue(
-      instanceId,
-      'animation-delay'
-    );
-    const duration = this.getInstanceDefinitionValue(
-      instanceId,
-      'animation-duration'
-    );
-    const easing = this.getInstanceDefinitionValue(
-      instanceId,
-      'animation-timing-function'
-    );
+    const delay = this.getInstanceDefinitionValue(instanceId, 'animation-delay');
+    const duration = this.getInstanceDefinitionValue(instanceId, 'animation-duration');
+    const easing = this.getInstanceDefinitionValue(instanceId, 'animation-timing-function');
 
     const scaledTime = (playheadTime - delay) / duration;
 
-    return interpolate(
-      this.getKeyframes(tweenId),
-      scaledTime,
-      definition.lerp,
-      easing
-    );
+    return interpolate(this.getKeyframes(tweenId), scaledTime, definition.lerp, easing);
   };
 
   getUnusedPropDefinitions = animId => {
@@ -578,10 +512,7 @@ export default class AnimationStore extends React.Component {
   getKeyframeAtTime = (tweenId, time) => {
     time = normalizeRatio(time);
 
-    return db.getOne(
-      this.state.keyframes,
-      kf => kf.tweenId === tweenId && kf.time === time
-    ).item;
+    return db.getOne(this.state.keyframes, kf => kf.tweenId === tweenId && kf.time === time).item;
   };
 
   getKeyframes = tweenId => {

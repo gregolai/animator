@@ -30,15 +30,9 @@ const ValueButton = ({
         isToggled={isToggled}
         onClick={onClick}
       >
-        {accessory && isHovering && (
-          <div className={styles.accessory}>{accessory}</div>
-        )}
-        <div className={styles.label}>
-          {definition.friendlyLabel || definition.id}
-        </div>
-        <div className={styles.value}>
-          {value === undefined ? '•' : definition.preview(value)}
-        </div>
+        {accessory && isHovering && <div className={styles.accessory}>{accessory}</div>}
+        <div className={styles.label}>{definition.friendlyLabel || definition.id}</div>
+        <div className={styles.value}>{value === undefined ? '•' : definition.preview(value)}</div>
         {canClear && value !== undefined && (
           <div
             role="button"

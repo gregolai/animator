@@ -35,8 +35,7 @@ export default class MediaStore extends React.Component {
         const timeStep = curTime - prevTime;
 
         let stop = false;
-        let nextPlayhead =
-          this.state.playhead + (this.state.isReversed ? -timeStep : timeStep);
+        let nextPlayhead = this.state.playhead + (this.state.isReversed ? -timeStep : timeStep);
 
         if (nextPlayhead >= this.state.duration) {
           if (this.state.isLooping) {
@@ -153,8 +152,7 @@ export default class MediaStore extends React.Component {
             ? this.state.duration
             : e.code === 'Backquote'
             ? 0
-            : (parseInt(e.code.replace('Digit', '')) / INTERVAL_MS) *
-              this.state.duration;
+            : (parseInt(e.code.replace('Digit', '')) / INTERVAL_MS) * this.state.duration;
         this.setPlayhead(time);
         break;
       default:
@@ -211,19 +209,9 @@ export default class MediaStore extends React.Component {
   };
 
   render() {
-    const {
-      duration,
-      isLooping,
-      isPlaying,
-      isReversed,
-      playhead,
-      tickSpacing
-    } = this.state;
+    const { duration, isLooping, isPlaying, isReversed, playhead, tickSpacing } = this.state;
 
-    const normalizedPlayhead = Math.max(
-      0,
-      roundToInterval(playhead, INTERVAL_MS)
-    );
+    const normalizedPlayhead = Math.max(0, roundToInterval(playhead, INTERVAL_MS));
 
     return (
       <Context.Provider

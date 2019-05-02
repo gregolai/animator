@@ -16,12 +16,7 @@ const AnimationHead = ({ anim }) => {
             isExpanded={false}
             label={anim.name}
             onClick={() => {}}
-            accessory={
-              <IconButton
-                icon="close"
-                onClick={() => deleteAnimation(anim.id)}
-              />
-            }
+            accessory={<IconButton icon="close" onClick={() => deleteAnimation(anim.id)} />}
           />
           <AddDropdown
             className={styles.btnAddTween}

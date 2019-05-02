@@ -44,9 +44,7 @@ function getEasingArray(easing) {
     'ease-out': [0, 0, 0.58, 1],
     'ease-in-out': [0.42, 0, 0.58, 1]
   };
-  return Array.isArray(easing)
-    ? easing
-    : EASING_MAP[easing] || EASING_MAP.linear;
+  return Array.isArray(easing) ? easing : EASING_MAP[easing] || EASING_MAP.linear;
 }
 
 export default class StyleTransition extends React.Component {

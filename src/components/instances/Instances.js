@@ -79,9 +79,7 @@ const Instances = ({ className }) => {
       <div className={styles.body}>
         <AnimationStore.Consumer>
           {({ getInstances }) =>
-            getInstances().map(instance => (
-              <Instance key={instance.id} instance={instance} />
-            ))
+            getInstances().map(instance => <Instance key={instance.id} instance={instance} />)
           }
         </AnimationStore.Consumer>
 

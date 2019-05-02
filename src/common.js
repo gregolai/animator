@@ -2,6 +2,7 @@ import React from 'react';
 import cx from 'classnames';
 import noop from 'lodash/noop';
 import clamp from 'lodash/clamp';
+import * as constants from './utils/constants';
 
 export { startDrag } from './utils/mouse';
 
@@ -16,4 +17,4 @@ export const normalizeRatio = time => {
   return time;
 };
 
-export { React, cx, noop, clamp };
+export { React, cx, noop, clamp, constants };

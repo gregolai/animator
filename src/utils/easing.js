@@ -11,9 +11,7 @@ const EASING_MAP = {
 };
 
 export const getEasingArray = easing => {
-  return Array.isArray(easing)
-    ? easing
-    : EASING_MAP[easing] || EASING_MAP.linear;
+  return Array.isArray(easing) ? easing : EASING_MAP[easing] || EASING_MAP.linear;
 };
 
 export const getEasingOptions = () =>
@@ -35,18 +33,10 @@ export const getPointAtTime = (t, easing) => {
   const it = 1 - t;
 
   // SOLVE: X(t) = (1-t)^3 * X0 + 3*(1-t)^2 * t * X1 + 3*(1-t) * t^2 * X2 + t^3 * X3
-  const x =
-    it * it * it * X0 +
-    3 * it * it * t * X1 +
-    3 * it * t * t * X2 +
-    t * t * t * X3;
+  const x = it * it * it * X0 + 3 * it * it * t * X1 + 3 * it * t * t * X2 + t * t * t * X3;
 
   // SOLVE: Y(t) = (1-t)^3 * Y0 + 3*(1-t)^2 * t * Y1 + 3*(1-t) * t^2 * Y2 + t^3 * Y3
-  const y =
-    it * it * it * Y0 +
-    3 * it * it * t * Y1 +
-    3 * it * t * t * Y2 +
-    t * t * t * Y3;
+  const y = it * it * it * Y0 + 3 * it * it * t * Y1 + 3 * it * t * t * Y2 + t * t * t * Y3;
 
   return { x, y };
 };

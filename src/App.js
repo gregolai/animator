@@ -60,12 +60,7 @@ const App = withStores(() => {
           left: 0
         }}
       >
-        Debug{' '}
-        <input
-          type="checkbox"
-          onChange={() => toggleDebug(!debug)}
-          checked={debug}
-        />
+        Debug <input type="checkbox" onChange={() => toggleDebug(!debug)} checked={debug} />
       </label>
       <button
         style={{

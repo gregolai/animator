@@ -30,25 +30,11 @@ const formatPixels = v => toPx(Math.round(v));
 const lerpNumber = (from, to, t) => from + t * (to - from);
 
 const renderMargin = ({ onChange, value = 0 }) => (
-  <RangeField
-    detail="px"
-    max={1000}
-    min={-1000}
-    step={1}
-    onChange={onChange}
-    value={value}
-  />
+  <RangeField detail="px" max={1000} min={-1000} step={1} onChange={onChange} value={value} />
 );
 
 const renderPosition = ({ onChange, value = 0 }) => (
-  <RangeField
-    detail="px"
-    max={1000}
-    min={-1000}
-    step={1}
-    onChange={onChange}
-    value={value}
-  />
+  <RangeField detail="px" max={1000} min={-1000} step={1} onChange={onChange} value={value} />
 );
 
 const renderRatio = ({ onChange, value = 1 }) => (
@@ -67,14 +53,7 @@ export const definitionMap = {
     preview: formatMilliseconds,
     parse: parseMilliseconds,
     render: ({ onChange, value = 0 }) => (
-      <RangeField
-        detail="ms"
-        max={10000}
-        min={0}
-        step={50}
-        onChange={onChange}
-        value={value}
-      />
+      <RangeField detail="ms" max={10000} min={0} step={50} onChange={onChange} value={value} />
     )
   },
   // 'animation-direction': {
@@ -103,25 +82,14 @@ export const definitionMap = {
     preview: formatMilliseconds,
     parse: parseMilliseconds,
     render: ({ onChange, value }) => (
-      <RangeField
-        detail="ms"
-        max={10000}
-        min={100}
-        step={50}
-        onChange={onChange}
-        value={value}
-      />
+      <RangeField detail="ms" max={10000} min={100} step={50} onChange={onChange} value={value} />
     )
   },
   'animation-timing-function': {
     defaultValue: 'linear',
     friendlyLabel: 'Easing',
-    format: v =>
-      typeof v === 'string'
-        ? v
-        : `cubic-bezier(${v[0]}, ${v[1]}, ${v[2]}, ${v[3]})`,
-    preview: v =>
-      typeof v === 'string' ? v : `(${v[0]}, ${v[1]}) (${v[2]}, ${v[3]})`,
+    format: v => (typeof v === 'string' ? v : `cubic-bezier(${v[0]}, ${v[1]}, ${v[2]}, ${v[3]})`),
+    preview: v => (typeof v === 'string' ? v : `(${v[0]}, ${v[1]}) (${v[2]}, ${v[3]})`),
     parse: str => getEasingArray(str),
     render: ({ onChange, value }) => (
       <DropdownCustom
@@ -134,22 +102,10 @@ export const definitionMap = {
 
           return (
             <>
-              <BezierComponent
-                onChange={x0 => onChange([x0, y0, x1, y1])}
-                value={x0}
-              />
-              <BezierComponent
-                onChange={y0 => onChange([x0, y0, x1, y1])}
-                value={y0}
-              />
-              <BezierComponent
-                onChange={x1 => onChange([x0, y0, x1, y1])}
-                value={x1}
-              />
-              <BezierComponent
-                onChange={y1 => onChange([x0, y0, x1, y1])}
-                value={y1}
-              />
+              <BezierComponent onChange={x0 => onChange([x0, y0, x1, y1])} value={x0} />
+              <BezierComponent onChange={y0 => onChange([x0, y0, x1, y1])} value={y0} />
+              <BezierComponent onChange={x1 => onChange([x0, y0, x1, y1])} value={x1} />
+              <BezierComponent onChange={y1 => onChange([x0, y0, x1, y1])} value={y1} />
             </>
           );
         }}

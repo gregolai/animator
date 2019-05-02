@@ -15,14 +15,8 @@ const InstanceTimeline = ({ className, instance }) => {
         {({ tickSpacing }) => (
           <AnimationStore.Consumer>
             {({ getInstanceDefinitionValue }) => {
-              const delay = getInstanceDefinitionValue(
-                instance.id,
-                'animation-delay'
-              );
-              const duration = getInstanceDefinitionValue(
-                instance.id,
-                'animation-duration'
-              );
+              const delay = getInstanceDefinitionValue(instance.id, 'animation-delay');
+              const duration = getInstanceDefinitionValue(instance.id, 'animation-duration');
 
               return (
                 <Canvas

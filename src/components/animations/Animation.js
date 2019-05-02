@@ -1,13 +1,7 @@
 import { React, startDrag } from 'common';
 
 import { AnimationStore, MediaStore } from 'stores';
-import {
-  AddDropdown,
-  Canvas,
-  ExpandingTitle,
-  IconButton,
-  Ticks
-} from 'components/shared';
+import { AddDropdown, Canvas, ExpandingTitle, IconButton, Ticks } from 'components/shared';
 
 import LocalPlayheadStore from './LocalPlayheadStore';
 import TweenControls from './TweenControls';
@@ -19,20 +13,10 @@ const TWEEN_HEIGHT_PX = 33;
 
 const HeadLeft = ({ animation }) => (
   <AnimationStore.Consumer>
-    {({
-      createTween,
-      deleteAnimation,
-      setAnimationName,
-      getUnusedPropDefinitions
-    }) => (
+    {({ createTween, deleteAnimation, setAnimationName, getUnusedPropDefinitions }) => (
       <div className={styles.left}>
         <ExpandingTitle
-          accessory={
-            <IconButton
-              icon="close"
-              onClick={() => deleteAnimation(animation.id)}
-            />
-          }
+          accessory={<IconButton icon="close" onClick={() => deleteAnimation(animation.id)} />}
           color={animation.color}
           label={animation.name}
           onLabelChange={name => setAnimationName(animation.id, name)}
@@ -57,19 +41,13 @@ const Tween = ({ tween }) => {
   return (
     <div className={styles.tween} style={{ height: TWEEN_HEIGHT_PX }}>
       <TweenControls tween={tween} />
-      <TweenTimeline
-        className={styles.tweenTimeline}
-        height={TWEEN_HEIGHT_PX}
-        tween={tween}
-      />
+      <TweenTimeline className={styles.tweenTimeline} height={TWEEN_HEIGHT_PX} tween={tween} />
     </div>
   );
 };
 
 const Animation = ({ animation }) => {
-  const [isDraggingLocalPlayhead, setDraggingLocalPlayhead] = React.useState(
-    false
-  );
+  const [isDraggingLocalPlayhead, setDraggingLocalPlayhead] = React.useState(false);
 
   return (
     <LocalPlayheadStore>
@@ -114,8 +92,7 @@ const Animation = ({ animation }) => {
                           onMouseDown={e => {
                             const width = e.target.clientWidth;
 
-                            const onDrag = ({ localX }) =>
-                              setLocalPlayhead(localX / width);
+                            const onDrag = ({ localX }) => setLocalPlayhead(localX / width);
                             startDrag(e, {
                               distance: 0,
                               measureLocalOffset: true,
@@ -137,13 +114,9 @@ const Animation = ({ animation }) => {
                                     ctx.clearRect(0, 0, width, height);
 
                                     if (localPlayhead !== undefined) {
-                                      const left = Math.floor(
-                                        localPlayhead * width
-                                      );
+                                      const left = Math.floor(localPlayhead * width);
 
-                                      const lineWidth = isDraggingLocalPlayhead
-                                        ? 3
-                                        : 1;
+                                      const lineWidth = isDraggingLocalPlayhead ? 3 : 1;
 
                                       ctx.fillStyle = animation.color;
                                       ctx.fillRect(

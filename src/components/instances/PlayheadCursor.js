@@ -13,8 +13,7 @@ const PlayheadCursor = ({ className }) => {
         <div
           className={cx(styles.container, className)}
           onMouseDown={e => {
-            const onDrag = ({ localX }) =>
-              setPlayhead(pixelsToTime(localX, tickSpacing));
+            const onDrag = ({ localX }) => setPlayhead(pixelsToTime(localX, tickSpacing));
             startDrag(e, {
               distance: 0,
               measureLocalOffset: true,
@@ -23,10 +22,7 @@ const PlayheadCursor = ({ className }) => {
             });
           }}
         >
-          <div
-            className={styles.cursor}
-            style={{ left: timeToPixels(playhead, tickSpacing) }}
-          />
+          <div className={styles.cursor} style={{ left: timeToPixels(playhead, tickSpacing) }} />
         </div>
       )}
     </MediaStore.Consumer>

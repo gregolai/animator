@@ -39,16 +39,8 @@ const Inner = ({ anim, instance }) => (
 
                                 setSelectedInstance(instance.id);
 
-                                const initX =
-                                  getInstanceDefinitionValue(
-                                    instance.id,
-                                    'left'
-                                  ) || 0;
-                                const initY =
-                                  getInstanceDefinitionValue(
-                                    instance.id,
-                                    'top'
-                                  ) || 0;
+                                const initX = getInstanceDefinitionValue(instance.id, 'left') || 0;
+                                const initY = getInstanceDefinitionValue(instance.id, 'top') || 0;
                                 startDrag({
                                   event,
                                   onUpdate: ({ deltaX, deltaY }) => {
@@ -59,16 +51,8 @@ const Inner = ({ anim, instance }) => (
                                       y = roundToInterval(y, gridSize);
                                     }
 
-                                    setInstanceDefinitionValue(
-                                      instance.id,
-                                      'left',
-                                      x
-                                    );
-                                    setInstanceDefinitionValue(
-                                      instance.id,
-                                      'top',
-                                      y
-                                    );
+                                    setInstanceDefinitionValue(instance.id, 'left', x);
+                                    setInstanceDefinitionValue(instance.id, 'top', y);
                                   }
                                 });
                               }}
@@ -78,19 +62,15 @@ const Inner = ({ anim, instance }) => (
                                 height: 30,
                                 backgroundColor: 'blue',
 
-                                ...Object.keys(
-                                  instance.definitionValues
-                                ).reduce((style, definitionId) => {
-                                  const definition = getDefinition(
-                                    definitionId
-                                  );
-                                  const value =
-                                    instance.definitionValues[definitionId];
-                                  style[
-                                    definition.styleName
-                                  ] = definition.format(value);
-                                  return style;
-                                }, {}),
+                                ...Object.keys(instance.definitionValues).reduce(
+                                  (style, definitionId) => {
+                                    const definition = getDefinition(definitionId);
+                                    const value = instance.definitionValues[definitionId];
+                                    style[definition.styleName] = definition.format(value);
+                                    return style;
+                                  },
+                                  {}
+                                ),
 
                                 ...getTweens(anim.id).reduce((style, tween) => {
                                   const value = interpolateInstance(
@@ -99,22 +79,14 @@ const Inner = ({ anim, instance }) => (
                                     playhead
                                   );
                                   if (value !== undefined) {
-                                    const definition = getDefinition(
-                                      tween.definitionId
-                                    );
-                                    style[
-                                      definition.styleName
-                                    ] = definition.format(value);
+                                    const definition = getDefinition(tween.definitionId);
+                                    style[definition.styleName] = definition.format(value);
                                   }
                                   return style;
                                 }, {})
                               }}
                             >
-                              {isHovering && (
-                                <div className={styles.name}>
-                                  {instance.name}
-                                </div>
-                              )}
+                              {isHovering && <div className={styles.name}>{instance.name}</div>}
                             </div>
                           </div>
                         )}
@@ -133,9 +105,7 @@ const Inner = ({ anim, instance }) => (
 
 const AnimInstance = ({ instance }) => (
   <AnimationStore.Consumer>
-    {({ getAnimation }) => (
-      <Inner anim={getAnimation(instance.animId)} instance={instance} />
-    )}
+    {({ getAnimation }) => <Inner anim={getAnimation(instance.animId)} instance={instance} />}
   </AnimationStore.Consumer>
 );
 

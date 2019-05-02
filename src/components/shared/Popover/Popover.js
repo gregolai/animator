@@ -14,8 +14,6 @@ const anchorStyleMap = {
 };
 
 const Popover = ({ anchor = 'down-left', children, className }) => (
-  <div className={cx(styles.container, anchorStyleMap[anchor], className)}>
-    {children}
-  </div>
+  <div className={cx(styles.container, anchorStyleMap[anchor], className)}>{children}</div>
 );
 export default Popover;

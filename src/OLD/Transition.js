@@ -123,8 +123,7 @@ class Transition extends React.Component {
 
     let parentGroup = context.transitionGroup;
     // In the context of a TransitionGroup all enters are really appears
-    let appear =
-      parentGroup && !parentGroup.isMounting ? props.enter : props.appear;
+    let appear = parentGroup && !parentGroup.isMounting ? props.enter : props.appear;
 
     let initialStatus;
 
@@ -334,8 +333,7 @@ class Transition extends React.Component {
   onTransitionEnd(node, timeout, handler) {
     this.setNextCallback(handler);
 
-    const doesNotHaveTimeoutOrListener =
-      timeout == null && !this.props.addEndListener;
+    const doesNotHaveTimeoutOrListener = timeout == null && !this.props.addEndListener;
     if (!node || doesNotHaveTimeoutOrListener) {
       setTimeout(this.nextCallback, 0);
       return;
@@ -409,10 +407,8 @@ Transition.propTypes = {
    * </Transition>
    * ```
    */
-  children: PropTypes.oneOfType([
-    PropTypes.func.isRequired,
-    PropTypes.element.isRequired
-  ]).isRequired,
+  children: PropTypes.oneOfType([PropTypes.func.isRequired, PropTypes.element.isRequired])
+    .isRequired,
 
   /**
    * Show the component; triggers the enter or exit states

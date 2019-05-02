@@ -1,41 +1,21 @@
 import React from 'react';
-import {
-  BooleanField,
-  ButtonPrimitive,
-  ErrorText,
-  TextareaField,
-  Modal
-} from 'components/core';
+import { BooleanField, ButtonPrimitive, ErrorText, TextareaField, Modal } from 'components/core';
 import { AnimationStore, ImporterStore } from 'stores';
 
 import styles from './ImportCSSModal.scss';
 
 const ImportCSSModal = () => (
   <ImporterStore.Consumer>
-    {({
-      canImport,
-      isOpen,
-      setOpen,
-      errors,
-      replace,
-      setReplace,
-      value,
-      setValue
-    }) =>
+    {({ canImport, isOpen, setOpen, errors, replace, setReplace, value, setValue }) =>
       isOpen && (
         <AnimationStore.Consumer>
           {({ importAnimations }) => (
-            <Modal
-              closeOnBackButton={true}
-              onRequestClose={() => setOpen(false)}
-            >
+            <Modal closeOnBackButton={true} onRequestClose={() => setOpen(false)}>
               <Modal.Backdrop />
               <Modal.Position position="center">
                 <Modal.Dialog className={styles.dialog}>
                   <Modal.Dialog.Body>
-                    <Modal.Dialog.Body.Title>
-                      Import CSS
-                    </Modal.Dialog.Body.Title>
+                    <Modal.Dialog.Body.Title>Import CSS</Modal.Dialog.Body.Title>
                     <Modal.Dialog.Body.Message is="div">
                       <TextareaField
                         fieldIndex={0}
@@ -51,17 +31,10 @@ const ImportCSSModal = () => (
                   </Modal.Dialog.Body>
 
                   <Modal.Dialog.Footer>
-                    <Modal.Dialog.Footer.Button
-                      color="warning"
-                      onClick={() => setOpen(false)}
-                    >
+                    <Modal.Dialog.Footer.Button color="warning" onClick={() => setOpen(false)}>
                       Cancel
                     </Modal.Dialog.Footer.Button>
-                    <BooleanField
-                      label="Replace"
-                      onChange={setReplace}
-                      value={replace}
-                    />
+                    <BooleanField label="Replace" onChange={setReplace} value={replace} />
                     <ButtonPrimitive
                       className={styles.btnImport}
                       color="primary"

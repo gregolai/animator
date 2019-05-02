@@ -45,13 +45,11 @@ const DeleteTween = ({ tween }) => (
         {({ deleteTween }) => (
           <IconButton
             className={classnames(styles.btnDelete, {
-              [styles.hidden]:
-                isTweenLocked(tween.id) || isTweenHidden(tween.id)
+              [styles.hidden]: isTweenLocked(tween.id) || isTweenHidden(tween.id)
             })}
             icon="close"
             onClick={() => {
-              const canDelete =
-                !isTweenLocked(tween.id) && !isTweenHidden(tween.id);
+              const canDelete = !isTweenLocked(tween.id) && !isTweenHidden(tween.id);
               if (canDelete) {
                 deleteTween(tween.id);
               }
@@ -67,12 +65,7 @@ const TweenLabel = ({ time, tween, value }) => (
   <AnimationStore.Consumer>
     {({ createKeyframe, deleteKeyframe, getKeyframeAtTime }) => (
       <UIStore.Consumer>
-        {({
-          isTweenLocked,
-          isTweenHidden,
-          isTweenExpanded,
-          setTweenExpanded
-        }) => (
+        {({ isTweenLocked, isTweenHidden, isTweenExpanded, setTweenExpanded }) => (
           <ValueButton
             accessory={<DeleteTween tween={tween} />}
             className={classnames(styles.btnValue, {
@@ -92,8 +85,7 @@ const TweenLabel = ({ time, tween, value }) => (
               }
             }}
             onClick={() => {
-              const canExpand =
-                !isTweenLocked(tween.id) && !isTweenHidden(tween.id);
+              const canExpand = !isTweenLocked(tween.id) && !isTweenHidden(tween.id);
               if (canExpand) {
                 setTweenExpanded(tween.id, !isTweenExpanded(tween.id));
               }
@@ -112,11 +104,7 @@ const TweenControls = ({ tween, tweenIndex }) => (
       {({ interpolate }) => (
         <MediaStore.Consumer>
           {({ playhead }) => (
-            <TweenLabel
-              time={playhead}
-              value={interpolate(tween.id, playhead)}
-              tween={tween}
-            />
+            <TweenLabel time={playhead} value={interpolate(tween.id, playhead)} tween={tween} />
           )}
         </MediaStore.Consumer>
       )}

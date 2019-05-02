@@ -14,14 +14,8 @@ const Playhead = ({ className }) => {
         <div className={classnames(styles.container, className)}>
           <div className={styles.left}>
             <div className={styles.tickSpacingButtons}>
-              <IconButton
-                icon="chevronLeft"
-                onClick={() => setTickSpacing(tickSpacing - 1)}
-              />
-              <IconButton
-                icon="chevronRight"
-                onClick={() => setTickSpacing(tickSpacing + 1)}
-              />
+              <IconButton icon="chevronLeft" onClick={() => setTickSpacing(tickSpacing - 1)} />
+              <IconButton icon="chevronRight" onClick={() => setTickSpacing(tickSpacing + 1)} />
             </div>
 
             <div>spacing: {tickSpacing}</div>

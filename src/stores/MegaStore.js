@@ -89,10 +89,8 @@ class Provider extends React.Component {
     throw 'not implemented';
   };
 
-  _deleteAnimation = animationId =>
-    db.deleteOne(this.state.animations, animationId);
-  _deleteAnimations = animationIds =>
-    db.deleteMany(this.state.animations, animationIds);
+  _deleteAnimation = animationId => db.deleteOne(this.state.animations, animationId);
+  _deleteAnimations = animationIds => db.deleteMany(this.state.animations, animationIds);
   deleteAnimation = animationId => {
     // const t = this.crud.animations.deleteOne(this.state.animations, animationId);
     // t.execute();
@@ -103,17 +101,13 @@ class Provider extends React.Component {
 
     new DeleteCommand(
       () => {
-        const {
-          list: animations,
-          item: deletedAnimation
-        } = this._deleteAnimation(animationId);
+        const { list: animations, item: deletedAnimation } = this._deleteAnimation(animationId);
         const { list: tweens, items: deletedTweens } = this._deleteTweens(
           t => t.animId === animationId
         );
-        const {
-          list: keyframes,
-          items: deletedKeyframes
-        } = this._deleteKeyframes(kf => kf.animId === animationId);
+        const { list: keyframes, items: deletedKeyframes } = this._deleteKeyframes(
+          kf => kf.animId === animationId
+        );
 
         // re-assign instances w/anim
         // const instances = this.getInstances(instance => instance.animId === animationId);
@@ -129,18 +123,9 @@ class Provider extends React.Component {
         return [deletedAnimation, deletedTweens, deletedKeyframes];
       },
       ([deletedAnimation, deletedTweens, deletedKeyframes]) => {
-        const { list: animations } = db.createOne(
-          this.state.animations,
-          deletedAnimation
-        );
-        const { list: tweens } = db.createMany(
-          this.state.tweens,
-          deletedTweens
-        );
-        const { list: keyframes } = db.createMany(
-          this.state.keyframes,
-          deletedKeyframes
-        );
+        const { list: animations } = db.createOne(this.state.animations, deletedAnimation);
+        const { list: tweens } = db.createMany(this.state.tweens, deletedTweens);
+        const { list: keyframes } = db.createMany(this.state.keyframes, deletedKeyframes);
 
         this.setState({ animations, tweens, keyframes });
       }
@@ -175,10 +160,8 @@ class Provider extends React.Component {
     throw 'not implemented';
   };
 
-  _deleteKeyframe = keyframeId =>
-    db.deleteOne(this.state.keyframes, keyframeId);
-  _deleteKeyframes = keyframeIds =>
-    db.deleteMany(this.state.keyframes, keyframeIds);
+  _deleteKeyframe = keyframeId => db.deleteOne(this.state.keyframes, keyframeId);
+  _deleteKeyframes = keyframeIds => db.deleteMany(this.state.keyframes, keyframeIds);
   deleteKeyframe = keyframeId => {
     throw 'not implemented';
   };
@@ -197,14 +180,10 @@ class Provider extends React.Component {
   };
 
   render() {
-    return (
-      <Context.Provider value={{}}>{this.props.children}</Context.Provider>
-    );
+    return <Context.Provider value={{}}>{this.props.children}</Context.Provider>;
   }
 }
 
-const MegaStore = ({ children }) => (
-  <Context.Consumer>{children}</Context.Consumer>
-);
+const MegaStore = ({ children }) => <Context.Consumer>{children}</Context.Consumer>;
 MegaStore.Provider = Context.Provider;
 export default MegaStore;

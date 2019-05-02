@@ -30,9 +30,7 @@ const ExpandingTitle = ({
             className
           )}
         >
-          {accessory && isHovering && (
-            <div className={styles.accessory}>{accessory}</div>
-          )}
+          {accessory && isHovering && <div className={styles.accessory}>{accessory}</div>}
           {color && <ColorSquare className={styles.color} color={color} />}
           {!editing && (
             <div

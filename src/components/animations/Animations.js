@@ -10,9 +10,7 @@ const Animations = ({ className }) => {
     <div className={cx(styles.container, className)}>
       <AnimationStore.Consumer>
         {({ getAnimations }) =>
-          getAnimations().map(animation => (
-            <Animation key={animation.id} animation={animation} />
-          ))
+          getAnimations().map(animation => <Animation key={animation.id} animation={animation} />)
         }
       </AnimationStore.Consumer>
     </div>

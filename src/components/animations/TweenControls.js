@@ -1,12 +1,7 @@
 import { React, cx } from 'common';
 
 import { AnimationStore, MediaStore, UIStore } from 'stores';
-import {
-  IconButton,
-  Popover,
-  ValueButton,
-  ValueEditor
-} from 'components/shared';
+import { IconButton, Popover, ValueButton, ValueEditor } from 'components/shared';
 import { getDefinition } from 'utils/definitions';
 
 import LocalPlayheadStore from './LocalPlayheadStore';
@@ -41,21 +36,12 @@ const TweenControls = ({ className, tween }) => (
                   {/* PREVIEW */}
                   <ValueButton
                     accessory={
-                      canDelete && (
-                        <IconButton
-                          icon="close"
-                          onClick={() => deleteTween(tween.id)}
-                        />
-                      )
+                      canDelete && <IconButton icon="close" onClick={() => deleteTween(tween.id)} />
                     }
                     className={styles.btnValue}
                     definition={definition}
                     isToggled={isExpanded}
-                    onClick={
-                      canExpand
-                        ? () => setTweenExpanded(tween.id, !isExpanded)
-                        : undefined
-                    }
+                    onClick={canExpand ? () => setTweenExpanded(tween.id, !isExpanded) : undefined}
                     value={value}
                   />
 
@@ -89,9 +75,7 @@ const TweenControls = ({ className, tween }) => (
                       <ValueEditor
                         definitionId={tween.definitionId}
                         value={value}
-                        onChange={value =>
-                          setKeyframeValueAtTime(tween.id, localPlayhead, value)
-                        }
+                        onChange={value => setKeyframeValueAtTime(tween.id, localPlayhead, value)}
                       />
                     </Popover>
                   )}

@@ -53,9 +53,7 @@ const TweenTimeline = ({ tween, tweenIndex }) => {
                 for (let i = 0; i < keyframes.length - 1; ++i) {
                   const kf0 = keyframes[i];
                   const kf1 = keyframes[i + 1];
-                  bars.push(
-                    <TweenBar key={kf0.time} keyframe0={kf0} keyframe1={kf1} />
-                  );
+                  bars.push(<TweenBar key={kf0.time} keyframe0={kf0} keyframe1={kf1} />);
                 }
 
                 return (

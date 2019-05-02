@@ -6,35 +6,17 @@ const isLessThanDistance = (deltaX, deltaY, distance) => {
 
 export const startDrag = (
   mouseDownEvent,
-  {
-    distance = 1,
-    measureLocalOffset = false,
-    onDragStart = noop,
-    onDrag = noop,
-    onDragEnd = noop
-  }
+  { distance = 1, measureLocalOffset = false, onDragStart = noop, onDrag = noop, onDragEnd = noop }
 ) => {
   if (mouseDownEvent.persist) {
     mouseDownEvent.persist();
   }
 
-  const {
-    clientX: startX,
-    clientY: startY,
-    button,
-    target: originalTarget
-  } = mouseDownEvent;
+  const { clientX: startX, clientY: startY, button, target: originalTarget } = mouseDownEvent;
 
   let isDragging = false;
 
-  const _createArgs = ({
-    clientX,
-    clientY,
-    ctrlKey,
-    shiftKey,
-    metaKey,
-    target
-  }) => {
+  const _createArgs = ({ clientX, clientY, ctrlKey, shiftKey, metaKey, target }) => {
     const obj = {
       button,
       ctrlKey,
@@ -63,16 +45,9 @@ export const startDrag = (
         clientX,
         clientY,
         distance,
-        isLessThanDistance: isLessThanDistance(
-          clientX - startX,
-          clientY - startY,
-          distance
-        )
+        isLessThanDistance: isLessThanDistance(clientX - startX, clientY - startY, distance)
       });
-      if (
-        distance <= 0 ||
-        !isLessThanDistance(clientX - startX, clientY - startY, distance)
-      ) {
+      if (distance <= 0 || !isLessThanDistance(clientX - startX, clientY - startY, distance)) {
         onDragStart(_createArgs(mouseDownEvent));
         isDragging = true;
       }
