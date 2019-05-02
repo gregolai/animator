@@ -1,4 +1,4 @@
-import { React, cx } from 'utils';
+import { React, cx } from 'common';
 
 import { MediaStore } from 'stores';
 import { Ticks } from 'components/shared';
@@ -22,7 +22,7 @@ const PlayheadTimeline = ({ className }) => {
                   const text = `${index / 100}s`;
                   const measured = ctx.measureText(text);
                   ctx.fillStyle = 'black';
-                  ctx.fillText(text, x - (measured.width / 2), y - 4);
+                  ctx.fillText(text, x - measured.width / 2, y - 4);
                 }
               },
               { mod: 10, color: '#a1a1a1', height: 10 },
@@ -32,6 +32,6 @@ const PlayheadTimeline = ({ className }) => {
         )}
       </MediaStore.Consumer>
     </div>
-  )
-}
+  );
+};
 export default PlayheadTimeline;

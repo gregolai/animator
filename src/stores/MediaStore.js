@@ -1,4 +1,4 @@
-import { React, clamp, roundToInterval } from 'utils';
+import { React, clamp, roundToInterval } from 'common';
 import { createPersist } from 'utils/persist';
 import { INTERVAL_MS } from 'utils/constants';
 
@@ -32,10 +32,11 @@ export default class MediaStore extends React.Component {
       const loop = () => {
         const curTime = Date.now();
 
-        const timeStep = (curTime - prevTime);
+        const timeStep = curTime - prevTime;
 
         let stop = false;
-        let nextPlayhead = this.state.playhead + (this.state.isReversed ? -timeStep : timeStep);
+        let nextPlayhead =
+          this.state.playhead + (this.state.isReversed ? -timeStep : timeStep);
 
         if (nextPlayhead >= this.state.duration) {
           if (this.state.isLooping) {
@@ -60,7 +61,7 @@ export default class MediaStore extends React.Component {
           prevTime = curTime;
           raf = requestAnimationFrame(loop);
         }
-      }
+      };
 
       return {
         play: () => {
@@ -88,7 +89,7 @@ export default class MediaStore extends React.Component {
           cancelAnimationFrame(raf);
           this.setState({ isPlaying: false, playhead: 0 });
         }
-      }
+      };
     })();
   }
 
@@ -147,39 +148,41 @@ export default class MediaStore extends React.Component {
       case 'Digit0':
         e.preventDefault();
 
-        const time = e.code === 'Digit0' ?
-          this.state.duration :
-          e.code === 'Backquote' ?
-            0 :
-            parseInt(e.code.replace('Digit', '')) / INTERVAL_MS * this.state.duration;
+        const time =
+          e.code === 'Digit0'
+            ? this.state.duration
+            : e.code === 'Backquote'
+            ? 0
+            : (parseInt(e.code.replace('Digit', '')) / INTERVAL_MS) *
+              this.state.duration;
         this.setPlayhead(time);
         break;
       default:
     }
-  }
+  };
 
   componentDidMount() {
     document.addEventListener('keydown', this.onKeyDown);
   }
 
   componentWillUnmount() {
-    document.removeEventListener('keydown', this.onKeyDown)
+    document.removeEventListener('keydown', this.onKeyDown);
   }
 
-  setDuration = (duration) => {
+  setDuration = duration => {
     this.setState({ duration });
     persist.duration.write(duration);
-  }
+  };
 
-  setLooping = (isLooping) => {
+  setLooping = isLooping => {
     this.setState({ isLooping });
     persist.isLooping.write(isLooping);
-  }
+  };
 
-  setReversed = (isReversed) => {
+  setReversed = isReversed => {
     this.setState({ isReversed });
     persist.isReversed.write(isReversed);
-  }
+  };
 
   setPlaying = () => {
     this._controls.play();
@@ -198,14 +201,14 @@ export default class MediaStore extends React.Component {
 
     this.setState({ playhead });
     persist.playhead.write(playhead);
-  }
+  };
 
   setTickSpacing = tickSpacing => {
     tickSpacing = Math.max(1, tickSpacing);
 
     this.setState({ tickSpacing });
     persist.tickSpacing.write(tickSpacing);
-  }
+  };
 
   render() {
     const {
@@ -217,7 +220,10 @@ export default class MediaStore extends React.Component {
       tickSpacing
     } = this.state;
 
-    const normalizedPlayhead = Math.max(0, roundToInterval(playhead, INTERVAL_MS));
+    const normalizedPlayhead = Math.max(
+      0,
+      roundToInterval(playhead, INTERVAL_MS)
+    );
 
     return (
       <Context.Provider

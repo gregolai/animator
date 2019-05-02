@@ -4,7 +4,7 @@ import classnames from 'classnames';
 import { IconButton, ValueButton } from 'components/shared';
 import { getDefinition } from 'utils/definitions';
 
-import { AnimationStore, MediaStore, UIStore } from 'stores'
+import { AnimationStore, MediaStore, UIStore } from 'stores';
 
 import styles from './TweenControls.module.scss';
 
@@ -21,7 +21,7 @@ const ToggleLock = ({ tween }) => (
       />
     )}
   </UIStore.Consumer>
-)
+);
 
 const ToggleVisible = ({ tween }) => (
   <UIStore.Consumer>
@@ -36,40 +36,43 @@ const ToggleVisible = ({ tween }) => (
       />
     )}
   </UIStore.Consumer>
-)
+);
 
 const DeleteTween = ({ tween }) => (
   <UIStore.Consumer>
     {({ isTweenLocked, isTweenHidden }) => (
-
       <AnimationStore.Consumer>
         {({ deleteTween }) => (
-
           <IconButton
             className={classnames(styles.btnDelete, {
-              [styles.hidden]: isTweenLocked(tween.id) || isTweenHidden(tween.id)
+              [styles.hidden]:
+                isTweenLocked(tween.id) || isTweenHidden(tween.id)
             })}
             icon="close"
             onClick={() => {
-              const canDelete = !isTweenLocked(tween.id) && !isTweenHidden(tween.id);
+              const canDelete =
+                !isTweenLocked(tween.id) && !isTweenHidden(tween.id);
               if (canDelete) {
-                deleteTween(tween.id)
+                deleteTween(tween.id);
               }
             }}
           />
-
         )}
       </AnimationStore.Consumer>
-
     )}
   </UIStore.Consumer>
-)
+);
 
 const TweenLabel = ({ time, tween, value }) => (
   <AnimationStore.Consumer>
     {({ createKeyframe, deleteKeyframe, getKeyframeAtTime }) => (
       <UIStore.Consumer>
-        {({ isTweenLocked, isTweenHidden, isTweenExpanded, setTweenExpanded }) => (
+        {({
+          isTweenLocked,
+          isTweenHidden,
+          isTweenExpanded,
+          setTweenExpanded
+        }) => (
           <ValueButton
             accessory={<DeleteTween tween={tween} />}
             className={classnames(styles.btnValue, {
@@ -78,7 +81,6 @@ const TweenLabel = ({ time, tween, value }) => (
             })}
             definition={getDefinition(tween.definitionId)}
             isToggled={isTweenExpanded(tween.id)}
-
             canClear={true}
             onClear={() => {
               const keyframe = getKeyframeAtTime(tween.id, time);
@@ -90,9 +92,10 @@ const TweenLabel = ({ time, tween, value }) => (
               }
             }}
             onClick={() => {
-              const canExpand = !isTweenLocked(tween.id) && !isTweenHidden(tween.id);
+              const canExpand =
+                !isTweenLocked(tween.id) && !isTweenHidden(tween.id);
               if (canExpand) {
-                setTweenExpanded(tween.id, !isTweenExpanded(tween.id))
+                setTweenExpanded(tween.id, !isTweenExpanded(tween.id));
               }
             }}
             value={value}
@@ -122,6 +125,6 @@ const TweenControls = ({ tween, tweenIndex }) => (
     <ToggleLock tween={tween} />
     <ToggleVisible tween={tween} />
   </div>
-)
+);
 
 export default TweenControls;

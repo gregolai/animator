@@ -8,7 +8,6 @@ const CreateInstance = () => {
     <div style={{ display: 'flex' }}>
       <UIStore.Consumer>
         {({ setSelectedInstance }) => (
-
           <AnimationStore.Consumer>
             {({ createInstance, getAnimations }) => {
               const animations = getAnimations();
@@ -17,25 +16,22 @@ const CreateInstance = () => {
               return (
                 <AddDropdown
                   label="Create Instance"
-                  options={
-                    animations
-                      .map(anim => ({
-                        label: anim.name,
-                        value: anim.id
-                      }))
-                  }
+                  options={animations.map(anim => ({
+                    label: anim.name,
+                    value: anim.id
+                  }))}
                   onSelect={animId => {
                     const instance = createInstance({ animId });
                     setSelectedInstance(instance.id);
                   }}
                 />
-              )
+              );
             }}
           </AnimationStore.Consumer>
         )}
       </UIStore.Consumer>
     </div>
   );
-}
+};
 
 export default CreateInstance;

@@ -4,15 +4,29 @@ import { Button, Hover } from 'components/shared';
 
 import styles from './ValueButton.module.scss';
 
-const ValueButton = ({ accessory, canClear, className, definition, isDisabled, isToggled, onClick, onClear, value }) => (
+const ValueButton = ({
+  accessory,
+  canClear,
+  className,
+  definition,
+  isDisabled,
+  isToggled,
+  onClick,
+  onClear,
+  value
+}) => (
   <Hover>
     {({ hoverRef, isHovering }) => (
       <Button
         ref={hoverRef}
-        className={classnames(styles.container, {
-          [styles.hasAccessory]: accessory,
-          [styles.disabled]: isDisabled
-        }, className)}
+        className={classnames(
+          styles.container,
+          {
+            [styles.hasAccessory]: accessory,
+            [styles.disabled]: isDisabled
+          },
+          className
+        )}
         isToggled={isToggled}
         onClick={onClick}
       >
@@ -36,7 +50,7 @@ const ValueButton = ({ accessory, canClear, className, definition, isDisabled, i
             }}
           >
             clear
-        </div>
+          </div>
         )}
       </Button>
     )}

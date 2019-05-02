@@ -13,10 +13,10 @@ export const createPersist = (namespace, defaultsMap) => {
         }
         return JSON.parse(localStorage.getItem(persistKey));
       },
-      write: (value) => {
+      write: value => {
         localStorage.setItem(persistKey, JSON.stringify(value));
       }
-    }
+    };
     return persist;
   }, {});
-}
+};

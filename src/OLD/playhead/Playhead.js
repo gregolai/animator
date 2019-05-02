@@ -8,13 +8,10 @@ import { INTERVAL_MS } from 'utils/constants';
 import styles from './Playhead.module.scss';
 
 const Playhead = ({ className }) => {
-
   return (
     <MediaStore.Consumer>
       {({ duration, playhead, setPlayhead, setTickSpacing, tickSpacing }) => (
-        <div
-          className={classnames(styles.container, className)}
-        >
+        <div className={classnames(styles.container, className)}>
           <div className={styles.left}>
             <div className={styles.tickSpacingButtons}>
               <IconButton
@@ -44,19 +41,18 @@ const Playhead = ({ className }) => {
                     ctx.font = '12px "Helvetica Neue", sans-serif';
                     const text = `${index}%`;
                     const measured = ctx.measureText(text);
-                    ctx.fillText(text, x - (measured.width / 2), y - 4);
+                    ctx.fillText(text, x - measured.width / 2, y - 4);
                   }
                 },
                 { mod: 5, height: 8, color: '#a1a1a1' },
-                { mod: 1, height: 4, color: '#a1a1a1' },
+                { mod: 1, height: 4, color: '#a1a1a1' }
               ]}
-
               onMouseDown={({ x, y }) => {
-                setPlayhead(x / tickSpacing * INTERVAL_MS);
+                setPlayhead((x / tickSpacing) * INTERVAL_MS);
               }}
               onMouseMove={({ isButtonDown, x, y }) => {
                 if (isButtonDown) {
-                  setPlayhead(x / tickSpacing * INTERVAL_MS);
+                  setPlayhead((x / tickSpacing) * INTERVAL_MS);
                 }
               }}
             />
@@ -65,6 +61,6 @@ const Playhead = ({ className }) => {
       )}
     </MediaStore.Consumer>
   );
-}
+};
 
 export default Playhead;

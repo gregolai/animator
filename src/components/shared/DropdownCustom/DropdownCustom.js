@@ -7,11 +7,12 @@ export default class DropdownCustom extends React.Component {
   static getDerivedStateFromProps(nextProps, prevState) {
     const { customOption, options, value } = nextProps;
 
-    const showCustom = value === undefined ?
-      false :
-      prevState.showCustom ?
-        true :
-        !options.find(opt => opt.value === value);
+    const showCustom =
+      value === undefined
+        ? false
+        : prevState.showCustom
+        ? true
+        : !options.find(opt => opt.value === value);
 
     let customValue = nextProps.value;
     if (!showCustom) {
@@ -25,10 +26,10 @@ export default class DropdownCustom extends React.Component {
       dropdownValue: showCustom ? CUSTOM_PROXY_VALUE : value,
       customValue,
       showCustom
-    }
+    };
   }
 
-  state = {}
+  state = {};
 
   onDropdownChange = dropdownValue => {
     const { onChange } = this.props;
@@ -43,15 +44,10 @@ export default class DropdownCustom extends React.Component {
   onCustomChange = customValue => {
     this.setState({ customValue });
     this.props.onChange(customValue);
-  }
+  };
 
   render() {
-    const {
-      customOption,
-      options,
-      placeholder,
-      renderCustom,
-    } = this.props;
+    const { customOption, options, placeholder, renderCustom } = this.props;
 
     const { customValue, dropdownValue, showCustom } = this.state;
 
@@ -70,11 +66,12 @@ export default class DropdownCustom extends React.Component {
           onChange={this.onDropdownChange}
           value={dropdownValue}
         />
-        {showCustom && renderCustom({
-          onChange: this.onCustomChange,
-          value: customValue
-        })}
+        {showCustom &&
+          renderCustom({
+            onChange: this.onCustomChange,
+            value: customValue
+          })}
       </>
-    )
+    );
   }
 }

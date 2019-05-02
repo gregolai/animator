@@ -6,13 +6,13 @@ const lint = cssString => {
   const { messages } = CSSLint.verify(cssString);
   const warnings = messages.filter(v => v.type === 'warning');
   const errors = messages.filter(v => v.type === 'error');
-  return { warnings, errors }
-}
+  return { warnings, errors };
+};
 
 const persist = createPersist('ImporterStore', {
   isOpen: false,
   replace: false
-})
+});
 
 const Context = React.createContext();
 export default class ImporterStore extends React.Component {
@@ -24,18 +24,18 @@ export default class ImporterStore extends React.Component {
     canImport: false,
     value: '',
     errors: [],
-    warnings: [],
+    warnings: []
   };
 
   setReplace = replace => {
     this.setState({ replace });
     persist.replace.write(replace);
-  }
+  };
 
   setOpen = isOpen => {
     this.setState({ isOpen });
     persist.isOpen.write(isOpen);
-  }
+  };
 
   setValue = value => {
     const { errors, warnings } = lint(value);
@@ -44,18 +44,11 @@ export default class ImporterStore extends React.Component {
       errors,
       warnings,
       value
-    })
-  }
+    });
+  };
 
   render() {
-    const {
-      replace,
-      canImport,
-      isOpen,
-      value,
-      errors,
-      warnings
-    } = this.state;
+    const { replace, canImport, isOpen, value, errors, warnings } = this.state;
 
     return (
       <Context.Provider
@@ -74,6 +67,6 @@ export default class ImporterStore extends React.Component {
       >
         {this.props.children}
       </Context.Provider>
-    )
+    );
   }
 }

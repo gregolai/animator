@@ -1,8 +1,7 @@
-import { React, cx } from 'utils';
+import { React, cx, startDrag } from 'common';
 
 import { MediaStore } from 'stores';
 // import { Canvas } from 'components/shared';
-import { startDrag } from 'utils/mouse';
 
 import { pixelsToTime, timeToPixels } from './utils';
 import styles from './PlayheadCursor.module.scss';
@@ -14,13 +13,14 @@ const PlayheadCursor = ({ className }) => {
         <div
           className={cx(styles.container, className)}
           onMouseDown={e => {
-            const onDrag = ({ localX }) => setPlayhead(pixelsToTime(localX, tickSpacing));
+            const onDrag = ({ localX }) =>
+              setPlayhead(pixelsToTime(localX, tickSpacing));
             startDrag(e, {
               distance: 0,
               measureLocalOffset: true,
               onDragStart: onDrag,
               onDrag
-            })
+            });
           }}
         >
           <div
@@ -30,7 +30,7 @@ const PlayheadCursor = ({ className }) => {
         </div>
       )}
     </MediaStore.Consumer>
-  )
-}
+  );
+};
 
 export default PlayheadCursor;

@@ -1,7 +1,7 @@
 import React from 'react';
 
 export default class Hover extends React.Component {
-  state = { isHovering: false }
+  state = { isHovering: false };
   onMouseEnter = () => this.setState({ isHovering: true });
   onMouseLeave = () => this.setState({ isHovering: false });
 
@@ -11,7 +11,7 @@ export default class Hover extends React.Component {
       this.ref.addEventListener('mouseenter', this.onMouseEnter, false);
       this.ref.addEventListener('mouseleave', this.onMouseLeave, false);
     }
-  }
+  };
 
   componentWillUnmount() {
     if (this.ref) {
@@ -24,6 +24,6 @@ export default class Hover extends React.Component {
     return this.props.children({
       hoverRef: this.hoverRef,
       isHovering: this.state.isHovering
-    })
+    });
   }
 }

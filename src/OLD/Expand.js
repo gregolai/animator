@@ -21,11 +21,10 @@ const toPx = v => (typeof v === 'number' ? `${v}px` : v);
 const needsCalculation = value => isAuto(value) || isPercent(value);
 
 export default class Expand extends React.Component {
-
   static defaultProps = {
     from: 0,
     to: 'auto'
-  }
+  };
 
   enter = ({ node }) => {
     return this.resolveStyle(node, node.offsetHeight, styleFrom);
@@ -45,7 +44,7 @@ export default class Expand extends React.Component {
 
   exiting = ({ node }) => {
     return this.resolveStyle(node, this.props.from, styleFrom);
-  }
+  };
 
   exited = ({ node }) => {
     return this.resolveStyle(node, this.props.from, styleFrom);
@@ -72,8 +71,8 @@ export default class Expand extends React.Component {
         resolve({
           ...baseStyle,
           height: toPx(destinationHeight)
-        })
-      })
+        });
+      });
     });
   }
 
@@ -81,7 +80,6 @@ export default class Expand extends React.Component {
     return (
       <StyleTransition
         in={this.props.in}
-
         styles={{
           enter: this.enter,
           entering: this.entering,
@@ -91,11 +89,9 @@ export default class Expand extends React.Component {
           exiting: this.exiting,
           exited: this.exited
         }}
-
         onEntered={({ node }) => {
           node.style.height = toPx(this.props.to);
         }}
-
         onExited={({ node }) => {
           node.style.height = toPx(this.props.from);
         }}

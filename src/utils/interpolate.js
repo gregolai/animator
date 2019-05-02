@@ -2,10 +2,10 @@ import last from 'lodash/last';
 import { getPointAtTime } from './easing';
 
 /**
- * @param {Array<{ time: number, value: number }>} keyframes 
- * @param {number} time 
- * @param {(v0: any, v2: any, time: number) => any} lerpFunction 
- * @param {Array|string} easing 
+ * @param {Array<{ time: number, value: number }>} keyframes
+ * @param {number} time
+ * @param {(v0: any, v2: any, time: number) => any} lerpFunction
+ * @param {Array|string} easing
  */
 const interpolate = (keyframes, time, lerpFunction, easing) => {
   // early exit if no keyframes
@@ -40,6 +40,6 @@ const interpolate = (keyframes, time, lerpFunction, easing) => {
   const { y: curvedTime } = getPointAtTime(scaledTime, easing);
 
   return lerpFunction(fromValue, toValue, curvedTime);
-}
+};
 
 export default interpolate;

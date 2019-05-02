@@ -34,7 +34,6 @@ const StylePropTypes = PropTypes.oneOfType([
 
     width: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
   })
-
 ]);
 
 function getEasingArray(easing) {
@@ -45,9 +44,9 @@ function getEasingArray(easing) {
     'ease-out': [0, 0, 0.58, 1],
     'ease-in-out': [0.42, 0, 0.58, 1]
   };
-  return Array.isArray(easing) ?
-    easing :
-    EASING_MAP[easing] || EASING_MAP.linear;
+  return Array.isArray(easing)
+    ? easing
+    : EASING_MAP[easing] || EASING_MAP.linear;
 }
 
 export default class StyleTransition extends React.Component {
@@ -95,7 +94,7 @@ export default class StyleTransition extends React.Component {
       exiting: StylePropTypes,
       exited: StylePropTypes
     })
-  }
+  };
 
   static defaultProps = {
     delay: 0,
@@ -160,10 +159,9 @@ export default class StyleTransition extends React.Component {
       (this.phase === 'entering' && phase === 'exit') ||
       (this.phase === 'exiting' && phase === 'enter');
 
-    
     // If interrupted during entering or exiting, prevent the from/to
     // reset style from getting applied.
-    if(!isInterrupted) {
+    if (!isInterrupted) {
       const style = await this.getComputedStyle(node, phase);
       console.log(phase, style);
 
@@ -174,7 +172,7 @@ export default class StyleTransition extends React.Component {
 
     callback({ node });
     await this.delayFrame();
-    
+
     this.phase = phase;
   }
 
@@ -192,7 +190,6 @@ export default class StyleTransition extends React.Component {
     }
 
     if (phase === 'entering' || phase === 'exiting') {
-
       const forward = phase === 'entering';
 
       // Allow for flexible configuration
@@ -242,14 +239,13 @@ export default class StyleTransition extends React.Component {
 
   captureRef = ref => {
     this.node = ref;
-  }
+  };
 
   render() {
     return (
       <Transition
         captureRef={this.captureRef}
         in={this.props.in}
-
         // callbacks
         addEndListener={this.addEndListener}
         onEnter={this.handleEnter}
@@ -261,7 +257,6 @@ export default class StyleTransition extends React.Component {
       >
         {this.props.children}
       </Transition>
-    )
+    );
   }
 }
-

@@ -1,4 +1,4 @@
-import { React, cx } from 'utils';
+import { React, cx } from 'common';
 import { AnimationStore, MediaStore } from 'stores';
 import { Canvas } from 'components/shared';
 
@@ -15,8 +15,14 @@ const InstanceTimeline = ({ className, instance }) => {
         {({ tickSpacing }) => (
           <AnimationStore.Consumer>
             {({ getInstanceDefinitionValue }) => {
-              const delay = getInstanceDefinitionValue(instance.id, 'animation-delay');
-              const duration = getInstanceDefinitionValue(instance.id, 'animation-duration');
+              const delay = getInstanceDefinitionValue(
+                instance.id,
+                'animation-delay'
+              );
+              const duration = getInstanceDefinitionValue(
+                instance.id,
+                'animation-duration'
+              );
 
               return (
                 <Canvas
@@ -38,13 +44,13 @@ const InstanceTimeline = ({ className, instance }) => {
                     }
                   }}
                 />
-              )
+              );
             }}
           </AnimationStore.Consumer>
         )}
       </MediaStore.Consumer>
     </div>
-  )
-}
+  );
+};
 
 export default InstanceTimeline;

@@ -93,38 +93,53 @@ export default class TestComponent extends React.Component {
   state = {
     animations: persist.animations.read(),
     keyframes: persist.keyframes.read(),
-    tweens: persist.animations.read(),
-  }
+    tweens: persist.animations.read()
+  };
 
-  deleteAnimation = (animId) => {
-
+  deleteAnimation = animId => {
     const anim = this.getAnimation(animId);
     if (anim) {
-
       new DeleteCommand(
         () => {
-          const { list: animations, item: deletedAnimation } = db.deleteOne(this.state.animations, anim.id);
-          const { list: tweens, items: deletedTweens } = db.deleteMany(this.state.tweens, t => t.animId === anim.id);
-          const { list: keyframes, items: deletedKeyframes } = db.deleteMany(this.state.keyframes, kf => kf.animId === anim.id);
+          const { list: animations, item: deletedAnimation } = db.deleteOne(
+            this.state.animations,
+            anim.id
+          );
+          const { list: tweens, items: deletedTweens } = db.deleteMany(
+            this.state.tweens,
+            t => t.animId === anim.id
+          );
+          const { list: keyframes, items: deletedKeyframes } = db.deleteMany(
+            this.state.keyframes,
+            kf => kf.animId === anim.id
+          );
 
           this.setState({ animations, tweens, keyframes });
 
           return [deletedAnimation, deletedTweens, deletedKeyframes];
         },
         ([deletedAnimation, deletedTweens, deletedKeyframes]) => {
-          const { list: animations } = db.createOne(this.state.animations, deletedAnimation);
-          const { list: tweens } = db.createMany(this.state.tweens, deletedTweens);
-          const { list: keyframes } = db.createMany(this.state.keyframes, deletedKeyframes);
+          const { list: animations } = db.createOne(
+            this.state.animations,
+            deletedAnimation
+          );
+          const { list: tweens } = db.createMany(
+            this.state.tweens,
+            deletedTweens
+          );
+          const { list: keyframes } = db.createMany(
+            this.state.keyframes,
+            deletedKeyframes
+          );
 
           this.setState({ animations, tweens, keyframes });
         }
-      )
+      );
     }
-  }
+  };
 
   componentDidMount() {
     document.addEventListener('keydown', e => {
-
       if (e.code === 'KeyZ' && e.metaKey) {
         e.preventDefault();
         if (e.shiftKey) {
@@ -137,9 +152,12 @@ export default class TestComponent extends React.Component {
       if (e.code === 'KeyE') {
         this.undoRedo.execute(
           () => {
-            const { list: animations, item: addedAnimation } = db.createOne(this.state.animations, {
-              num: Math.floor(Math.random() * 2000)
-            });
+            const { list: animations, item: addedAnimation } = db.createOne(
+              this.state.animations,
+              {
+                num: Math.floor(Math.random() * 2000)
+              }
+            );
 
             this.setState({ animations });
 
@@ -147,58 +165,89 @@ export default class TestComponent extends React.Component {
           },
 
           addedAnimation => {
-            const { list: animations } = db.deleteOne(this.state.animations, addedAnimation.id)
+            const { list: animations } = db.deleteOne(
+              this.state.animations,
+              addedAnimation.id
+            );
 
             this.setState({ animations });
           }
-        )
+        );
       }
 
       if (e.code === 'KeyT') {
-        const anim = this.state.animations[Math.floor(Math.random() * this.state.animations.length)];
+        const anim = this.state.animations[
+          Math.floor(Math.random() * this.state.animations.length)
+        ];
         if (anim) {
           this.undoRedo.execute(
             () => {
-              const { list: tweens, item: createdTween } = db.createOne(this.state.tweens, { animId: anim.id })
+              const { list: tweens, item: createdTween } = db.createOne(
+                this.state.tweens,
+                { animId: anim.id }
+              );
 
               this.setState({ tweens });
               return createdTween;
             },
             createdTween => {
-              const { list: tweens } = db.deleteOne(this.state.tweens, createdTween.id);
+              const { list: tweens } = db.deleteOne(
+                this.state.tweens,
+                createdTween.id
+              );
 
-              this.setState({ tweens })
+              this.setState({ tweens });
             }
-          )
+          );
         }
       }
 
       if (e.code === 'KeyD') {
-        const anim = this.state.animations[Math.floor(Math.random() * this.state.animations.length)];
+        const anim = this.state.animations[
+          Math.floor(Math.random() * this.state.animations.length)
+        ];
         if (anim) {
           this.undoRedo.execute(
             () => {
-
-
-              const { list: animations, item: deletedAnimation } = db.deleteOne(this.state.animations, anim.id);
-              const { list: tweens, items: deletedTweens } = db.deleteMany(this.state.tweens, t => t.animId === anim.id);
-              const { list: keyframes, items: deletedKeyframes } = db.deleteMany(this.state.keyframes, kf => kf.animId === anim.id);
+              const { list: animations, item: deletedAnimation } = db.deleteOne(
+                this.state.animations,
+                anim.id
+              );
+              const { list: tweens, items: deletedTweens } = db.deleteMany(
+                this.state.tweens,
+                t => t.animId === anim.id
+              );
+              const {
+                list: keyframes,
+                items: deletedKeyframes
+              } = db.deleteMany(
+                this.state.keyframes,
+                kf => kf.animId === anim.id
+              );
 
               this.setState({ animations, tweens, keyframes });
 
               return [deletedAnimation, deletedTweens, deletedKeyframes];
             },
             ([deletedAnimation, deletedTweens, deletedKeyframes]) => {
-              const { list: animations } = db.createOne(this.state.animations, deletedAnimation);
-              const { list: tweens } = db.createMany(this.state.tweens, deletedTweens);
-              const { list: keyframes } = db.createMany(this.state.keyframes, deletedKeyframes);
+              const { list: animations } = db.createOne(
+                this.state.animations,
+                deletedAnimation
+              );
+              const { list: tweens } = db.createMany(
+                this.state.tweens,
+                deletedTweens
+              );
+              const { list: keyframes } = db.createMany(
+                this.state.keyframes,
+                deletedKeyframes
+              );
 
               this.setState({ animations, tweens, keyframes });
             }
-          )
+          );
         }
       }
-
     });
   }
 

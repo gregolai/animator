@@ -4,7 +4,7 @@ import noop from 'lodash/noop';
 export default class Drag extends React.Component {
   state = {
     drag: null
-  }
+  };
 
   startDrag = ({ event, onUpdate = noop, onEnd = noop }) => {
     if (this.state.drag) return;
@@ -27,7 +27,7 @@ export default class Drag extends React.Component {
 
     document.addEventListener('mousemove', this.onMouseMove, false);
     document.addEventListener('mouseup', this.onMouseUp, false);
-  }
+  };
 
   onMouseMove = event => {
     const { drag } = this.state;
@@ -47,7 +47,7 @@ export default class Drag extends React.Component {
 
     this.setState(nextState);
     drag.onUpdate(nextState.drag);
-  }
+  };
 
   onMouseUp = e => {
     const { drag } = this.state;
@@ -58,7 +58,7 @@ export default class Drag extends React.Component {
 
     this.setState({ drag: null });
     drag.onEnd(drag);
-  }
+  };
 
   render() {
     return this.props.children({

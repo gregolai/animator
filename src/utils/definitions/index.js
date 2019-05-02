@@ -8,25 +8,21 @@ import { ColorSquare, DropdownCustom } from 'components/shared';
 
 const constants = {
   animationDirections: ['normal', 'reverse', 'alternate', 'alternate-reverse'],
-  palette: [
-    ...palettes[0],
-    ...palettes[1],
-    ...palettes[2],
-  ],
+  palette: [...palettes[0], ...palettes[1], ...palettes[2]],
   positions: ['static', 'relative', 'absolute', 'sticky', 'fixed']
-}
+};
 
 const toPx = v => (typeof v === 'number' ? `${v}px` : v);
 
 const parseEnum = (str, list) => {
   return list.indexOf(str) !== -1 ? str : undefined;
-}
+};
 const parseNumber = str => parseFloat(str);
 const parseColor = str => color(str).hex();
 const parseMilliseconds = str => {
   const num = parseFloat(str);
   return Math.floor(str.endsWith('s') ? num * 1000 : num);
-}
+};
 
 const formatMilliseconds = v => `${v}ms`;
 const formatPixels = v => toPx(Math.round(v));
@@ -42,7 +38,7 @@ const renderMargin = ({ onChange, value = 0 }) => (
     onChange={onChange}
     value={value}
   />
-)
+);
 
 const renderPosition = ({ onChange, value = 0 }) => (
   <RangeField
@@ -53,28 +49,15 @@ const renderPosition = ({ onChange, value = 0 }) => (
     onChange={onChange}
     value={value}
   />
-)
+);
 
 const renderRatio = ({ onChange, value = 1 }) => (
-  <RangeField
-    max={1}
-    min={0}
-    step={0.01}
-    onChange={onChange}
-    value={value}
-  />
-)
-
+  <RangeField max={1} min={0} step={0.01} onChange={onChange} value={value} />
+);
 
 const BezierComponent = ({ value, onChange }) => (
-  <RangeField
-    min={0}
-    max={1}
-    step={0.01}
-    onChange={onChange}
-    value={value}
-  />
-)
+  <RangeField min={0} max={1} step={0.01} onChange={onChange} value={value} />
+);
 
 export const definitionMap = {
   'animation-delay': {
@@ -133,8 +116,12 @@ export const definitionMap = {
   'animation-timing-function': {
     defaultValue: 'linear',
     friendlyLabel: 'Easing',
-    format: v => typeof v === 'string' ? v : `cubic-bezier(${v[0]}, ${v[1]}, ${v[2]}, ${v[3]})`,
-    preview: v => typeof v === 'string' ? v : `(${v[0]}, ${v[1]}) (${v[2]}, ${v[3]})`,
+    format: v =>
+      typeof v === 'string'
+        ? v
+        : `cubic-bezier(${v[0]}, ${v[1]}, ${v[2]}, ${v[3]})`,
+    preview: v =>
+      typeof v === 'string' ? v : `(${v[0]}, ${v[1]}) (${v[2]}, ${v[3]})`,
     parse: str => getEasingArray(str),
     render: ({ onChange, value }) => (
       <DropdownCustom
@@ -164,7 +151,7 @@ export const definitionMap = {
                 value={y1}
               />
             </>
-          )
+          );
         }}
         placeholder="Easing"
         onChange={onChange}
@@ -187,7 +174,7 @@ export const definitionMap = {
       return from.mix(to, t).hex();
     },
     parse: parseColor,
-    render: (props) => (
+    render: props => (
       <ColorField
         colorType="hex"
         providerType="passthrough"
@@ -199,21 +186,21 @@ export const definitionMap = {
       />
     )
   },
-  'bottom': {
+  bottom: {
     format: formatPixels,
     preview: formatPixels,
     lerp: lerpNumber,
     parse: parseNumber,
     render: renderPosition
   },
-  'height': {
+  height: {
     format: formatPixels,
     preview: formatPixels,
     lerp: lerpNumber,
     parse: parseNumber,
     render: renderPosition
   },
-  'left': {
+  left: {
     format: formatPixels,
     preview: formatPixels,
     lerp: lerpNumber,
@@ -252,14 +239,14 @@ export const definitionMap = {
     parse: parseNumber,
     render: renderMargin
   },
-  'opacity': {
+  opacity: {
     format: v => v,
     preview: v => v,
     lerp: lerpNumber,
     parse: parseNumber,
     render: renderRatio
   },
-  'position': {
+  position: {
     format: v => v,
     preview: v => v,
     lerp: (from, to, t) => from, // todo: no animate
@@ -277,45 +264,45 @@ export const definitionMap = {
       />
     )
   },
-  'right': {
+  right: {
     format: formatPixels,
     preview: formatPixels,
     lerp: lerpNumber,
     parse: parseNumber,
     render: renderPosition
   },
-  'top': {
+  top: {
     format: formatPixels,
     preview: formatPixels,
     lerp: lerpNumber,
     parse: parseNumber,
     render: renderPosition
   },
-  'width': {
+  width: {
     format: formatPixels,
     preview: formatPixels,
     lerp: lerpNumber,
     parse: parseNumber,
     render: renderPosition
-  },
-}
+  }
+};
 
 // Auto-apply CSS and Inline CSS names
 Object.keys(definitionMap).forEach(name => {
   definitionMap[name]['id'] = name;
   definitionMap[name]['styleName'] = camelCase(name);
-})
+});
 
 const definitionArray = Object.keys(definitionMap)
   .map(id => definitionMap[id])
-  .sort((a, b) => a.name < b.name ? -1 : 1);
+  .sort((a, b) => (a.name < b.name ? -1 : 1));
 
 export const getDefinition = definitionId => definitionMap[definitionId];
 
 export const getAnimatedDefinitions = () => {
   return definitionArray.filter(definition => definition.lerp !== undefined);
-}
+};
 
 export const getInstanceDefinitions = () => {
   return definitionArray.filter(definition => definition.lerp === undefined);
-}
+};

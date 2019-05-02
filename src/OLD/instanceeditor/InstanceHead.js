@@ -7,16 +7,12 @@ import styles from './InstanceHead.module.scss';
 const CloseButton = ({ instance }) => (
   <AnimationStore.Consumer>
     {({ deleteInstance }) => (
-      <IconButton
-        icon="close"
-        onClick={() => deleteInstance(instance.id)}
-      />
+      <IconButton icon="close" onClick={() => deleteInstance(instance.id)} />
     )}
   </AnimationStore.Consumer>
-)
+);
 
 const InstanceHead = ({ instance }) => (
-
   <UIStore.Consumer>
     {({ selectedInstanceId, setSelectedInstance }) => (
       <div className={styles.container}>
@@ -34,15 +30,12 @@ const InstanceHead = ({ instance }) => (
               icon="desktop"
               label="Animation"
               label2={getAnimation(instance.animId).name}
-              options={
-                getAnimations()
-                  .map(anim => ({
-                    label: anim.name,
-                    value: anim.id
-                  }))
-              }
+              options={getAnimations().map(anim => ({
+                label: anim.name,
+                value: anim.id
+              }))}
               onSelect={animId => {
-                setInstanceAnimation(instance.id, animId)
+                setInstanceAnimation(instance.id, animId);
               }}
               value={instance.animId}
             />

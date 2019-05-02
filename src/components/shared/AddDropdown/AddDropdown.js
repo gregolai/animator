@@ -1,10 +1,19 @@
-import { React, cx } from 'utils';
+import { React, cx } from 'common';
 import { CheckField } from 'components/core';
 import { IconButton, Popover } from 'components/shared';
 
 import styles from './AddDropdown.module.scss';
 
-const AddDropdown = ({ anchor = 'down-left', className, icon = 'addBlock', label, label2, onSelect, options, value }) => {
+const AddDropdown = ({
+  anchor = 'down-left',
+  className,
+  icon = 'addBlock',
+  label,
+  label2,
+  onSelect,
+  options,
+  value
+}) => {
   const [isOpen, onOpen] = React.useState(false);
 
   return (
@@ -34,7 +43,7 @@ const AddDropdown = ({ anchor = 'down-left', className, icon = 'addBlock', label
               icon={opt.icon}
               onClick={() => {
                 onOpen(false);
-                onSelect(opt.value)
+                onSelect(opt.value);
               }}
               label={opt.label}
               value={opt.value === value}
@@ -43,6 +52,6 @@ const AddDropdown = ({ anchor = 'down-left', className, icon = 'addBlock', label
         </Popover>
       )}
     </div>
-  )
-}
+  );
+};
 export default AddDropdown;

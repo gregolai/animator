@@ -1,4 +1,4 @@
-import { React, normalizeRatio } from 'utils';
+import { React, normalizeRatio } from 'common';
 
 const Context = React.createContext();
 
@@ -7,12 +7,12 @@ export default class LocalPlayheadStore extends React.Component {
 
   state = {
     localPlayhead: 0
-  }
+  };
 
   setLocalPlayhead = localPlayhead => {
     localPlayhead = normalizeRatio(localPlayhead);
     this.setState({ localPlayhead });
-  }
+  };
 
   render() {
     return (
@@ -21,7 +21,9 @@ export default class LocalPlayheadStore extends React.Component {
           localPlayhead: this.state.localPlayhead,
           setLocalPlayhead: this.setLocalPlayhead
         }}
-      >{this.props.children}</Context.Provider>
+      >
+        {this.props.children}
+      </Context.Provider>
     );
   }
 }

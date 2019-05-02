@@ -1,7 +1,12 @@
-import { React, cx } from 'utils';
+import { React, cx } from 'common';
 
 import { AnimationStore, MediaStore, UIStore } from 'stores';
-import { IconButton, Popover, ValueButton, ValueEditor } from 'components/shared';
+import {
+  IconButton,
+  Popover,
+  ValueButton,
+  ValueEditor
+} from 'components/shared';
 import { getDefinition } from 'utils/definitions';
 
 import LocalPlayheadStore from './LocalPlayheadStore';
@@ -13,7 +18,14 @@ const TweenControls = ({ className, tween }) => (
       <AnimationStore.Consumer>
         {({ deleteTween, interpolate, setKeyframeValueAtTime }) => (
           <UIStore.Consumer>
-            {({ isTweenHidden, setTweenHidden, isTweenLocked, setTweenLocked, isTweenExpanded, setTweenExpanded }) => {
+            {({
+              isTweenHidden,
+              setTweenHidden,
+              isTweenLocked,
+              setTweenLocked,
+              isTweenExpanded,
+              setTweenExpanded
+            }) => {
               const definition = getDefinition(tween.definitionId);
               const value = interpolate(tween.id, localPlayhead);
 
@@ -28,19 +40,21 @@ const TweenControls = ({ className, tween }) => (
                 <div className={cx(styles.container, className)}>
                   {/* PREVIEW */}
                   <ValueButton
-                    accessory={canDelete &&
-                      <IconButton
-                        icon="close"
-                        onClick={() => deleteTween(tween.id)}
-                      />
+                    accessory={
+                      canDelete && (
+                        <IconButton
+                          icon="close"
+                          onClick={() => deleteTween(tween.id)}
+                        />
+                      )
                     }
                     className={styles.btnValue}
                     definition={definition}
                     isToggled={isExpanded}
                     onClick={
-                      canExpand ?
-                        () => setTweenExpanded(tween.id, !isExpanded) :
-                        undefined
+                      canExpand
+                        ? () => setTweenExpanded(tween.id, !isExpanded)
+                        : undefined
                     }
                     value={value}
                   />
@@ -72,13 +86,13 @@ const TweenControls = ({ className, tween }) => (
                   {/* VALUE EDITOR */}
                   {isExpanded && (
                     <Popover anchor="down-left" className={styles.editor}>
-
                       <ValueEditor
                         definitionId={tween.definitionId}
                         value={value}
-                        onChange={value => setKeyframeValueAtTime(tween.id, localPlayhead, value)}
+                        onChange={value =>
+                          setKeyframeValueAtTime(tween.id, localPlayhead, value)
+                        }
                       />
-
                     </Popover>
                   )}
                 </div>
@@ -89,5 +103,5 @@ const TweenControls = ({ className, tween }) => (
       </AnimationStore.Consumer>
     )}
   </LocalPlayheadStore.Consumer>
-)
+);
 export default TweenControls;

@@ -1,8 +1,13 @@
-import { React } from 'utils';
+import { React, startDrag } from 'common';
 
 import { AnimationStore, MediaStore } from 'stores';
-import { AddDropdown, Canvas, ExpandingTitle, IconButton, Ticks } from 'components/shared';
-import { startDrag } from 'utils/mouse';
+import {
+  AddDropdown,
+  Canvas,
+  ExpandingTitle,
+  IconButton,
+  Ticks
+} from 'components/shared';
 
 import LocalPlayheadStore from './LocalPlayheadStore';
 import TweenControls from './TweenControls';
@@ -14,7 +19,12 @@ const TWEEN_HEIGHT_PX = 33;
 
 const HeadLeft = ({ animation }) => (
   <AnimationStore.Consumer>
-    {({ createTween, deleteAnimation, setAnimationName, getUnusedPropDefinitions }) => (
+    {({
+      createTween,
+      deleteAnimation,
+      setAnimationName,
+      getUnusedPropDefinitions
+    }) => (
       <div className={styles.left}>
         <ExpandingTitle
           accessory={
@@ -33,18 +43,15 @@ const HeadLeft = ({ animation }) => (
           onSelect={definitionId => {
             createTween(animation.id, definitionId);
           }}
-          options={
-            getUnusedPropDefinitions(animation.id).map(definition => ({
-              label: definition.id,
-              value: definition.id,
-            }))
-          }
+          options={getUnusedPropDefinitions(animation.id).map(definition => ({
+            label: definition.id,
+            value: definition.id
+          }))}
         />
       </div>
     )}
   </AnimationStore.Consumer>
-)
-
+);
 
 const Tween = ({ tween }) => {
   return (
@@ -56,12 +63,13 @@ const Tween = ({ tween }) => {
         tween={tween}
       />
     </div>
-  )
-}
+  );
+};
 
 const Animation = ({ animation }) => {
-
-  const [isDraggingLocalPlayhead, setDraggingLocalPlayhead] = React.useState(false);
+  const [isDraggingLocalPlayhead, setDraggingLocalPlayhead] = React.useState(
+    false
+  );
 
   return (
     <LocalPlayheadStore>
@@ -78,7 +86,6 @@ const Animation = ({ animation }) => {
                 <HeadLeft animation={animation} />
                 {tweens.length > 0 && (
                   <div className={styles.right}>
-
                     {/* PLAYHEAD */}
                     <Ticks.EvenSpaced
                       count={100}
@@ -91,11 +98,11 @@ const Animation = ({ animation }) => {
                             ctx.font = '10px "Helvetica Neue", sans-serif';
                             const text = `${index / 10}`;
                             const measured = ctx.measureText(text);
-                            ctx.fillText(text, x - (measured.width / 2), y - 4);
+                            ctx.fillText(text, x - measured.width / 2, y - 4);
                           }
                         },
                         { mod: 5, height: 4, color: '#a1a1a1' },
-                        { mod: 1, height: 2, color: '#a1a1a1' },
+                        { mod: 1, height: 2, color: '#a1a1a1' }
                       ]}
                     />
 
@@ -107,7 +114,8 @@ const Animation = ({ animation }) => {
                           onMouseDown={e => {
                             const width = e.target.clientWidth;
 
-                            const onDrag = ({ localX }) => setLocalPlayhead(localX / width);
+                            const onDrag = ({ localX }) =>
+                              setLocalPlayhead(localX / width);
                             startDrag(e, {
                               distance: 0,
                               measureLocalOffset: true,
@@ -117,11 +125,10 @@ const Animation = ({ animation }) => {
                               },
                               onDrag,
                               onDragEnd: () => setDraggingLocalPlayhead(false)
-                            })
+                            });
                           }}
                         >
                           <div style={{ height: playheadCursorHeight }}>
-
                             <MediaStore.Consumer>
                               {({ playhead }) => (
                                 <Canvas
@@ -130,50 +137,67 @@ const Animation = ({ animation }) => {
                                     ctx.clearRect(0, 0, width, height);
 
                                     if (localPlayhead !== undefined) {
-                                      const left = Math.floor(localPlayhead * width);
+                                      const left = Math.floor(
+                                        localPlayhead * width
+                                      );
 
-                                      const lineWidth = isDraggingLocalPlayhead ? 3 : 1;
+                                      const lineWidth = isDraggingLocalPlayhead
+                                        ? 3
+                                        : 1;
 
                                       ctx.fillStyle = animation.color;
-                                      ctx.fillRect(left - Math.floor(lineWidth / 2), 0, lineWidth, height);
+                                      ctx.fillRect(
+                                        left - Math.floor(lineWidth / 2),
+                                        0,
+                                        lineWidth,
+                                        height
+                                      );
                                     }
 
                                     instances.forEach(instance => {
-                                      const delay = getInstanceDefinitionValue(instance.id, 'animation-delay');
+                                      const delay = getInstanceDefinitionValue(
+                                        instance.id,
+                                        'animation-delay'
+                                      );
                                       if (playhead < delay) return;
 
-                                      const duration = getInstanceDefinitionValue(instance.id, 'animation-duration');
+                                      const duration = getInstanceDefinitionValue(
+                                        instance.id,
+                                        'animation-duration'
+                                      );
                                       if (playhead >= delay + duration) return;
 
-                                      const left = Math.floor((playhead - delay) / duration * width);
+                                      const left = Math.floor(
+                                        ((playhead - delay) / duration) * width
+                                      );
 
                                       ctx.fillStyle = 'black';
                                       ctx.fillRect(left, 0, 1, height);
-                                    })
+                                    });
                                   }}
                                 />
                               )}
                             </MediaStore.Consumer>
-
                           </div>
                         </div>
                       )}
                     </LocalPlayheadStore.Consumer>
-
                   </div>
                 )}
               </div>
 
               {/* TWEENS */}
               <div className={styles.tweens}>
-                {tweens.map(tween => <Tween key={tween.id} tween={tween} />)}
+                {tweens.map(tween => (
+                  <Tween key={tween.id} tween={tween} />
+                ))}
               </div>
             </div>
-          )
+          );
         }}
       </AnimationStore.Consumer>
     </LocalPlayheadStore>
-  )
-}
+  );
+};
 
 export default Animation;

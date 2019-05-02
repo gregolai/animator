@@ -2,32 +2,26 @@ import isFunction from 'lodash/isFunction';
 import uid from 'uid';
 
 /**
- * @param {Array<object>} list 
- * @param {Function|string} id 
+ * @param {Array<object>} list
+ * @param {Function|string} id
  */
 const getOne = (list, id) => {
-  const index = list.findIndex(
-    isFunction(id) ?
-      id :
-      item => item.id === id
-  );
+  const index = list.findIndex(isFunction(id) ? id : item => item.id === id);
   return {
     index,
     item: list[index] || null
-  }
-}
+  };
+};
 
 /**
- * @param {Array<object>} list 
- * @param {Function|Array<string>} ids 
+ * @param {Array<object>} list
+ * @param {Function|Array<string>} ids
  */
 const getMany = (list, ids) => {
   const indices = [];
   const items = [];
 
-  const filterFn = isFunction(ids) ?
-    ids :
-    item => ids.indexOf(item.id) !== -1;
+  const filterFn = isFunction(ids) ? ids : item => ids.indexOf(item.id) !== -1;
 
   for (let i = 0; i < list.length; ++i) {
     if (filterFn(list[i], i, list)) {
@@ -36,14 +30,14 @@ const getMany = (list, ids) => {
     }
   }
   return { indices, items };
-}
+};
 
 const db = {
-	/**
-	 * @param {Array<object>} list
-	 * @param {object} value
-	 * @param {boolean} mutateList
-	 */
+  /**
+   * @param {Array<object>} list
+   * @param {object} value
+   * @param {boolean} mutateList
+   */
   createOne: (list, value, mutateList = false) => {
     if (!mutateList) {
       list = [...list];
@@ -58,11 +52,11 @@ const db = {
     return { list, item, index };
   },
 
-	/**
-	 * @param {Array<object>} list
-	 * @param {Array<object>} values
-	 * @param {boolean} mutateList
-	 */
+  /**
+   * @param {Array<object>} list
+   * @param {Array<object>} values
+   * @param {boolean} mutateList
+   */
   createMany: (list, values, mutateList = false) => {
     if (!mutateList) {
       list = [...list];
@@ -72,10 +66,14 @@ const db = {
     const indices = [];
 
     values.forEach(value => {
-      const { item, index } = db.createOne(list, {
-        id: uid(8),
-        ...value
-      }, true);
+      const { item, index } = db.createOne(
+        list,
+        {
+          id: uid(8),
+          ...value
+        },
+        true
+      );
       items.push(item);
       indices.push(index);
     });
@@ -83,30 +81,30 @@ const db = {
     return { list, items, indices };
   },
 
-	/**
-	 * @param {Array<object>} list 
-	 * @param {Function|string} id
-	 */
+  /**
+   * @param {Array<object>} list
+   * @param {Function|string} id
+   */
   getOne: (list, id) => {
     const { item, index } = getOne(list, id);
     return { item, index };
   },
 
-	/**
-	 * @param {Array<object>} list 
-	 * @param {Function|Array<string>} ids 
-	 */
+  /**
+   * @param {Array<object>} list
+   * @param {Function|Array<string>} ids
+   */
   getMany: (list, ids) => {
     const { items, indices } = getMany(list, ids);
     return { items, indices };
   },
 
-	/**
-	 * @param {Array<object>} list 
-	 * @param {Function|string} id
-	 * @param {object} value
-	 * @param {boolean} mutateList
-	 */
+  /**
+   * @param {Array<object>} list
+   * @param {Function|string} id
+   * @param {object} value
+   * @param {boolean} mutateList
+   */
   setOne: (list, id, value, mutateList = false) => {
     if (!mutateList) {
       list = [...list];
@@ -124,12 +122,12 @@ const db = {
     return { list, index, item };
   },
 
-	/**
-	 * @param {Array<object>} list 
-	 * @param {Function|Array<string>} ids
-	 * @param {object} value
-	 * @param {boolean} mutateList
-	 */
+  /**
+   * @param {Array<object>} list
+   * @param {Function|Array<string>} ids
+   * @param {object} value
+   * @param {boolean} mutateList
+   */
   setMany: (list, ids, value, mutateList = false) => {
     if (!mutateList) {
       list = [...list];
@@ -149,11 +147,11 @@ const db = {
     return { list, indices, items };
   },
 
-	/**
-	 * @param {Array<object>} list 
-	 * @param {Function|string} id
-	 * @param {boolean} mutateList
-	 */
+  /**
+   * @param {Array<object>} list
+   * @param {Function|string} id
+   * @param {boolean} mutateList
+   */
   deleteOne: (list, id, mutateList) => {
     if (!mutateList) {
       list = [...list];
@@ -166,12 +164,11 @@ const db = {
     return { list, item, index };
   },
 
-
-	/**
-	 * @param {Array<object>} list 
-	 * @param {Function|Array<string>} ids 
-	 * @param {boolean} mutateList
-	 */
+  /**
+   * @param {Array<object>} list
+   * @param {Function|Array<string>} ids
+   * @param {boolean} mutateList
+   */
   deleteMany: (list, ids, mutateList = false) => {
     if (!mutateList) {
       list = [...list];

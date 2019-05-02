@@ -2,7 +2,6 @@ import isFunction from 'lodash/isFunction';
 import db from './db';
 
 class TableSideEffects {
-
   _listeners = {};
 
   _register(key, fn) {
@@ -14,7 +13,7 @@ class TableSideEffects {
   }
 
   _trigger(key, data) {
-    const { items, indices } = this._normalizeItems(data)
+    const { items, indices } = this._normalizeItems(data);
     if (items.length === 0) return;
 
     let list = this._listeners[key];
@@ -63,7 +62,6 @@ class TableSideEffects {
 }
 
 class TableTransactionHelper {
-
   _transaction = null;
 
   isActive() {
@@ -74,13 +72,9 @@ class TableTransactionHelper {
     this._transaction = transaction;
   }
 
-  commit() {
+  commit() {}
 
-  }
-
-  rollback() {
-
-  }
+  rollback() {}
 }
 
 export default class Table {

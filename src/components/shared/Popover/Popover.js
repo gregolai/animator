@@ -1,4 +1,4 @@
-import { React, cx } from 'utils';
+import { React, cx } from 'common';
 
 import styles from './Popover.module.scss';
 
@@ -11,11 +11,11 @@ const anchorStyleMap = {
   'down-right-side': styles.downRightSide,
   'up-right': styles.upRight,
   'up-right-side': styles.upRightSide
-}
+};
 
 const Popover = ({ anchor = 'down-left', children, className }) => (
   <div className={cx(styles.container, anchorStyleMap[anchor], className)}>
     {children}
   </div>
-)
+);
 export default Popover;

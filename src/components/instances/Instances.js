@@ -1,4 +1,4 @@
-import { React, cx } from 'utils';
+import { React, cx } from 'common';
 
 import { AnimationStore, MediaStore, UIStore } from 'stores';
 import { StepperField } from 'components/core';
@@ -11,7 +11,6 @@ import PlayheadTimeline from './PlayheadTimeline';
 
 import styles from './Instances.module.scss';
 
-
 const Instance = ({ instance }) => {
   return (
     <div className={styles.instance}>
@@ -19,7 +18,7 @@ const Instance = ({ instance }) => {
       <InstanceTimeline className={styles.timeline} instance={instance} />
     </div>
   );
-}
+};
 
 const HeadLeft = () => {
   return (
@@ -35,12 +34,10 @@ const HeadLeft = () => {
                   <AddDropdown
                     className={styles.btnCreateInstance}
                     label="Create Instance"
-                    options={
-                      animations.map(animation => ({
-                        label: animation.name,
-                        value: animation.id
-                      }))
-                    }
+                    options={animations.map(animation => ({
+                      label: animation.name,
+                      value: animation.id
+                    }))}
                     onSelect={animId => {
                       const instance = createInstance({ animId });
                       setSelectedInstance(instance.id);
@@ -63,15 +60,14 @@ const HeadLeft = () => {
                     />
                   )}
                 </MediaStore.Consumer>
-
               </div>
             );
           }}
         </UIStore.Consumer>
       )}
     </AnimationStore.Consumer>
-  )
-}
+  );
+};
 
 const Instances = ({ className }) => {
   return (
@@ -82,12 +78,16 @@ const Instances = ({ className }) => {
       </div>
       <div className={styles.body}>
         <AnimationStore.Consumer>
-          {({ getInstances }) => getInstances().map(instance => <Instance key={instance.id} instance={instance} />)}
+          {({ getInstances }) =>
+            getInstances().map(instance => (
+              <Instance key={instance.id} instance={instance} />
+            ))
+          }
         </AnimationStore.Consumer>
 
         <PlayheadCursor />
       </div>
     </div>
-  )
-}
+  );
+};
 export default Instances;

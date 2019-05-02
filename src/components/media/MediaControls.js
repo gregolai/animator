@@ -13,7 +13,19 @@ const MAX_DURATION_MS = 10000;
 // PLAY PAUSE CONTROLS
 const MediaControls = ({ className }) => (
   <MediaStore.Consumer>
-    {({ duration, isLooping, isReversed, isPlaying, playhead, setDuration, setLooping, setReversed, setPaused, setPlaying, setStopped }) => (
+    {({
+      duration,
+      isLooping,
+      isReversed,
+      isPlaying,
+      playhead,
+      setDuration,
+      setLooping,
+      setReversed,
+      setPaused,
+      setPlaying,
+      setStopped
+    }) => (
       <div className={classnames(styles.container, className)}>
         <div className={styles.top}>
           <ButtonField
@@ -70,6 +82,6 @@ const MediaControls = ({ className }) => (
       </div>
     )}
   </MediaStore.Consumer>
-)
+);
 
 export default MediaControls;

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import SplitPane from 'react-split-pane';
 // import cssbeautify from 'cssbeautify';
@@ -53,12 +52,29 @@ const App = withStores(() => {
     <div className={styles.container}>
       {/* DEBUG */}
       <label
-        style={{ userSelect: 'none', position: 'fixed', zIndex: 999, top: 0, left: 0 }}
+        style={{
+          userSelect: 'none',
+          position: 'fixed',
+          zIndex: 999,
+          top: 0,
+          left: 0
+        }}
       >
-        Debug <input type="checkbox" onChange={() => toggleDebug(!debug)} checked={debug} />
+        Debug{' '}
+        <input
+          type="checkbox"
+          onChange={() => toggleDebug(!debug)}
+          checked={debug}
+        />
       </label>
       <button
-        style={{ userSelect: 'none', position: 'fixed', zIndex: 999, top: 20, left: 0 }}
+        style={{
+          userSelect: 'none',
+          position: 'fixed',
+          zIndex: 999,
+          top: 20,
+          left: 0
+        }}
         onClick={() => {
           localStorage.clear();
           window.location.reload();
@@ -66,7 +82,6 @@ const App = withStores(() => {
       >
         Reset Cache
       </button>
-
 
       {/* IMPORT DIALOGUE */}
       <ImportCSSModal />
@@ -117,7 +132,6 @@ const App = withStores(() => {
 
             {/* KEYFRAME ANIMATIONS */}
             <Animations className={styles.timeline} />
-
           </div>
 
           {/* STAGE REGION */}
@@ -134,11 +148,9 @@ const App = withStores(() => {
           {/* INSTANCE EDITING */}
           <Instances />
         </div>
-
       </SplitPane>
     </div>
   );
 });
 
 export default App;
-

@@ -19,12 +19,4 @@ export const withStores = Component => props => (
   </ImporterStore>
 );
 
-export {
-  AnimationStore,
-  ImporterStore,
-  MediaStore,
-  StageStore,
-  UIStore
-}
-
-
+export { AnimationStore, ImporterStore, MediaStore, StageStore, UIStore };

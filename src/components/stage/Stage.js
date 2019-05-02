@@ -47,7 +47,7 @@ const StageCanvas = () => (
       />
     )}
   </StageStore.Consumer>
-)
+);
 
 const Instances = ({ instances }) => (
   <div className={styles.instances}>
@@ -55,15 +55,13 @@ const Instances = ({ instances }) => (
       <AnimInstance key={instance.id} instance={instance} />
     ))}
   </div>
-)
+);
 
 export default ({ className, showControls }) => (
   <div className={classnames(styles.container, className)}>
     <StageCanvas />
     <AnimationStore.Consumer>
-      {({ getInstances }) => (
-        <Instances instances={getInstances()} />
-      )}
+      {({ getInstances }) => <Instances instances={getInstances()} />}
     </AnimationStore.Consumer>
     {showControls && <Controls />}
   </div>

@@ -1,8 +1,7 @@
-import { React, cx } from 'utils';
+import { React, cx, startDrag } from 'common';
 
 import { AnimationStore } from 'stores';
 import { Ticks } from 'components/shared';
-import { startDrag } from 'utils/mouse';
 
 import LocalPlayheadStore from './LocalPlayheadStore';
 import styles from './TweenTimeline.module.scss';
@@ -10,15 +9,14 @@ import styles from './TweenTimeline.module.scss';
 const Keyframe = ({ keyframe, isDragging, onClick, onMouseDown }) => (
   <div
     className={cx(styles.keyframe, {
-      [styles.dragging]: isDragging,
+      [styles.dragging]: isDragging
       //[styles.atPlayhead]: playhead === keyframe.time
     })}
     style={{ left: `${keyframe.time * 100}%` }}
     onClick={onClick}
     onMouseDown={onMouseDown}
   />
-)
-
+);
 
 const TweenBar = ({ keyframe0, keyframe1 }) => (
   <div
@@ -31,12 +29,15 @@ const TweenBar = ({ keyframe0, keyframe1 }) => (
 );
 
 const TweenTimeline = ({ className, height, tween }) => {
-
   const [dragKeyframeId, setDragKeyframeId] = React.useState(-1);
   const timelineRef = React.useRef();
 
   return (
-    <div ref={timelineRef} style={{ height }} className={cx(styles.container, className)}>
+    <div
+      ref={timelineRef}
+      style={{ height }}
+      className={cx(styles.container, className)}
+    >
       <Ticks.EvenSpaced
         count={100}
         ticks={[
@@ -48,8 +49,6 @@ const TweenTimeline = ({ className, height, tween }) => {
 
       <LocalPlayheadStore.Consumer>
         {({ setLocalPlayhead }) => (
-
-
           <AnimationStore.Consumer>
             {({ getKeyframes, setKeyframeTime }) => {
               const keyframes = getKeyframes(tween.id);
@@ -59,7 +58,9 @@ const TweenTimeline = ({ className, height, tween }) => {
               for (let i = 0; i < keyframes.length - 1; ++i) {
                 const kf0 = keyframes[i];
                 const kf1 = keyframes[i + 1];
-                bars.push(<TweenBar key={kf0.time} keyframe0={kf0} keyframe1={kf1} />);
+                bars.push(
+                  <TweenBar key={kf0.time} keyframe0={kf0} keyframe1={kf1} />
+                );
               }
 
               return (
@@ -80,12 +81,12 @@ const TweenTimeline = ({ className, height, tween }) => {
 
                         //const rect = timelineRef.current.getBoundingClientRect();
                         const width = timelineRef.current.clientWidth;
-                        console.log({ width })
+                        console.log({ width });
                         const savedPixel = keyframe.time * width;
                         startDrag(e, {
                           distance: 4,
                           onDragStart: () => {
-                            setDragKeyframeId(keyframe.id)
+                            setDragKeyframeId(keyframe.id);
                           },
                           onDrag: ({ deltaX }) => {
                             const time = (savedPixel + deltaX) / width;
@@ -94,7 +95,7 @@ const TweenTimeline = ({ className, height, tween }) => {
                           onDragEnd: () => {
                             setDragKeyframeId(-1);
                           }
-                        })
+                        });
                       }}
                     />
                   ))}
@@ -104,9 +105,8 @@ const TweenTimeline = ({ className, height, tween }) => {
           </AnimationStore.Consumer>
         )}
       </LocalPlayheadStore.Consumer>
-
     </div>
-  )
-}
+  );
+};
 
 export default TweenTimeline;

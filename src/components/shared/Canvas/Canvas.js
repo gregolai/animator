@@ -26,14 +26,14 @@ export default class Canvas extends React.Component {
         cvs,
         ctx,
         dt,
-        t: curTime - startTime,
+        t: curTime - startTime
       });
       ctx.restore();
 
       prevTime = curTime;
 
       this.raf = requestAnimationFrame(loop);
-    }
+    };
     this.raf = requestAnimationFrame(loop);
   }
 
@@ -41,7 +41,7 @@ export default class Canvas extends React.Component {
     this.observer = new ResizeObserver(els => {
       const { width, height } = els[0].contentRect;
       this.setState({ width, height });
-    })
+    });
     this.observer.observe(this.cvs);
 
     const { onFrame } = this.props;
@@ -61,7 +61,7 @@ export default class Canvas extends React.Component {
     const { onResize } = this.props;
     if (onResize) {
       const cvs = this.cvs;
-      const ctx = cvs.getContext('2d')
+      const ctx = cvs.getContext('2d');
       ctx.save();
       onResize({ cvs, ctx });
       ctx.restore();
@@ -70,7 +70,7 @@ export default class Canvas extends React.Component {
 
   captureRef = ref => {
     this.cvs = ref;
-  }
+  };
 
   onMouseDown = e => {
     const { clientX, clientY, button, metaKey, ctrlKey, shiftKey } = e;
@@ -88,9 +88,9 @@ export default class Canvas extends React.Component {
         metaKey,
         ctrlKey,
         shiftKey
-      })
+      });
     }
-  }
+  };
 
   onMouseMove = e => {
     const { clientX, clientY } = e;
@@ -101,10 +101,10 @@ export default class Canvas extends React.Component {
       onMouseMove({
         isButtonDown: this.isButtonDown,
         x: clientX - rect.left,
-        y: clientY - rect.top,
-      })
+        y: clientY - rect.top
+      });
     }
-  }
+  };
 
   onMouseUp = e => {
     const { clientX, clientY, button, metaKey, ctrlKey, shiftKey } = e;
@@ -122,9 +122,9 @@ export default class Canvas extends React.Component {
         metaKey,
         ctrlKey,
         shiftKey
-      })
+      });
     }
-  }
+  };
 
   render() {
     const { width, height } = this.state;
@@ -134,11 +134,10 @@ export default class Canvas extends React.Component {
         className={styles.container}
         height={height}
         width={width}
-
         onMouseDown={this.onMouseDown}
         onMouseMove={this.onMouseMove}
         onMouseUp={this.onMouseUp}
-      ></canvas>
-    )
+      />
+    );
   }
 }

@@ -14,10 +14,9 @@ const Timeline = ({ className }) => (
     <PlayheadCursor className={styles.playhead} />
 
     <div className={styles.scrollContainer}>
-
       <div className={styles.content}>
         <AnimationStore.Consumer>
-          {({ getAnimations, getInstances }) => (
+          {({ getAnimations, getInstances }) =>
             getAnimations().map(anim => (
               <div key={anim.id}>
                 <Animation
@@ -29,11 +28,11 @@ const Timeline = ({ className }) => (
                 })}
               </div>
             ))
-          )}
+          }
         </AnimationStore.Consumer>
       </div>
     </div>
   </div>
-)
+);
 
 export default Timeline;

@@ -8,12 +8,17 @@ const Button = React.forwardRef(
     <div
       ref={ref}
       role="button"
-      className={classnames(styles.container, {
-        [styles.toggled]: isToggled
-      }, className)}
+      className={classnames(
+        styles.container,
+        {
+          [styles.toggled]: isToggled
+        },
+        className
+      )}
       onClick={onClick}
     >
       {children}
     </div>
-  ));
+  )
+);
 export default Button;

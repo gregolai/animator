@@ -4,12 +4,10 @@ const DropdownOption = ({ option }) => (
   <option key={option.value} value={option.value}>
     {option.label}
   </option>
-)
+);
 
 const normalizeOption = opt =>
-  typeof opt === 'string' ?
-    { value: opt, label: opt } :
-    opt;
+  typeof opt === 'string' ? { value: opt, label: opt } : opt;
 
 export const Dropdown = ({ onChange, options, placeholder, value }) => (
   <select onChange={e => onChange(e.target.value)} value={value}>
@@ -21,7 +19,7 @@ export const Dropdown = ({ onChange, options, placeholder, value }) => (
       />
     ))}
   </select>
-)
+);
 
 export const Checkbox = ({ id, label: _label, onChange, value = false }) => (
   <div style={{ display: 'inline-flex', alignItems: 'center' }}>
@@ -33,4 +31,4 @@ export const Checkbox = ({ id, label: _label, onChange, value = false }) => (
     />
     <label htmlFor={id}>{_label}</label>
   </div>
-)
+);

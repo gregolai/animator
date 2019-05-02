@@ -10,7 +10,7 @@ class Transform {
 
   getTranslate() {
     // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Matrix_math_for_the_web#Translation_matrix
-    return { x: this.matrix[12], y: this.matrix[13], z: this.matrix[14] }
+    return { x: this.matrix[12], y: this.matrix[13], z: this.matrix[14] };
   }
 
   getScale() {
@@ -56,9 +56,7 @@ class Transform {
       angles.roll  = atan2(sinRoll, cosRoll) * 180 / PI;
     } 
     */
-    return { z: 0 }
-
-
+    return { z: 0 };
   }
 }
 
@@ -73,8 +71,7 @@ const a = [
   },
   {
     name: 'filter',
-    composed: [
-    ]
+    composed: []
   },
   {
     name: 'transform',
@@ -99,7 +96,7 @@ const a = [
       }
     ]
   }
-]
+];
 
 /*
 https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_animated_properties

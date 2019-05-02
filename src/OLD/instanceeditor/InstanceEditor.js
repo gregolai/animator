@@ -2,7 +2,10 @@ import React from 'react';
 import chunk from 'lodash/chunk';
 import { AnimationStore, MediaStore, UIStore } from 'stores';
 import { INTERVAL_MS } from 'utils/constants';
-import { getAnimatedDefinitions, getInstanceDefinitions } from 'utils/definitions';
+import {
+  getAnimatedDefinitions,
+  getInstanceDefinitions
+} from 'utils/definitions';
 import { IconButton, Ticks, ValueButton, ValueEditor } from 'components/shared';
 import CreateInstance from './CreateInstance';
 import InstanceHead from './InstanceHead';
@@ -17,7 +20,9 @@ const EditButton = ({ definition, isToggled, onClick, instance }) => (
         accessory={
           <IconButton
             icon="close"
-            onClick={() => setInstanceDefinitionValue(instance.id, definition.id, undefined)}
+            onClick={() =>
+              setInstanceDefinitionValue(instance.id, definition.id, undefined)
+            }
           />
         }
         className={styles.definition}
@@ -29,13 +34,15 @@ const EditButton = ({ definition, isToggled, onClick, instance }) => (
       />
     )}
   </AnimationStore.Consumer>
-)
+);
 
 const Definitions = ({ instance, definitions }) => {
   const [expandedDefinitionId, setExpandedDefinition] = React.useState('');
 
   const toggleExpanded = definitionId =>
-    setExpandedDefinition(expandedDefinitionId === definitionId ? -1 : definitionId);
+    setExpandedDefinition(
+      expandedDefinitionId === definitionId ? -1 : definitionId
+    );
 
   const rows = chunk(definitions, 2);
 
@@ -60,27 +67,32 @@ const Definitions = ({ instance, definitions }) => {
             )}
           </div>
 
-          {
-            (expandedDefinitionId === definition1.id ||
-              (definition2 && expandedDefinitionId === definition2.id))
-            && (
-              <AnimationStore.Consumer>
-                {({ getInstanceDefinitionValue, setInstanceDefinitionValue }) => (
-                  <ValueEditor
-                    definitionId={expandedDefinitionId}
-                    value={getInstanceDefinitionValue(instance.id, expandedDefinitionId)}
-                    onChange={value =>
-                      setInstanceDefinitionValue(instance.id, expandedDefinitionId, value)
-                    }
-                  />
-                )}
-              </AnimationStore.Consumer>
-            )}
+          {(expandedDefinitionId === definition1.id ||
+            (definition2 && expandedDefinitionId === definition2.id)) && (
+            <AnimationStore.Consumer>
+              {({ getInstanceDefinitionValue, setInstanceDefinitionValue }) => (
+                <ValueEditor
+                  definitionId={expandedDefinitionId}
+                  value={getInstanceDefinitionValue(
+                    instance.id,
+                    expandedDefinitionId
+                  )}
+                  onChange={value =>
+                    setInstanceDefinitionValue(
+                      instance.id,
+                      expandedDefinitionId,
+                      value
+                    )
+                  }
+                />
+              )}
+            </AnimationStore.Consumer>
+          )}
         </React.Fragment>
       ))}
     </div>
   );
-}
+};
 
 const Timeline = ({ duration = 100, delay = 0 }) => {
   const SPACING = 5;
@@ -99,7 +111,7 @@ const Timeline = ({ duration = 100, delay = 0 }) => {
                   ctx.font = '12px "Helvetica Neue", sans-serif';
                   const text = `${index / 100}`;
                   const measured = ctx.measureText(text);
-                  ctx.fillText(text, x - (measured.width / 2), y - 4);
+                  ctx.fillText(text, x - measured.width / 2, y - 4);
                 }
               },
               { mod: 10, height: 10 },
@@ -113,14 +125,14 @@ const Timeline = ({ duration = 100, delay = 0 }) => {
               top: 0,
               width: 1,
               height: '100%',
-              left: playhead / INTERVAL_MS * SPACING
+              left: (playhead / INTERVAL_MS) * SPACING
             }}
           />
         </>
       )}
     </MediaStore.Consumer>
-  )
-}
+  );
+};
 
 const Instance = ({ instance }) => {
   return (
@@ -142,8 +154,14 @@ const Instance = ({ instance }) => {
                 <AnimationStore.Consumer>
                   {({ getInstanceDefinitionValue }) => (
                     <Timeline
-                      delay={getInstanceDefinitionValue(instance.id, 'animation-delay')}
-                      duration={getInstanceDefinitionValue(instance.id, 'animation-duration')}
+                      delay={getInstanceDefinitionValue(
+                        instance.id,
+                        'animation-delay'
+                      )}
+                      duration={getInstanceDefinitionValue(
+                        instance.id,
+                        'animation-duration'
+                      )}
                     />
                   )}
                 </AnimationStore.Consumer>
@@ -154,13 +172,12 @@ const Instance = ({ instance }) => {
       )}
     </UIStore.Consumer>
   );
-}
+};
 
 class InstanceEditor extends React.Component {
-
   state = {
     expandedDefinitionId: ''
-  }
+  };
 
   render() {
     return (
@@ -170,10 +187,7 @@ class InstanceEditor extends React.Component {
           {({ getInstances }) => (
             <div>
               {getInstances().map(instance => (
-                <Instance
-                  key={instance.id}
-                  instance={instance}
-                />
+                <Instance key={instance.id} instance={instance} />
               ))}
             </div>
           )}
@@ -181,5 +195,5 @@ class InstanceEditor extends React.Component {
       </div>
     );
   }
-};
+}
 export default InstanceEditor;

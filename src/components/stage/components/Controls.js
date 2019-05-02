@@ -7,11 +7,16 @@ import styles from './Controls.scss';
 
 export default () => (
   <StageStore.Consumer>
-    {({ showGrid, setShowGrid, gridSnap, setGridSnap, gridSize, setGridSize }) => (
+    {({
+      showGrid,
+      setShowGrid,
+      gridSnap,
+      setGridSnap,
+      gridSize,
+      setGridSize
+    }) => (
       <div className={styles.container}>
-        <div className={styles.leftControls}>
-          {/* NOTHING HERE? */}
-        </div>
+        <div className={styles.leftControls}>{/* NOTHING HERE? */}</div>
 
         <div className={styles.rightControls}>
           <BooleanField
@@ -41,4 +46,4 @@ export default () => (
       </div>
     )}
   </StageStore.Consumer>
-)
+);

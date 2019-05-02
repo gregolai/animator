@@ -1,4 +1,4 @@
-import { React, noop } from 'utils';
+import { React, noop } from 'common';
 
 const isLessThanDistance = (deltaX, deltaY, distance) => {
   return deltaX * deltaX + deltaY * deltaY < distance * distance;
@@ -6,7 +6,13 @@ const isLessThanDistance = (deltaX, deltaY, distance) => {
 
 export const startDrag = (
   mouseDownEvent,
-  { distance = 1, measureLocalOffset = false, onDragStart = noop, onDrag = noop, onDragEnd = noop }
+  {
+    distance = 1,
+    measureLocalOffset = false,
+    onDragStart = noop,
+    onDrag = noop,
+    onDragEnd = noop
+  }
 ) => {
   if (mouseDownEvent.persist) {
     mouseDownEvent.persist();
@@ -21,7 +27,14 @@ export const startDrag = (
 
   let isDragging = false;
 
-  const _createArgs = ({ clientX, clientY, ctrlKey, shiftKey, metaKey, target }) => {
+  const _createArgs = ({
+    clientX,
+    clientY,
+    ctrlKey,
+    shiftKey,
+    metaKey,
+    target
+  }) => {
     const obj = {
       button,
       ctrlKey,
@@ -32,7 +45,7 @@ export const startDrag = (
       clientY,
       deltaX: clientX - startX,
       deltaY: clientY - startY
-    }
+    };
 
     if (measureLocalOffset) {
       const rect = originalTarget.getBoundingClientRect();
@@ -43,10 +56,19 @@ export const startDrag = (
     return obj;
   };
 
-  const _tryDragStart = (e) => {
+  const _tryDragStart = e => {
     if (!isDragging) {
       const { clientX, clientY } = e;
-      console.log({ clientX, clientY, distance, 'isLessThanDistance': isLessThanDistance(clientX - startX, clientY - startY, distance) })
+      console.log({
+        clientX,
+        clientY,
+        distance,
+        isLessThanDistance: isLessThanDistance(
+          clientX - startX,
+          clientY - startY,
+          distance
+        )
+      });
       if (
         distance <= 0 ||
         !isLessThanDistance(clientX - startX, clientY - startY, distance)

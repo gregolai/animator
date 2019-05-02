@@ -7,7 +7,6 @@ import { AddDropdown, IconButton, ExpandingTitle } from 'components/shared';
 import styles from './AnimationHead.module.scss';
 
 const AnimationHead = ({ anim }) => {
-
   return (
     <AnimationStore.Consumer>
       {({ createTween, deleteAnimation, getUnusedPropDefinitions }) => (
@@ -16,7 +15,7 @@ const AnimationHead = ({ anim }) => {
             className={styles.title}
             isExpanded={false}
             label={anim.name}
-            onClick={() => { }}
+            onClick={() => {}}
             accessory={
               <IconButton
                 icon="close"
@@ -30,17 +29,15 @@ const AnimationHead = ({ anim }) => {
             onSelect={definitionId => {
               createTween(anim.id, definitionId);
             }}
-            options={
-              getUnusedPropDefinitions(anim.id).map(definition => ({
-                label: definition.id,
-                value: definition.id,
-              }))
-            }
+            options={getUnusedPropDefinitions(anim.id).map(definition => ({
+              label: definition.id,
+              value: definition.id
+            }))}
           />
         </div>
       )}
     </AnimationStore.Consumer>
   );
-}
+};
 
 export default AnimationHead;

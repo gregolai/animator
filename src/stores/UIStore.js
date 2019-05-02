@@ -24,22 +24,22 @@ export default class UIStore extends React.Component {
 
     this.setState({ selectedInstanceId });
     persist.selectedInstanceId.write(selectedInstanceId);
-  }
+  };
 
   isTweenExpanded = tweenId => {
     return this.state.expandedTweenId === tweenId;
-  }
+  };
 
   setTweenExpanded = (tweenId, expand) => {
     const expandedTweenId = expand ? tweenId : -1;
 
     this.setState({ expandedTweenId });
     persist.expandedTweenId.write(expandedTweenId);
-  }
+  };
 
   isTweenHidden = tweenId => {
     return !!this.state.hiddenTweens[tweenId];
-  }
+  };
 
   setTweenHidden = (tweenId, hide) => {
     const hiddenTweens = { ...this.state.hiddenTweens };
@@ -52,11 +52,11 @@ export default class UIStore extends React.Component {
 
     this.setState({ hiddenTweens });
     persist.hiddenTweens.write(hiddenTweens);
-  }
+  };
 
   isTweenLocked = tweenId => {
     return !!this.state.lockedTweens[tweenId];
-  }
+  };
 
   setTweenLocked = (tweenId, lock) => {
     const lockedTweens = { ...this.state.lockedTweens };
@@ -69,7 +69,7 @@ export default class UIStore extends React.Component {
 
     this.setState({ lockedTweens });
     persist.lockedTweens.write(lockedTweens);
-  }
+  };
 
   render() {
     return (
@@ -90,6 +90,6 @@ export default class UIStore extends React.Component {
       >
         {this.props.children}
       </Context.Provider>
-    )
+    );
   }
 }

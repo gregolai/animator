@@ -8,16 +8,13 @@ const PlayheadCursor = ({ className }) => (
   <MediaStore.Consumer>
     {({ playhead }) => (
       <div className={classnames(styles.container, className)}>
-        <div
-          className={styles.playhead}
-          style={{ left: `${playhead * 100}%` }}
-        >
+        <div className={styles.playhead} style={{ left: `${playhead * 100}%` }}>
           <div className={styles.diamond} style={{ top: '0px' }} />
           <div className={styles.diamond} style={{ top: '100%' }} />
         </div>
       </div>
     )}
   </MediaStore.Consumer>
-)
+);
 
 export default PlayheadCursor;

@@ -5,7 +5,7 @@ const persist = createPersist('StageStore', {
   gridSize: 22,
   showGrid: true,
   gridSnap: false
-})
+});
 
 const Context = React.createContext();
 export default class StageStore extends React.Component {
@@ -18,26 +18,22 @@ export default class StageStore extends React.Component {
   };
 
   setGridSize = gridSize => {
-    this.setState({ gridSize })
+    this.setState({ gridSize });
     persist.gridSize.write(gridSize);
   };
 
   setShowGrid = showGrid => {
-    this.setState({ showGrid })
+    this.setState({ showGrid });
     persist.showGrid.write(showGrid);
-  }
+  };
 
   setGridSnap = gridSnap => {
     this.setState({ gridSnap });
     persist.gridSnap.write(gridSnap);
-  }
+  };
 
   render() {
-    const {
-      gridSize,
-      showGrid,
-      gridSnap
-    } = this.state;
+    const { gridSize, showGrid, gridSnap } = this.state;
 
     return (
       <Context.Provider
@@ -54,6 +50,6 @@ export default class StageStore extends React.Component {
       >
         {this.props.children}
       </Context.Provider>
-    )
+    );
   }
 }

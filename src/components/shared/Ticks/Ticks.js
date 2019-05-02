@@ -12,11 +12,11 @@ const drawTick = (ctx, ticks, index, x) => {
   if (drawExtra) {
     drawExtra({ ctx, index, x, y });
   }
-}
+};
 
 const getTick = (ticks, index) => {
   return ticks.find(tick => tick.mod === 1 || index % tick.mod === 0);
-}
+};
 
 class PixelSpaced extends React.Component {
   static defaultProps = {
@@ -26,14 +26,14 @@ class PixelSpaced extends React.Component {
       { mod: 5, height: 8, color: '#a1a1a1' },
       { mod: 1, height: 4, color: '#a1a1a1' }
     ]
-  }
+  };
 
-  renderTicks = (ctx) => {
+  renderTicks = ctx => {
     const { ticks, spacing } = this.props;
     for (let i = 1, x = spacing; x < ctx.canvas.width; ++i, x += spacing) {
       drawTick(ctx, ticks, i, x);
     }
-  }
+  };
 
   onResize = ({ cvs, ctx }) => {
     ctx.clearRect(0, 0, cvs.width, cvs.height);
@@ -54,9 +54,9 @@ class EvenSpaced extends React.Component {
       { mod: 5, height: 8, color: '#a1a1a1' },
       { mod: 1, height: 4, color: '#a1a1a1' }
     ]
-  }
+  };
 
-  renderTicks = (ctx) => {
+  renderTicks = ctx => {
     const { width } = ctx.canvas;
     const { count, ticks } = this.props;
 
@@ -64,7 +64,7 @@ class EvenSpaced extends React.Component {
       const x = Math.floor((i / count) * width);
       drawTick(ctx, ticks, i, x);
     }
-  }
+  };
 
   onResize = ({ cvs, ctx }) => {
     ctx.clearRect(0, 0, cvs.width, cvs.height);
@@ -80,4 +80,4 @@ class EvenSpaced extends React.Component {
 export default {
   PixelSpaced,
   EvenSpaced
-}
+};
