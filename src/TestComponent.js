@@ -83,7 +83,7 @@ const Anim = ({ anim }) => <div>Anim #{anim.id}</div>;
 
 const Tween = ({ tween }) => (
   <div>
-    Tween #{tween.id} - anim #{tween.animId}
+    Tween #{tween.id} - anim #{tween.animationId}
   </div>
 );
 
@@ -96,8 +96,8 @@ export default class TestComponent extends React.Component {
     tweens: persist.animations.read()
   };
 
-  deleteAnimation = animId => {
-    const anim = this.getAnimation(animId);
+  deleteAnimation = animationId => {
+    const anim = this.getAnimation(animationId);
     if (anim) {
       new DeleteCommand(
         () => {
@@ -107,11 +107,11 @@ export default class TestComponent extends React.Component {
           );
           const { list: tweens, items: deletedTweens } = db.deleteMany(
             this.state.tweens,
-            t => t.animId === anim.id
+            t => t.animationId === anim.id
           );
           const { list: keyframes, items: deletedKeyframes } = db.deleteMany(
             this.state.keyframes,
-            kf => kf.animId === anim.id
+            kf => kf.animationId === anim.id
           );
 
           this.setState({ animations, tweens, keyframes });
@@ -168,7 +168,7 @@ export default class TestComponent extends React.Component {
           this.undoRedo.execute(
             () => {
               const { list: tweens, item: createdTween } = db.createOne(this.state.tweens, {
-                animId: anim.id
+                animationId: anim.id
               });
 
               this.setState({ tweens });
@@ -196,11 +196,11 @@ export default class TestComponent extends React.Component {
               );
               const { list: tweens, items: deletedTweens } = db.deleteMany(
                 this.state.tweens,
-                t => t.animId === anim.id
+                t => t.animationId === anim.id
               );
               const { list: keyframes, items: deletedKeyframes } = db.deleteMany(
                 this.state.keyframes,
-                kf => kf.animId === anim.id
+                kf => kf.animationId === anim.id
               );
 
               this.setState({ animations, tweens, keyframes });
@@ -251,10 +251,10 @@ export default class TestComponent extends React.Component {
 
 // 	constructor() {}
 
-// 	deleteAnimation = animId => {
+// 	deleteAnimation = animationId => {
 // 		const { list: animations, item, index } = db.deleteOne(
 // 			this.state.animations,
-// 			animId
+// 			animationId
 // 		);
 
 // 		if (item) {

@@ -1,11 +1,17 @@
-import React from 'react';
+import { React, normalizeRatio, roundToInterval, INTERVAL_MS } from 'common';
 import { createPersist } from 'utils/persist';
 
 const persist = createPersist('UIStore', {
   expandedTweenId: -1,
   hiddenTweens: {},
   lockedTweens: {},
-  selectedInstanceId: -1
+  selectedInstanceId: -1,
+
+  // MEDIA
+  isLooping: true,
+  isReversed: false,
+  playhead: 0,
+  tickSpacing: 4
 });
 
 const Context = React.createContext();
@@ -16,7 +22,161 @@ export default class UIStore extends React.Component {
     expandedTweenId: persist.expandedTweenId.read(),
     hiddenTweens: persist.hiddenTweens.read(),
     lockedTweens: persist.lockedTweens.read(),
-    selectedInstanceId: persist.selectedInstanceId.read()
+    selectedInstanceId: persist.selectedInstanceId.read(),
+
+    // MEDIA
+    isLooping: persist.isLooping.read(),
+    isPlaying: false,
+    isReversed: persist.isReversed.read(),
+    localPlayhead: { animationId: -1, time: 0 },
+    playhead: persist.playhead.read(),
+    tickSpacing: persist.tickSpacing.read()
+  };
+
+  constructor(props) {
+    super(props);
+
+    this._controls = (() => {
+      let raf = null;
+      let prevTime;
+
+      const loop = () => {
+        const curTime = Date.now();
+
+        const timeStep = curTime - prevTime;
+
+        let stop = false;
+        let nextPlayhead = this.state.playhead + (this.state.isReversed ? -timeStep : timeStep);
+
+        const DURATION = 99999;
+        if (nextPlayhead >= DURATION) {
+          if (this.state.isLooping) {
+            nextPlayhead -= DURATION; // loop
+          } else {
+            nextPlayhead = DURATION; // clamp
+            stop = true;
+          }
+        } else if (nextPlayhead < 0) {
+          if (this.state.isLooping) {
+            nextPlayhead += DURATION; // loop
+          } else {
+            nextPlayhead = 0;
+            stop = true;
+          }
+        }
+
+        this.setState({ playhead: nextPlayhead, isPlaying: !stop });
+
+        if (!stop) {
+          // continue playing
+          prevTime = curTime;
+          raf = requestAnimationFrame(loop);
+        }
+      };
+
+      return {
+        play: () => {
+          if (this.state.isPlaying) return;
+
+          let { playhead } = this.state;
+
+          // reset if necessary
+          if (!this.state.isReversed && playhead === 1) {
+            playhead = 0;
+          } else if (this.state.isReversed && playhead === 0) {
+            playhead = 1;
+          }
+
+          this.setState({ isPlaying: true, playhead }, () => {
+            prevTime = Date.now();
+            raf = requestAnimationFrame(loop);
+          });
+        },
+        pause: () => {
+          cancelAnimationFrame(raf);
+          this.setState({ isPlaying: false });
+        },
+        stop: () => {
+          cancelAnimationFrame(raf);
+          this.setState({ isPlaying: false, playhead: 0 });
+        }
+      };
+    })();
+  }
+
+  componentDidMount() {
+    document.addEventListener('keydown', this.onKeyDown);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.onKeyDown);
+  }
+
+  onKeyDown = e => {
+    const excludeTags = ['INPUT', 'TEXTAREA', 'SELECT'];
+    if (e.target && excludeTags.indexOf(e.target.tagName) !== -1) {
+      return;
+    }
+
+    switch (e.code) {
+      case 'Enter':
+      case 'Space':
+        e.preventDefault();
+        this.state.isPlaying ? this.setPaused() : this.setPlaying();
+        break;
+      case 'Backspace':
+        e.preventDefault();
+        this.setStopped();
+        break;
+      case 'ArrowRight':
+        e.preventDefault();
+        this.setPlayhead(e.metaKey ? 1 : this.state.playhead + INTERVAL_MS);
+        break;
+      case 'ArrowLeft':
+        e.preventDefault();
+        this.setPlayhead(e.metaKey ? 0 : this.state.playhead - INTERVAL_MS);
+        break;
+      case 'End':
+        e.preventDefault();
+        // this.setPlayhead(this.state.duration);
+        break;
+      case 'Home':
+        e.preventDefault();
+        this.setPlayhead(0);
+        break;
+      case 'KeyR':
+        if (!e.metaKey) {
+          e.preventDefault();
+          this.setReversed(!this.state.isReversed);
+        }
+        break;
+      case 'KeyL':
+        e.preventDefault();
+        this.setLooping(!this.state.isLooping);
+        break;
+      case 'Backquote':
+      case 'Digit1':
+      case 'Digit2':
+      case 'Digit3':
+      case 'Digit4':
+      case 'Digit5':
+      case 'Digit6':
+      case 'Digit7':
+      case 'Digit8':
+      case 'Digit9':
+      case 'Digit0':
+        e.preventDefault();
+
+        // const time =
+        //   e.code === 'Digit0'
+        //     ? this.state.duration
+        //     : e.code === 'Backquote'
+        //       ? 0
+        //       : (parseInt(e.code.replace('Digit', '')) / INTERVAL_MS) * this.state.duration;
+        // this.setPlayhead(time);
+        break;
+      default:
+    }
   };
 
   setSelectedInstance = instanceId => {
@@ -71,7 +231,105 @@ export default class UIStore extends React.Component {
     persist.lockedTweens.write(lockedTweens);
   };
 
+  setLooping = isLooping => {
+    this.setState({ isLooping });
+    persist.isLooping.write(isLooping);
+  };
+
+  setReversed = isReversed => {
+    this.setState({ isReversed });
+    persist.isReversed.write(isReversed);
+  };
+
+  setPlaying = () => {
+    this._controls.play();
+  };
+
+  setPaused = () => {
+    this._controls.pause();
+  };
+
+  setStopped = () => {
+    this._controls.stop();
+  };
+
+  setPlayhead = time => {
+    const playhead = Math.max(time, 0);
+
+    this.setState({ playhead });
+    persist.playhead.write(playhead);
+  };
+
+  setTickSpacing = tickSpacing => {
+    tickSpacing = Math.max(1, tickSpacing);
+
+    this.setState({ tickSpacing });
+    persist.tickSpacing.write(tickSpacing);
+  };
+
+  setLocalPlayhead = (animationId, time) => {
+    time = normalizeRatio(time);
+
+    this.setState({
+      localPlayhead: { animationId, time }
+    });
+  };
+
+  getLocalPlayhead = (animationId) => {
+    const { localPlayhead } = this.state;
+    return localPlayhead.animationId === animationId ? localPlayhead.time : undefined;
+  }
+
+  // localPlayheadIsActive = () => {
+  //   const { isPlaying, localPlayhead, selectedInstanceId } = this.state;
+
+  //   return selectedInstanceId === -1 && // no instance selected
+  //     !isPlaying &&                     // is not playing
+  //     localPlayhead.animationId !== -1; // is on an animation
+  // }
+
+  // setPlayheadAtRatio = (ratio, animationId) => {
+
+  //   if (this.localPlayheadIsActive()) {
+  //     this.setLocalPlayhead(animationId, ratio);
+  //   } else {
+
+
+  //   }
+
+
+  //   if (selectedInstanceId === -1) {
+  //     setLocalPlayhead(animation.id, localX / width);
+
+  //   } else if (selectedInstanceId !== -1) {
+  //     const instance = getInstance(selectedInstanceId);
+  //     const delay = getInstanceDefinitionValue(instance.id, 'animation-delay');
+  //     const duration = getInstanceDefinitionValue(instance.id, 'animation-duration');
+
+  //     const ratio = normalizeRatio(localX / width);
+  //     setPlayhead(delay + ratio * duration);
+  //   }
+
+  // }
+
+  hasLocalPlayhead = () => {
+    return this.state.localPlayhead.animationId !== -1;
+  }
+
+  playheadToRatio = (animationId, delay, duration) => {
+    let ratio = this.getLocalPlayhead(animationId);
+    if (ratio === undefined) {
+      ratio = (this.state.playhead - delay) / duration;
+    }
+    return ratio;
+  }
+
   render() {
+    const { isLooping, isPlaying, isReversed, playhead, tickSpacing } = this.state;
+
+    const normalizedPlayhead = Math.max(0, roundToInterval(playhead, INTERVAL_MS));
+
+
     return (
       <Context.Provider
         value={{
@@ -85,7 +343,29 @@ export default class UIStore extends React.Component {
           setTweenHidden: this.setTweenHidden,
 
           isTweenLocked: this.isTweenLocked,
-          setTweenLocked: this.setTweenLocked
+          setTweenLocked: this.setTweenLocked,
+
+
+          isLooping,
+          isPlaying,
+          isReversed,
+          playhead: normalizedPlayhead, // display
+          tickSpacing,
+
+          setLooping: this.setLooping,
+          setReversed: this.setReversed,
+          setPlaying: this.setPlaying,
+          setPaused: this.setPaused,
+          setStopped: this.setStopped,
+          setPlayhead: this.setPlayhead,
+          setTickSpacing: this.setTickSpacing,
+
+
+          setLocalPlayhead: this.setLocalPlayhead,
+          getLocalPlayhead: this.getLocalPlayhead,
+          hasLocalPlayhead: this.hasLocalPlayhead,
+          playheadToRatio: this.playheadToRatio
+
         }}
       >
         {this.props.children}

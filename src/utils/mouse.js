@@ -41,12 +41,6 @@ export const startDrag = (
   const _tryDragStart = e => {
     if (!isDragging) {
       const { clientX, clientY } = e;
-      console.log({
-        clientX,
-        clientY,
-        distance,
-        isLessThanDistance: isLessThanDistance(clientX - startX, clientY - startY, distance)
-      });
       if (distance <= 0 || !isLessThanDistance(clientX - startX, clientY - startY, distance)) {
         onDragStart(_createArgs(mouseDownEvent));
         isDragging = true;

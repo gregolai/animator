@@ -1,10 +1,12 @@
 import React from 'react';
 import cx from 'classnames';
 import noop from 'lodash/noop';
+import chunk from 'lodash/chunk';
 import clamp from 'lodash/clamp';
-import * as constants from './utils/constants';
 
 export { startDrag } from './utils/mouse';
+
+export const INTERVAL_MS = 10;
 
 // for grid snap
 export const roundToInterval = (value, interval) => {
@@ -17,4 +19,4 @@ export const normalizeRatio = time => {
   return time;
 };
 
-export { React, cx, noop, clamp, constants };
+export { React, cx, noop, clamp, chunk };

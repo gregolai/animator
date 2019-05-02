@@ -1,14 +1,13 @@
 import { React, cx, startDrag } from 'common';
 
-import { MediaStore } from 'stores';
-// import { Canvas } from 'components/shared';
+import { UIStore } from 'stores';
 
 import { pixelsToTime, timeToPixels } from './utils';
 import styles from './PlayheadCursor.module.scss';
 
 const PlayheadCursor = ({ className }) => {
   return (
-    <MediaStore.Consumer>
+    <UIStore.Consumer>
       {({ tickSpacing, playhead, setPlayhead }) => (
         <div
           className={cx(styles.container, className)}
@@ -25,7 +24,7 @@ const PlayheadCursor = ({ className }) => {
           <div className={styles.cursor} style={{ left: timeToPixels(playhead, tickSpacing) }} />
         </div>
       )}
-    </MediaStore.Consumer>
+    </UIStore.Consumer>
   );
 };
 

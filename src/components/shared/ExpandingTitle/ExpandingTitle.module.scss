@@ -18,13 +18,16 @@
     bottom: 0;
   }
 
+  .btnEdit {
+    margin-left: $grid-px;
+  }
+
   .color {
     margin-right: $grid-px;
   }
 
   .clickable {
     cursor: pointer;
-    flex: 1;
   }
 
   .title,

@@ -2,7 +2,15 @@
 
 :local {
   .container {
-    padding-top: $grid-px * 3;
+    border-radius: $border-radius-px 0 0 $border-radius-px;
+    margin-left: 6px;
+    margin-top: $grid-px;
+    margin-bottom: $grid-px;
+
+    &.focused {
+      background-color: $color-bg-0;
+      box-shadow: inset 6px 0 0 0 black;
+    }
   }
 
   .head {
@@ -12,6 +20,8 @@
       display: flex;
       justify-content: space-between;
       width: $animations-left-width;
+      padding-left: $grid-px;
+      padding-right: 6px;
     }
 
     .right {

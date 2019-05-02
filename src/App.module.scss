@@ -8,8 +8,6 @@
   }
 
   .topLeft {
-    background-color: $color-bg-0;
-    width: $grid-px * 22;
     display: flex;
     flex-direction: column;
 
@@ -25,8 +23,6 @@
   .topRight {
     display: flex;
     flex-direction: column;
-    padding-left: $grid-px;
-    padding-right: $grid-px;
 
     .stage {
       flex: 1;

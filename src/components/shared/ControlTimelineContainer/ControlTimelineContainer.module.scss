@@ -1,0 +1,28 @@
+@import "../../../constants.scss";
+
+:local {
+  $border-left-width: 6px;
+
+  .container {
+    display: flex;
+    padding-top: $grid-px;
+    padding-bottom: $grid-px;
+    border-radius: $border-radius-px;
+
+    transition: all 200ms linear;
+
+    &.selected {
+      box-shadow: inset $border-left-width 0 0 0 black;
+      background-color: $color-bg-0;
+    }
+  }
+
+  .controls {
+    position: relative;
+  }
+
+  .timeline {
+    position: relative;
+    flex: 1;
+  }
+}

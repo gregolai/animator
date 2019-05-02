@@ -1,30 +1,37 @@
-@import "../../constants.scss";
+@import "../../../constants.scss";
 
 :local {
   .container {
     position: relative;
-    width: $timeline-left-width;
+    padding-left: $grid-px;
+    padding-right: $grid-px - 6px;
   }
 
   .head {
     display: flex;
     justify-content: space-between;
-    padding-right: $grid-px;
   }
 
-  .body {}
+  .body {
+    padding-top: 6px;
+  }
 
   .row {
+    position: relative;
     display: flex;
-    justify-content: space-evenly;
-
-    .button {
-      //flex: 1;
-    }
   }
 
   .title {
     flex: 1;
+  }
+
+  .btnShowBaseProps {
+    margin-left: 6px;
+    visibility: visible;
+
+    &.hidden {
+      visibility: hidden;
+    }
   }
 
   .editor {

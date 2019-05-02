@@ -5,6 +5,8 @@
     position: relative;
     display: flex;
     width: $animations-left-width;
+    padding-left: $grid-px;
+    padding-right: 6px;
 
     .btnValue {
       flex: 1;

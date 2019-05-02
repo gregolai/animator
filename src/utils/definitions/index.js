@@ -3,11 +3,12 @@ import color from 'color';
 import palettes from 'nice-color-palettes';
 import camelCase from 'lodash/camelCase';
 import { getEasingArray, getEasingOptions } from 'utils/easing';
-import { DropdownSelect, ColorField, RangeField } from 'components/core';
+import { DropdownSelect, ColorField, RangeField, UrlParseField } from 'components/core';
 import { ColorSquare, DropdownCustom } from 'components/shared';
 
 const constants = {
   animationDirections: ['normal', 'reverse', 'alternate', 'alternate-reverse'],
+  backgroundRepeat: ['repeat', 'repeat-x', 'repeat-y', 'space', 'round', 'no-repeat'],
   palette: [...palettes[0], ...palettes[1], ...palettes[2]],
   positions: ['static', 'relative', 'absolute', 'sticky', 'fixed']
 };
@@ -134,11 +135,75 @@ export const definitionMap = {
       <ColorField
         colorType="hex"
         providerType="passthrough"
-        onChange={v => console.log(v) || props.onChange(v.color)}
+        onChange={v => props.onChange(v.color)}
         value={{
           color: props.value,
           palette: constants.palette
         }}
+      />
+    )
+  },
+  'background-image': {
+    format: v => `url("${v}")`,
+    preview: v => 'custom',
+    parse: v => v,
+    render: ({ onChange, value }) => (
+      <UrlParseField
+        onChange={v => onChange(v.url)}
+        value={value}
+      />
+    )
+  },
+  'background-repeat': {
+    format: v => v,
+    preview: v => v,
+    parse: v => v,
+    render: ({ onChange, value }) => (
+      <DropdownCustom
+        customOption={{
+          label: 'X, Y',
+          value
+        }}
+        renderCustom={({ onChange, value }) => {
+          const options = constants.backgroundRepeat
+            .filter(p => p !== 'repeat-x' && p !== 'repeat-y')
+            .map(p => ({
+              label: p,
+              value: p
+            }));
+          const [xValue = 'repeat', yValue = 'repeat'] = value.split(' ');
+          return (
+            <div style={{ display: 'flex' }}>
+              <div style={{ flex: 1 }}>
+                <DropdownSelect
+                  isFloating={false}
+                  placeholder="x"
+                  onChange={v => onChange(`${v} ${yValue}`)}
+                  options={options}
+                  value={xValue}
+                />
+              </div>
+              <div style={{ flex: 1 }}>
+                <DropdownSelect
+                  isFloating={false}
+                  placeholder="y"
+                  onChange={v => onChange(`${xValue} ${v}`)}
+                  options={options}
+                  value={yValue}
+                />
+              </div>
+            </div>
+          );
+        }}
+        placeholder="Background Repeat"
+        onChange={onChange}
+        options={
+          constants.backgroundRepeat.map(p => ({
+            label: p,
+            value: p
+          }))
+        }
+        value={value}
       />
     )
   },
@@ -254,6 +319,11 @@ const definitionArray = Object.keys(definitionMap)
   .sort((a, b) => (a.name < b.name ? -1 : 1));
 
 export const getDefinition = definitionId => definitionMap[definitionId];
+export const getDefinitions = (filterFn) => {
+  return filterFn ?
+    definitionArray.filter(filterFn) :
+    definitionArray;
+}
 
 export const getAnimatedDefinitions = () => {
   return definitionArray.filter(definition => definition.lerp !== undefined);

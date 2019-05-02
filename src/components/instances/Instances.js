@@ -1,10 +1,10 @@
 import { React, cx } from 'common';
 
-import { AnimationStore, MediaStore, UIStore } from 'stores';
+import { AnimationStore, UIStore } from 'stores';
 import { StepperField } from 'components/core';
 import { AddDropdown } from 'components/shared';
 
-import InstanceControls from './InstanceControls';
+import Controls from './Controls';
 import InstanceTimeline from './InstanceTimeline';
 import PlayheadCursor from './PlayheadCursor';
 import PlayheadTimeline from './PlayheadTimeline';
@@ -13,10 +13,22 @@ import styles from './Instances.module.scss';
 
 const Instance = ({ instance }) => {
   return (
-    <div className={styles.instance}>
-      <InstanceControls instance={instance} />
-      <InstanceTimeline className={styles.timeline} instance={instance} />
-    </div>
+    <UIStore.Consumer>
+      {({ selectedInstanceId }) => {
+
+        const isSelected = selectedInstanceId === instance.id;
+        return (
+          <div
+            className={cx(styles.instance, {
+              [styles.selected]: isSelected
+            })}
+          >
+            <Controls className={styles.controls} instance={instance} />
+            <InstanceTimeline className={styles.timeline} instance={instance} />
+          </div>
+        );
+      }}
+    </UIStore.Consumer>
   );
 };
 
@@ -25,7 +37,7 @@ const HeadLeft = () => {
     <AnimationStore.Consumer>
       {({ getAnimations, createInstance }) => (
         <UIStore.Consumer>
-          {({ setSelectedInstance }) => {
+          {({ setSelectedInstance, tickSpacing, setTickSpacing }) => {
             const animations = getAnimations();
 
             return (
@@ -38,28 +50,24 @@ const HeadLeft = () => {
                       label: animation.name,
                       value: animation.id
                     }))}
-                    onSelect={animId => {
-                      const instance = createInstance({ animId });
+                    onSelect={animationId => {
+                      const instance = createInstance({ animationId });
                       setSelectedInstance(instance.id);
                     }}
                   />
                 )}
 
-                <MediaStore.Consumer>
-                  {({ tickSpacing, setTickSpacing }) => (
-                    <StepperField
-                      flush
-                      underlined={false}
-                      className={styles.spacing}
-                      label="Spacing"
-                      min={2}
-                      max={20}
-                      onChange={setTickSpacing}
-                      step={1}
-                      value={tickSpacing}
-                    />
-                  )}
-                </MediaStore.Consumer>
+                <StepperField
+                  flush
+                  underlined={false}
+                  className={styles.spacing}
+                  label="Spacing"
+                  min={2}
+                  max={20}
+                  onChange={setTickSpacing}
+                  step={1}
+                  value={tickSpacing}
+                />
               </div>
             );
           }}

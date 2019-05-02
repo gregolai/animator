@@ -16,13 +16,6 @@ const persist = {
     replace: false
   }),
 
-  media: createPersist('MediaStore', {
-    duration: 3000,
-    isLooping: true,
-    isReversed: false,
-    playhead: 0
-  }),
-
   stage: createPersist('StageStore', {
     gridSize: 22,
     showGrid: true
@@ -32,7 +25,13 @@ const persist = {
     expandedTweenId: -1,
     hiddenTweens: {},
     lockedTweens: {},
-    selectedInstanceId: -1
+    selectedInstanceId: -1,
+
+    // media
+    duration: 3000,
+    isLooping: true,
+    isReversed: false,
+    playhead: 0
   })
 };
 
@@ -53,24 +52,24 @@ const INITIAL_STATE = {
     warnings: []
   },
 
-  media: {
-    duration: persist.media.duration.read(),
-    isLooping: persist.media.isLooping.read(),
-    isPlaying: false,
-    isReversed: persist.media.isReversed.read(),
-    playhead: persist.media.playhead.read()
-  },
-
   stage: {
     gridSize: persist.stage.gridSize.read(),
     showGrid: persist.stage.showGrid.read()
   },
 
   user: {
-    expandedTweenId: persist.expandedTweenId.read(),
-    hiddenTweens: persist.hiddenTweens.read(),
-    lockedTweens: persist.lockedTweens.read(),
-    selectedInstanceId: persist.selectedInstanceId.read()
+    expandedTweenId: persist.user.expandedTweenId.read(),
+    hiddenTweens: persist.user.hiddenTweens.read(),
+    lockedTweens: persist.user.lockedTweens.read(),
+    selectedInstanceId: persist.user.selectedInstanceId.read(),
+
+    // media
+    duration: persist.user.duration.read(),
+    isLooping: persist.user.isLooping.read(),
+    isPlaying: false,
+    isReversed: persist.user.isReversed.read(),
+    playhead: persist.user.playhead.read()
+
   }
 };
 
@@ -103,20 +102,20 @@ class Provider extends React.Component {
       () => {
         const { list: animations, item: deletedAnimation } = this._deleteAnimation(animationId);
         const { list: tweens, items: deletedTweens } = this._deleteTweens(
-          t => t.animId === animationId
+          t => t.animationId === animationId
         );
         const { list: keyframes, items: deletedKeyframes } = this._deleteKeyframes(
-          kf => kf.animId === animationId
+          kf => kf.animationId === animationId
         );
 
         // re-assign instances w/anim
-        // const instances = this.getInstances(instance => instance.animId === animationId);
+        // const instances = this.getInstances(instance => instance.animationId === animationId);
         // if (instances.length > 0) {
         //   const instanceIds = instances.map(i => i.id);
 
         //   const nextAnimId = animations.length > 0 ? animations[0].id : -1;
 
-        //   db.setMany(this.state.instances, instanceIds, { animId: nextAnimId })
+        //   db.setMany(this.state.instances, instanceIds, { animationId: nextAnimId })
 
         // }
 
@@ -134,7 +133,7 @@ class Provider extends React.Component {
     throw 'not implemented';
   };
 
-  createTween = (animId, definitionId) => {
+  createTween = (animationId, definitionId) => {
     throw 'not implemented';
   };
   getTween = tweenId => {

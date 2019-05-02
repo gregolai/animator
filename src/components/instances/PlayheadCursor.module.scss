@@ -3,7 +3,7 @@
 :local {
   .container {
     position: absolute;
-    left: $timeline-left-width;
+    left: $timeline-left-width + $grid-px;
     right: 0;
     top: 0;
     height: 100%;

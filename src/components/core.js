@@ -9,6 +9,7 @@ export { default as RangeField } from '@sqs/core-components/fields/RangeField';
 export { default as StepperField } from '@sqs/core-components/fields/StepperField';
 export { default as StringField } from '@sqs/core-components/fields/StringField';
 export { default as TextareaField } from '@sqs/core-components/fields/TextareaField';
+export { default as UrlParseField } from '@sqs/core-components/fields/UrlParseField';
 
 export { default as Cell } from '@sqs/core-components/components/Cell';
 export { default as DropdownSelect } from '@sqs/core-components/components/DropdownSelect';

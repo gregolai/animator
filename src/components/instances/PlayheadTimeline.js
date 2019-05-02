@@ -1,6 +1,6 @@
 import { React, cx } from 'common';
 
-import { MediaStore } from 'stores';
+import { UIStore } from 'stores';
 import { Ticks } from 'components/shared';
 
 import styles from './PlayheadTimeline.module.scss';
@@ -8,7 +8,7 @@ import styles from './PlayheadTimeline.module.scss';
 const PlayheadTimeline = ({ className }) => {
   return (
     <div className={cx(styles.container, className)}>
-      <MediaStore.Consumer>
+      <UIStore.Consumer>
         {({ tickSpacing }) => (
           <Ticks.PixelSpaced
             spacing={tickSpacing}
@@ -30,7 +30,7 @@ const PlayheadTimeline = ({ className }) => {
             ]}
           />
         )}
-      </MediaStore.Consumer>
+      </UIStore.Consumer>
     </div>
   );
 };

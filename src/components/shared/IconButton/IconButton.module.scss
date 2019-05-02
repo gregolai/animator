@@ -5,5 +5,9 @@
     justify-content: center;
     height: $common-height-px;
     width: $common-height-px;
+
+    &:hover {
+      background-color: $color-bg-1;
+    }
   }
 }
