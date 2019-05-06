@@ -20,6 +20,7 @@ const getTick = (ticks, index) => {
 
 class PixelSpaced extends React.Component {
   static defaultProps = {
+    maxWidth: Number.MAX_SAFE_INTEGER,
     spacing: 4,
     ticks: [
       { mod: 10, height: 12, color: '#a1a1a1' },
@@ -29,8 +30,13 @@ class PixelSpaced extends React.Component {
   };
 
   renderTicks = ctx => {
-    const { ticks, spacing } = this.props;
+    const { maxWidth, ticks, spacing } = this.props;
     for (let i = 1, x = spacing; x < ctx.canvas.width; ++i, x += spacing) {
+
+      if (x >= maxWidth) {
+        return;
+      }
+
       drawTick(ctx, ticks, i, x);
     }
   };

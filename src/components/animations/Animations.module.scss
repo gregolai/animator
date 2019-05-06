@@ -14,28 +14,4 @@
     }
   }
 
-  .animation {
-    .head {
-      display: flex;
-
-      .left {
-        display: flex;
-        justify-content: space-between;
-        width: $animations-left-width;
-      }
-
-      .right {
-        position: relative;
-        flex: 1;
-      }
-    }
-  }
-
-  .playheadCursor {
-    z-index: 1;
-    position: absolute;
-    left: 0;
-    width: 100%;
-    top: 100%;
-  }
 }

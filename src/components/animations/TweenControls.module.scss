@@ -7,9 +7,17 @@
     width: $animations-left-width;
     padding-left: $grid-px;
     padding-right: 6px;
+  }
 
-    .btnValue {
-      flex: 1;
+  .btnValue {
+    flex: 1;
+  }
+
+  .btnAddKeyframe {
+    visibility: visible;
+
+    &.hidden {
+      visibility: hidden;
     }
   }
 

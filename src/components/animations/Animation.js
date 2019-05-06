@@ -3,7 +3,7 @@ import { React, cx } from 'common';
 import { AnimationStore, UIStore } from 'stores';
 import { AddDropdown, ExpandingTitle, IconButton, Ticks } from 'components/shared';
 
-import LocalPlayheadStore from './LocalPlayheadStore';
+import CursorTime from './CursorTime';
 import PlayheadCursor from './PlayheadCursor';
 import TweenControls from './TweenControls';
 import TweenTimeline from './TweenTimeline';
@@ -49,7 +49,7 @@ const Tween = ({ tween }) => {
 
 const Animation = ({ animation }) => {
   return (
-    <LocalPlayheadStore>
+    <CursorTime.Provider animation={animation}>
       <UIStore.Consumer>
         {({ selectedInstanceId }) => (
           <AnimationStore.Consumer>
@@ -109,7 +109,7 @@ const Animation = ({ animation }) => {
           </AnimationStore.Consumer>
         )}
       </UIStore.Consumer>
-    </LocalPlayheadStore>
+    </CursorTime.Provider>
   );
 };
 

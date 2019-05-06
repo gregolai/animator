@@ -1,12 +1,18 @@
 import React from 'react';
 import cx from 'classnames';
+import { uniqueNamesGenerator } from 'unique-names-generator';
+import randomColor from 'randomcolor';
 import noop from 'lodash/noop';
 import chunk from 'lodash/chunk';
 import clamp from 'lodash/clamp';
+import isNumber from 'lodash/isNumber';
 
 export { startDrag } from './utils/mouse';
 
 export const INTERVAL_MS = 10;
+
+export const createUniqueName = () => uniqueNamesGenerator('-', true);
+export const getRandomColor = () => randomColor();
 
 // for grid snap
 export const roundToInterval = (value, interval) => {
@@ -19,4 +25,4 @@ export const normalizeRatio = time => {
   return time;
 };
 
-export { React, cx, noop, clamp, chunk };
+export { React, cx, noop, clamp, chunk, isNumber };

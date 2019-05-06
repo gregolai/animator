@@ -1,0 +1,36 @@
+@import "../../constants.scss";
+
+:local {
+
+  .choices {
+    display: flex;
+
+    .choice {
+      cursor: pointer;
+      flex: 1;
+      text-align: center;
+      padding-top: $grid-px * 6;
+      padding-bottom: $grid-px * 6;
+
+      &:hover {
+        background-color: $color-bg-1;
+      }
+    }
+
+    .img {
+      height: $grid-px * 10;
+
+      &.jsf {
+        margin-left: $grid-px;
+      }
+    }
+
+  }
+
+
+  .textarea,
+  .textarea * {
+    // apply to children too, ewww
+    font-family: Courier;
+  }
+}

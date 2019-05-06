@@ -31,7 +31,7 @@
   }
 
   .playheadCursor {
-    z-index: 1;
+    z-index: $z-index-medium-priority;
     position: absolute;
     left: 0;
     width: 100%;

@@ -15,7 +15,7 @@ const PlayheadCursor = ({ className }) => {
             const onDrag = ({ localX }) => setPlayhead(pixelsToTime(localX, tickSpacing));
             startDrag(e, {
               distance: 0,
-              measureLocalOffset: true,
+              measureTarget: e.target,
               onDragStart: onDrag,
               onDrag
             });

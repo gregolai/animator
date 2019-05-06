@@ -20,10 +20,11 @@ $font-size-md: 14px;
 $font-size-lg: 16px;
 $font-size-xl: 18px;
 
-$z-index-low-priority: 1;
-$z-index-medium-priority: 2;
-$z-index-high-priority: 3;
-$z-index-highest-priority: 4;
+$z-index-lowest-priority: 1;
+$z-index-low-priority: 2;
+$z-index-medium-priority: 3;
+$z-index-high-priority: 4;
+$z-index-highest-priority: 5;
 
 $common-height-px: $grid-px * 3;
 

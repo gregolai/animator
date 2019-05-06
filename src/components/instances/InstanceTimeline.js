@@ -8,17 +8,29 @@ import styles from './InstanceTimeline.module.scss';
 const DELAY_COLOR = '#a1a1a1';
 const DURATION_COLOR = '#d2d2d2';
 
+const drawKeyframe = (ctx, x, y) => {
+  ctx.fillStyle = 'black'
+  ctx.fillRect(x - 3, y - 3, 8, 8);
+
+  ctx.fillStyle = 'white';
+  ctx.fillRect(x - 2, y - 2, 6, 6);
+}
+
 const InstanceTimeline = ({ className, instance }) => {
   return (
-    <div className={cx(styles.container, className)}>
-      <UIStore.Consumer>
-        {({ tickSpacing }) => (
-          <AnimationStore.Consumer>
-            {({ getTweens, getKeyframes, getInstanceDefinitionValue }) => {
-              const delay = getInstanceDefinitionValue(instance.id, 'animation-delay');
-              const duration = getInstanceDefinitionValue(instance.id, 'animation-duration');
 
-              return (
+    <UIStore.Consumer>
+      {({ tickSpacing }) => (
+        <AnimationStore.Consumer>
+          {({ getTweens, getKeyframes, getInstanceDefinitionValue }) => {
+            const delay = getInstanceDefinitionValue(instance.id, 'animation-delay');
+            const duration = getInstanceDefinitionValue(instance.id, 'animation-duration');
+
+            const tweens = getTweens(instance.animationId);
+            const height = tweens.length * 22;
+
+            return (
+              <div className={cx(styles.container, className)} style={{ height }}>
                 <Canvas
                   onResize={({ cvs, ctx }) => {
                     const { width, height } = cvs;
@@ -38,7 +50,7 @@ const InstanceTimeline = ({ className, instance }) => {
                     ctx.fillRect(pxDelay, 0, pxDuration, height);
 
                     // render tween bars
-                    getTweens(instance.animationId).forEach((tween, tweenIndex, tweens) => {
+                    tweens.forEach((tween, tweenIndex, tweens) => {
 
                       const keyframes = getKeyframes(tween.id);
                       const y = Math.round((tweenIndex + 1) * (height / (tweens.length + 1)));
@@ -52,20 +64,21 @@ const InstanceTimeline = ({ className, instance }) => {
                         ctx.fillRect(x0, y, x1 - x0, 2);
 
                         // draw keyframe
-                        ctx.fillRect(x0 - 2, y - 2, 6, 6);
+                        drawKeyframe(ctx, x0, y);
                       }
 
                       // draw last keyframe
-                      ctx.fillRect(x1 - 2, y - 2, 6, 6);
+                      drawKeyframe(ctx, x1, y);
                     })
                   }}
                 />
-              );
-            }}
-          </AnimationStore.Consumer>
-        )}
-      </UIStore.Consumer>
-    </div>
+              </div>
+            );
+          }}
+        </AnimationStore.Consumer>
+      )}
+    </UIStore.Consumer>
+
   );
 };
 

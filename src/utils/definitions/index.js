@@ -1,9 +1,9 @@
-import React from 'react';
+import { React, normalizeRatio, isNumber } from 'common';
 import color from 'color';
 import palettes from 'nice-color-palettes';
 import camelCase from 'lodash/camelCase';
 import { getEasingArray, getEasingOptions } from 'utils/easing';
-import { DropdownSelect, ColorField, RangeField, UrlParseField } from 'components/core';
+import { DropdownSelect, ColorField, NumberField, RangeField, UrlParseField } from 'components/core';
 import { ColorSquare, DropdownCustom } from 'components/shared';
 
 const constants = {
@@ -13,20 +13,23 @@ const constants = {
   positions: ['static', 'relative', 'absolute', 'sticky', 'fixed']
 };
 
-const toPx = v => (typeof v === 'number' ? `${v}px` : v);
-
 const parseEnum = (str, list) => {
   return list.indexOf(str) !== -1 ? str : undefined;
 };
 const parseNumber = str => parseFloat(str);
 const parseColor = str => color(str).hex();
 const parseMilliseconds = str => {
-  const num = parseFloat(str);
-  return Math.floor(str.endsWith('s') ? num * 1000 : num);
+  let num = parseFloat(str);
+  if (!isNumber(str)) {
+    if (str.endsWith('s') && !str.endsWith('ms')) {
+      num *= 1000;
+    }
+  }
+  return Math.floor(num);
 };
 
 const formatMilliseconds = v => `${v}ms`;
-const formatPixels = v => toPx(Math.round(v));
+const formatPixels = v => `${Math.round(parseFloat(v))}px`;
 
 const lerpNumber = (from, to, t) => from + t * (to - from);
 
@@ -118,6 +121,7 @@ export const definitionMap = {
     )
   },
   'background-color': {
+    defaultValue: '#000000',
     format: v => color(v).hex(),
     preview: v => (
       <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -208,6 +212,7 @@ export const definitionMap = {
     )
   },
   bottom: {
+    defaultValue: 0,
     format: formatPixels,
     preview: formatPixels,
     lerp: lerpNumber,
@@ -215,6 +220,7 @@ export const definitionMap = {
     render: renderPosition
   },
   height: {
+    defaultValue: 0,
     format: formatPixels,
     preview: formatPixels,
     lerp: lerpNumber,
@@ -222,6 +228,7 @@ export const definitionMap = {
     render: renderPosition
   },
   left: {
+    defaultValue: 0,
     format: formatPixels,
     preview: formatPixels,
     lerp: lerpNumber,
@@ -229,6 +236,7 @@ export const definitionMap = {
     render: renderPosition
   },
   'margin-bottom': {
+    defaultValue: 0,
     computedGroup: 'margin',
     format: formatPixels,
     preview: formatPixels,
@@ -237,6 +245,7 @@ export const definitionMap = {
     render: renderMargin
   },
   'margin-left': {
+    defaultValue: 0,
     computedGroup: 'margin',
     format: formatPixels,
     preview: formatPixels,
@@ -245,6 +254,7 @@ export const definitionMap = {
     render: renderMargin
   },
   'margin-right': {
+    defaultValue: 0,
     computedGroup: 'margin',
     format: formatPixels,
     preview: formatPixels,
@@ -253,6 +263,7 @@ export const definitionMap = {
     render: renderMargin
   },
   'margin-top': {
+    defaultValue: 0,
     computedGroup: 'margin',
     format: formatPixels,
     preview: formatPixels,
@@ -261,8 +272,9 @@ export const definitionMap = {
     render: renderMargin
   },
   opacity: {
+    defaultValue: 1,
     format: v => v,
-    preview: v => v,
+    preview: v => normalizeRatio(v),
     lerp: lerpNumber,
     parse: parseNumber,
     render: renderRatio
@@ -270,7 +282,6 @@ export const definitionMap = {
   position: {
     format: v => v,
     preview: v => v,
-    lerp: (from, to, t) => from, // todo: no animate
     parse: str => parseEnum(str, constants.positions),
     render: ({ onChange, value }) => (
       <DropdownSelect
@@ -286,13 +297,84 @@ export const definitionMap = {
     )
   },
   right: {
+    defaultValue: 0,
     format: formatPixels,
     preview: formatPixels,
     lerp: lerpNumber,
     parse: parseNumber,
     render: renderPosition
   },
+  // HACKY - REWRITE
+  transform: {
+    //'translate(0, 0) rotateZ(45deg) scale(1, 1)',
+    defaultValue: { translate: { x: 0, y: 0 }, rotate: { z: 0, }, scale: { x: 1, y: 1 } },
+    format: v => `translate(${v.translate.x}, ${v.translate.y}) rotateZ(${v.rotate.z}deg) scale(${v.scale.x}, ${v.scale.y})`,
+    preview: v => `(${Math.round(v.translate.x)}, ${Math.round(v.translate.y)}) (${Math.round(v.rotate.z)}) (${Number(v.scale.x).toFixed(2)}, ${Number(v.scale.y).toFixed(2)})`,
+    lerp: (from, to, t) => {
+      return {
+        translate: {
+          x: lerpNumber(from.translate.x, to.translate.x, t),
+          y: lerpNumber(from.translate.y, to.translate.y, t)
+        },
+        rotate: {
+          z: lerpNumber(from.rotate.z, to.rotate.z, t)
+        },
+        scale: {
+          x: lerpNumber(from.scale.x, to.scale.x, t),
+          y: lerpNumber(from.scale.y, to.scale.y, t)
+        }
+      }
+    },
+    parse: v => {
+      // hacky
+      let [strTranslate = '', strRotate = '', strScale = ''] = v.split(' ');
+
+      strTranslate = strTranslate.replace('translate(', '').replace(')', '')
+      strRotate = strRotate.replace('rotateZ(', '').replace(')', '').replace('deg', '')
+      strScale = strScale.replace('scale(', '').replace(')', '')
+
+      const [translateX = '0', translateY = '0'] = strTranslate.split(',');
+      const [scaleX = '1', scaleY = '1'] = strScale.split(',')
+
+      return {
+        translate: {
+          x: parseFloat(translateX),
+          y: parseFloat(translateY)
+        },
+        rotate: {
+          z: parseFloat(strRotate)
+        },
+        scale: {
+          x: parseFloat(scaleX),
+          y: parseFloat(scaleY)
+        }
+      }
+    },
+    render: ({ value, onChange }) => {
+      return (
+        <>
+          <NumberField
+            label="Rot"
+            onChange={rot => onChange({ ...value, rotate: { ...value.rotate, z: rot } })}
+            value={value.rotate.z}
+          />
+
+          <NumberField
+            label="ScaleX"
+            onChange={x => onChange({ ...value, scale: { ...value.scale, x } })}
+            value={value.scale.x}
+          />
+          <NumberField
+            label="ScaleY"
+            onChange={y => onChange({ ...value, scale: { ...value.scale, y } })}
+            value={value.scale.y}
+          />
+        </>
+      )
+    }
+  },
   top: {
+    defaultValue: 0,
     format: formatPixels,
     preview: formatPixels,
     lerp: lerpNumber,
@@ -300,6 +382,7 @@ export const definitionMap = {
     render: renderPosition
   },
   width: {
+    defaultValue: 0,
     format: formatPixels,
     preview: formatPixels,
     lerp: lerpNumber,

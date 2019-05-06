@@ -3,20 +3,26 @@ import { React, cx, startDrag } from 'common';
 import { AnimationStore } from 'stores';
 import { Ticks } from 'components/shared';
 
+import CursorTime from './CursorTime';
 import styles from './TweenTimeline.module.scss';
 
 const Keyframe = ({ keyframe, isDragging, onClick, onMouseDown }) => (
-  <div
-    className={cx(styles.keyframe, {
-      [styles.dragging]: isDragging
-    })}
-    style={{ left: `${keyframe.time * 100}%` }}
-    onClick={onClick}
-    onMouseDown={onMouseDown}
-  />
+  <CursorTime>
+    {({ cursorTime }) => (
+      <div
+        className={cx(styles.keyframe, {
+          [styles.dragging]: isDragging,
+          [styles.atPlayhead]: cursorTime === keyframe.time
+        })}
+        style={{ left: `${keyframe.time * 100}%` }}
+        onClick={onClick}
+        onMouseDown={onMouseDown}
+      />
+    )}
+  </CursorTime>
 );
 
-const TweenBar = ({ keyframe0, keyframe1 }) => (
+const Bar = ({ keyframe0, keyframe1 }) => (
   <div
     className={styles.bar}
     style={{
@@ -50,7 +56,7 @@ const TweenTimeline = ({ className, height, tween }) => {
           for (let i = 0; i < keyframes.length - 1; ++i) {
             const kf0 = keyframes[i];
             const kf1 = keyframes[i + 1];
-            bars.push(<TweenBar key={kf0.time} keyframe0={kf0} keyframe1={kf1} />);
+            bars.push(<Bar key={kf0.time} keyframe0={kf0} keyframe1={kf1} />);
           }
 
           return (
@@ -64,16 +70,14 @@ const TweenTimeline = ({ className, height, tween }) => {
                   onMouseDown={e => {
                     if (!timelineRef.current) return;
 
-                    const width = timelineRef.current.clientWidth;
-                    const savedPixel = keyframe.time * width;
                     startDrag(e, {
                       distance: 4,
+                      measureTarget: timelineRef.current,
                       onDragStart: () => {
                         setDragKeyframeId(keyframe.id);
                       },
-                      onDrag: ({ deltaX }) => {
-                        const time = (savedPixel + deltaX) / width;
-                        setKeyframeTime(keyframe.id, time);
+                      onDrag: ({ ratioX }) => {
+                        setKeyframeTime(keyframe.id, ratioX);
                       },
                       onDragEnd: () => {
                         setDragKeyframeId(-1);

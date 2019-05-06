@@ -4,7 +4,7 @@
   $diamond-size: 12px;
   $half-diamond-size: $diamond-size / 2;
 
-  $bar-height: 4px;
+  $bar-height: 2px;
   $half-bar-height: $bar-height / 2;
 
   $hover-color-bg: dodgerblue;
@@ -14,17 +14,16 @@
   $keyframe-color-bg: $color-bg-0;
   $keyframe-color-border: black;
 
-
   .container {
     position: relative;
+    display: flex;
+    align-items: center;
   }
 
   .bar {
-    z-index: 2;
+    z-index: $z-index-lowest-priority;
     position: absolute;
-    top: 50%;
     height: $bar-height;
-    transform: translateY(-$half-bar-height);
     background-color: $bar-color-bg;
 
     &:hover {
@@ -33,15 +32,14 @@
   }
 
   .keyframe {
-    z-index: 3;
+    z-index: $z-index-low-priority;
     position: absolute;
-    top: 50%;
     width: $diamond-size;
     height: $diamond-size;
-    transform: translate(-$half-diamond-size, -$half-diamond-size) rotate(-45deg);
+    transform: translateX(-$half-diamond-size) rotate(-45deg);
 
     background-color: $keyframe-color-bg;
-    border: 2px solid $keyframe-color-border;
+    border: 1px solid $keyframe-color-border;
 
     &:hover {
       cursor: none;
@@ -51,6 +49,10 @@
     &.dragging {
       cursor: none;
       background-color: $drag-color-bg;
+    }
+
+    &.atPlayhead {
+      background-color: $hover-color-bg;
     }
   }
 

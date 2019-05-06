@@ -1,12 +1,11 @@
-import React from 'react';
-import classnames from 'classnames';
+import { React, cx, roundToInterval, startDrag } from 'common';
 
-import { AnimationStore, StageStore } from 'stores';
-import { Canvas } from 'components/shared';
-
+import { AnimationStore, UIStore, StageStore } from 'stores';
+import { Canvas, Hover } from 'components/shared';
 import Controls from './components/Controls';
 
-import AnimInstance from './AnimInstance';
+import { getDefinition } from 'utils/definitions';
+import AnimationController from 'utils/AnimationController';
 
 import styles from './Stage.scss';
 
@@ -49,20 +48,122 @@ const StageCanvas = () => (
   </StageStore.Consumer>
 );
 
-const Instances = ({ instances }) => (
-  <div className={styles.instances}>
-    {instances.map(instance => (
-      <AnimInstance key={instance.id} instance={instance} />
-    ))}
-  </div>
-);
 
-export default ({ className, showControls }) => (
-  <div className={classnames(styles.container, className)}>
-    <StageCanvas />
+const Instance = ({ instance }) => {
+  const [isDragging, setDragging] = React.useState(false);
+
+
+
+  return (
     <AnimationStore.Consumer>
-      {({ getInstances }) => <Instances instances={getInstances()} />}
+      {({
+        getKeyframes,
+        getTweens,
+        getInstanceDefinitionValue,
+        setInstanceDefinitionValue
+      }) => (
+          <UIStore.Consumer>
+            {({ setSelectedInstance, playhead }) => (
+              <Hover>
+                {({ hoverRef, isHovering }) => (
+                  <AnimationController
+                    format={true}
+                    easing={getInstanceDefinitionValue(instance.id, 'animation-timing-function')}
+                    delay={getInstanceDefinitionValue(instance.id, 'animation-delay')}
+                    duration={getInstanceDefinitionValue(instance.id, 'animation-duration')}
+                    keyframes={
+                      getTweens(instance.animationId).reduce((map, tween) => {
+                        map[tween.definitionId] = getKeyframes(tween.id);
+                        return map;
+                      }, {})
+                    }
+                    time={playhead}
+                  >
+                    {interpolatedStyles => (
+                      <StageStore.Consumer>
+                        {({ gridSize, gridSnap }) => (
+                          <div
+                            ref={hoverRef}
+                            className={cx(styles.instance, {
+                              [styles.dragging]: isDragging
+                            })}
+                            onMouseDown={event => {
+                              if (event.button !== 0) return;
+
+                              setSelectedInstance(instance.id);
+
+                              const initX = getInstanceDefinitionValue(instance.id, 'left') || 0;
+                              const initY = getInstanceDefinitionValue(instance.id, 'top') || 0;
+
+                              startDrag(event, {
+
+                                onDragStart: () => setDragging(true),
+                                onDrag: ({ deltaX, deltaY }) => {
+                                  let x = initX + deltaX;
+                                  let y = initY + deltaY;
+                                  if (gridSnap) {
+                                    x = roundToInterval(x, gridSize);
+                                    y = roundToInterval(y, gridSize);
+                                  }
+                                  console.log('onDrag', { x, y })
+                                  setInstanceDefinitionValue(instance.id, 'left', x);
+                                  setInstanceDefinitionValue(instance.id, 'top', y);
+                                },
+                                onDragEnd: () => setDragging(false),
+                              })
+                            }}
+                            style={{
+                              ...Object.keys(instance.definitionValues).reduce(
+                                (style, definitionId) => {
+                                  const definition = getDefinition(definitionId);
+                                  const value = instance.definitionValues[definitionId];
+                                  style[definition.styleName] = definition.format(value);
+                                  return style;
+                                },
+                                {}
+                              ),
+
+                              ...interpolatedStyles
+                            }}
+                          >
+                            {isHovering && <div className={styles.name}>{instance.name}</div>}
+                          </div>
+                        )}
+                      </StageStore.Consumer>
+                    )}
+                  </AnimationController>
+                )}
+              </Hover>
+            )}
+          </UIStore.Consumer>
+
+        )}
     </AnimationStore.Consumer>
-    {showControls && <Controls />}
-  </div>
-);
+  )
+}
+
+export default ({ className, showControls }) => {
+
+
+
+  return (
+    <div className={cx(styles.container, className)}>
+      <StageCanvas />
+
+      <AnimationStore.Consumer>
+        {({ getInstances }) => (
+          <div className={styles.instances}>
+            {getInstances().map(instance => (
+              <Instance
+                key={instance.id}
+                instance={instance}
+              />
+            ))}
+          </div>
+        )}
+      </AnimationStore.Consumer>
+
+      {showControls && <Controls />}
+    </div>
+  );
+};

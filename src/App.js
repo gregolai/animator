@@ -6,6 +6,7 @@ import { ButtonField } from 'components/core';
 import { withStores, AnimationStore, ImporterStore } from 'stores';
 
 import Stage from './components/stage/Stage';
+import Export from './components/export/Export';
 import ImportCSSModal from './components/importer/ImportCSSModal';
 import MediaControls from './components/media/MediaControls';
 
@@ -48,6 +49,8 @@ import styles from './App.module.scss';
 const App = withStores(() => {
   const [debug, toggleDebug] = React.useState(true);
 
+  const [showExportModal, setShowExportModal] = React.useState(false);
+
   return (
     <div className={styles.container}>
       {/* DEBUG */}
@@ -78,8 +81,10 @@ const App = withStores(() => {
         Reset Cache
       </button>
 
-      {/* IMPORT DIALOGUE */}
+
+      {/* MODALS */}
       <ImportCSSModal />
+      {showExportModal && <Export onRequestClose={() => setShowExportModal(false)} />}
 
       <SplitPane
         split="horizontal"
@@ -96,7 +101,8 @@ const App = withStores(() => {
         >
           <div className={styles.topLeft}>
             <div className={styles.menu}>
-              {/* IMPORT CSS */}
+
+              {/* IMPORT */}
               <ImporterStore.Consumer>
                 {({ setOpen }) => (
                   <div className={styles.menuItem}>
@@ -104,11 +110,21 @@ const App = withStores(() => {
                       size="small"
                       color="warning"
                       onClick={() => setOpen(true)}
-                      label="Import CSS"
+                      label="Import"
                     />
                   </div>
                 )}
               </ImporterStore.Consumer>
+
+              {/* EXPORT */}
+              <div className={styles.menuItem}>
+                <ButtonField
+                  size="small"
+                  color="warning"
+                  onClick={() => setShowExportModal(true)}
+                  label="Export"
+                />
+              </div>
 
               {/* ADD ANIMATION */}
               <AnimationStore.Consumer>
@@ -132,14 +148,12 @@ const App = withStores(() => {
           {/* STAGE REGION */}
           <div className={styles.topRight}>
             <Stage className={styles.stage} showControls />
-            <MediaControls className={styles.mediaControls} />
+            <MediaControls />
           </div>
         </SplitPane>
 
         {/* BOTTOM REGION */}
         <div className={styles.bottom}>
-          {/* <Playhead className={styles.playhead} /> */}
-
           {/* INSTANCE EDITING */}
           <Instances />
         </div>

@@ -1,10 +1,9 @@
-import { React, normalizeRatio } from 'common';
+import { React, normalizeRatio, createUniqueName, getRandomColor, isNumber } from 'common';
 import rework from 'rework';
 import difference from 'lodash/difference';
-import { uniqueNamesGenerator } from 'unique-names-generator';
-import randomColor from 'randomcolor';
 
 import { getDefinition, getAnimatedDefinitions } from 'utils/definitions';
+import { exportJSF } from 'utils/importexport';
 
 import db from 'utils/db';
 import interpolate from 'utils/interpolate';
@@ -19,36 +18,36 @@ const persist = createPersist('AnimationStore', {
 
 const createAnimation = ({ name = undefined }) => {
   return {
-    color: randomColor(),
-    name: name || uniqueNamesGenerator('-', true)
+    color: getRandomColor(),
+    name: name || createUniqueName()
   };
 };
 
 const createInstance = ({
   animationId,
   definitionValues = {
+    'animation-delay': getDefinition('animation-delay').parse(0),
+    'animation-duration': getDefinition('animation-duration').parse(1000),
+    'animation-timing-function': getDefinition('animation-timing-function').parse('linear'),
     position: getDefinition('position').parse('absolute'),
     width: getDefinition('width').parse(30),
     height: getDefinition('height').parse(30),
     'background-color': getDefinition('background-color').parse('blue')
   },
-  name = uniqueNamesGenerator('-', true)
+  name = createUniqueName()
 }) => {
   return {
     animationId,
-    color: randomColor(),
+    color: getRandomColor(),
     definitionValues,
     name
   };
 };
 
-const createTween = ({ animationId, definitionId, easing = 'linear', lerp, name }) => {
+const createTween = ({ animationId, definitionId }) => {
   return {
     animationId,
-    definitionId,
-    easing,
-    lerp,
-    name
+    definitionId
   };
 };
 
@@ -298,9 +297,9 @@ export default class AnimationStore extends React.Component {
     }
 
     let value = instance.definitionValues[definitionId];
-    if (value === undefined) {
-      value = definition.defaultValue;
-    }
+    // if (value === undefined) {
+    //   value = definition.defaultValue;
+    // }
     return value;
   };
 
@@ -378,14 +377,22 @@ export default class AnimationStore extends React.Component {
   };
 
   createKeyframe = (tweenId, time, value) => {
-    time = normalizeRatio(time);
-
     const tween = this.getTween(tweenId);
 
     // ensure tween and prevent duplicate keyframe time
-    if (!tween || this.getKeyframeAtTime(tweenId, time)) {
+    if (!tween || !isNumber(time) || this.getKeyframeAtTime(tweenId, time)) {
       return null;
     }
+
+    // db value cannot be undefined
+    if (value === undefined) {
+      value = getDefinition(tween.definitionId).defaultValue;
+      if (value === undefined) {
+        return null;
+      }
+    }
+
+    time = normalizeRatio(time);
 
     const { list: keyframes, item: keyframe } = db.createOne(
       this.state.keyframes,
@@ -403,14 +410,15 @@ export default class AnimationStore extends React.Component {
   };
 
   setKeyframeTime = (keyframeId, time) => {
-    time = normalizeRatio(time);
 
     const keyframe = this.getKeyframe(keyframeId);
 
     // ensure tween and prevent duplicate keyframe time
-    if (!keyframe || this.getKeyframeAtTime(keyframe.tweenId, time)) {
+    if (!keyframe || !isNumber(time) || this.getKeyframeAtTime(keyframe.tweenId, time)) {
       return null;
     }
+
+    time = normalizeRatio(time);
 
     const { list: keyframes } = db.setOne(this.state.keyframes, keyframeId, {
       time
@@ -449,28 +457,13 @@ export default class AnimationStore extends React.Component {
     return keyframe;
   };
 
-  interpolate = (tweenId, time) => {
+  interpolate = (tweenId, time, easing) => {
     const tween = this.getTween(tweenId);
-    if (!tween) return undefined;
+    if (!tween || !isNumber(time)) return undefined;
 
     const definition = getDefinition(tween.definitionId);
 
-    return interpolate(this.getKeyframes(tweenId), time, definition.lerp, tween.easing);
-  };
-
-  interpolateInstance = (instanceId, tweenId, playheadTime) => {
-    const instance = this.getInstance(instanceId);
-    const tween = this.getTween(tweenId);
-    const definition = getDefinition(tween.definitionId);
-    if (!instance || !tween || !definition) return undefined;
-
-    const delay = this.getInstanceDefinitionValue(instanceId, 'animation-delay');
-    const duration = this.getInstanceDefinitionValue(instanceId, 'animation-duration');
-    const easing = this.getInstanceDefinitionValue(instanceId, 'animation-timing-function');
-
-    const scaledTime = (playheadTime - delay) / duration;
-
-    return interpolate(this.getKeyframes(tweenId), scaledTime, definition.lerp, easing);
+    return interpolate(this.getKeyframes(tweenId), time, definition.lerp, easing);
   };
 
   getUnusedPropDefinitions = animationId => {
@@ -515,6 +508,8 @@ export default class AnimationStore extends React.Component {
   };
 
   getKeyframeAtTime = (tweenId, time) => {
+    if (!isNumber(time)) return null;
+
     time = normalizeRatio(time);
 
     return db.getOne(this.state.keyframes, kf => kf.tweenId === tweenId && kf.time === time).item;
@@ -526,7 +521,20 @@ export default class AnimationStore extends React.Component {
       .items.sort((a, b) => (a.time < b.time ? -1 : 1)); // sort by time
   };
 
+  getExportJSF = () => {
+    const { animations, instances, keyframes, tweens } = this.state;
+    return exportJSF({ animations, instances, keyframes, tweens });
+  }
+
+  getExportCSS = () => {
+
+  }
+
   render() {
+    // TESITNG
+    const { animations, instances, keyframes, tweens } = this.state;
+    window.stuff = { animations, instances, keyframes, tweens };
+
     return (
       <Context.Provider
         value={{
@@ -569,7 +577,9 @@ export default class AnimationStore extends React.Component {
           getUnusedPropDefinitions: this.getUnusedPropDefinitions,
 
           interpolate: this.interpolate,
-          interpolateInstance: this.interpolateInstance
+
+          getExportCSS: this.getExportCSS,
+          getExportJSF: this.getExportJSF
         }}
       >
         {this.props.children}

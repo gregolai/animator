@@ -7,6 +7,35 @@
     overflow: hidden;
   }
 
+  .instances {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+  }
+
+  .instance {
+    cursor: grab;
+    transition: opacity 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+    &:hover {
+      opacity: 0.6;
+    }
+
+    &.dragging {
+      cursor: grabbing;
+      opacity: 0.6;
+    }
+
+    .name {
+      position: absolute;
+      right: 100%;
+      bottom: 100%;
+      font-size: $font-size-xs;
+    }
+  }
+
   .canvas {
     position: absolute;
     top: 0;
@@ -15,11 +44,4 @@
     width: 100%;
   }
 
-  .instances {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 100%;
-  }
 }

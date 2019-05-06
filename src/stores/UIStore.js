@@ -280,55 +280,8 @@ export default class UIStore extends React.Component {
     return localPlayhead.animationId === animationId ? localPlayhead.time : undefined;
   }
 
-  // localPlayheadIsActive = () => {
-  //   const { isPlaying, localPlayhead, selectedInstanceId } = this.state;
-
-  //   return selectedInstanceId === -1 && // no instance selected
-  //     !isPlaying &&                     // is not playing
-  //     localPlayhead.animationId !== -1; // is on an animation
-  // }
-
-  // setPlayheadAtRatio = (ratio, animationId) => {
-
-  //   if (this.localPlayheadIsActive()) {
-  //     this.setLocalPlayhead(animationId, ratio);
-  //   } else {
-
-
-  //   }
-
-
-  //   if (selectedInstanceId === -1) {
-  //     setLocalPlayhead(animation.id, localX / width);
-
-  //   } else if (selectedInstanceId !== -1) {
-  //     const instance = getInstance(selectedInstanceId);
-  //     const delay = getInstanceDefinitionValue(instance.id, 'animation-delay');
-  //     const duration = getInstanceDefinitionValue(instance.id, 'animation-duration');
-
-  //     const ratio = normalizeRatio(localX / width);
-  //     setPlayhead(delay + ratio * duration);
-  //   }
-
-  // }
-
-  hasLocalPlayhead = () => {
-    return this.state.localPlayhead.animationId !== -1;
-  }
-
-  playheadToRatio = (animationId, delay, duration) => {
-    let ratio = this.getLocalPlayhead(animationId);
-    if (ratio === undefined) {
-      ratio = (this.state.playhead - delay) / duration;
-    }
-    return ratio;
-  }
-
   render() {
     const { isLooping, isPlaying, isReversed, playhead, tickSpacing } = this.state;
-
-    const normalizedPlayhead = Math.max(0, roundToInterval(playhead, INTERVAL_MS));
-
 
     return (
       <Context.Provider
@@ -349,7 +302,7 @@ export default class UIStore extends React.Component {
           isLooping,
           isPlaying,
           isReversed,
-          playhead: normalizedPlayhead, // display
+          playhead,
           tickSpacing,
 
           setLooping: this.setLooping,
@@ -362,10 +315,7 @@ export default class UIStore extends React.Component {
 
 
           setLocalPlayhead: this.setLocalPlayhead,
-          getLocalPlayhead: this.getLocalPlayhead,
-          hasLocalPlayhead: this.hasLocalPlayhead,
-          playheadToRatio: this.playheadToRatio
-
+          getLocalPlayhead: this.getLocalPlayhead
         }}
       >
         {this.props.children}

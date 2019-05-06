@@ -6,13 +6,13 @@ const isLessThanDistance = (deltaX, deltaY, distance) => {
 
 export const startDrag = (
   mouseDownEvent,
-  { distance = 1, measureLocalOffset = false, onDragStart = noop, onDrag = noop, onDragEnd = noop }
+  { distance = 1, measureTarget, onDragStart = noop, onDrag = noop, onDragEnd = noop }
 ) => {
   if (mouseDownEvent.persist) {
     mouseDownEvent.persist();
   }
 
-  const { clientX: startX, clientY: startY, button, target: originalTarget } = mouseDownEvent;
+  const { clientX: startX, clientY: startY, button } = mouseDownEvent;
 
   let isDragging = false;
 
@@ -29,10 +29,12 @@ export const startDrag = (
       deltaY: clientY - startY
     };
 
-    if (measureLocalOffset) {
-      const rect = originalTarget.getBoundingClientRect();
+    if (measureTarget) {
+      const rect = measureTarget.getBoundingClientRect();
       obj.localX = clientX - rect.left;
       obj.localY = clientY - rect.top;
+      obj.ratioX = obj.localX / rect.width;
+      obj.ratioY = obj.localY / rect.height;
     }
 
     return obj;
