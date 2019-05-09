@@ -34,11 +34,13 @@ const AnimationController = ({
 
         const definition = getDefinition(definitionId);
         if (definition) {
-          let value = interpolate(keyframes, ratio, definition.lerp, easing)
-          if (format) {
-            map[definition.styleName] = definition.format(value);
-          } else {
-            map[definitionId] = value;
+          const value = interpolate(keyframes, ratio, definition.lerp, easing)
+          if (value !== undefined) {
+            if (format) {
+              map[definition.styleName] = definition.format(value);
+            } else {
+              map[definitionId] = value;
+            }
           }
         }
 

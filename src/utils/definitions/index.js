@@ -1,10 +1,11 @@
 import { React, normalizeRatio, isNumber } from 'common';
-import color from 'color';
+import { color } from '@sqs/utils';
 import palettes from 'nice-color-palettes';
 import camelCase from 'lodash/camelCase';
 import { getEasingArray, getEasingOptions } from 'utils/easing';
 import { DropdownSelect, ColorField, NumberField, RangeField, UrlParseField } from 'components/core';
 import { ColorSquare, DropdownCustom } from 'components/shared';
+import { IDENTITY_MATRIX, decomposeMatrix, formatMatrix, lerpMatrix, parseMatrix, recomposeMatrix } from './matrix';
 
 const constants = {
   animationDirections: ['normal', 'reverse', 'alternate', 'alternate-reverse'],
@@ -17,7 +18,7 @@ const parseEnum = (str, list) => {
   return list.indexOf(str) !== -1 ? str : undefined;
 };
 const parseNumber = str => parseFloat(str);
-const parseColor = str => color(str).hex();
+const parseColor = str => color.parseColor(str);
 const parseMilliseconds = str => {
   let num = parseFloat(str);
   if (!isNumber(str)) {
@@ -30,6 +31,16 @@ const parseMilliseconds = str => {
 
 const formatMilliseconds = v => `${v}ms`;
 const formatPixels = v => `${Math.round(parseFloat(v))}px`;
+const formatColor = v => {
+  if (typeof v === 'object') {
+    const r = Math.round(v.red);
+    const g = Math.round(v.green);
+    const b = Math.round(v.blue);
+    const a = Number(v.alpha).toFixed(2);
+    return `rgba(${r}, ${g}, ${b}, ${a})`;
+  }
+  return v;
+}
 
 const lerpNumber = (from, to, t) => from + t * (to - from);
 
@@ -121,31 +132,39 @@ export const definitionMap = {
     )
   },
   'background-color': {
-    defaultValue: '#000000',
-    format: v => color(v).hex(),
-    preview: v => (
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        <div>{color(v).hex()}</div>
-        <ColorSquare color={v} />
-      </div>
-    ),
+    defaultValue: { red: 0, green: 0, blue: 0, alpha: 1 },
+    format: v => formatColor(v),
+    preview: v => {
+      const formatted = formatColor(v);
+      return (
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <div>{formatted.replace('rgba', '')}</div>
+          <ColorSquare color={formatted} />
+        </div>
+      );
+    },
     lerp: (from, to, t) => {
-      from = color(from);
-      to = color(to);
-      return from.mix(to, t).hex();
+      const red = lerpNumber(from.red, to.red, t);
+      const green = lerpNumber(from.green, to.green, t);
+      const blue = lerpNumber(from.blue, to.blue, t);
+      const alpha = lerpNumber(from.alpha, to.alpha, t);
+      return { red, green, blue, alpha };
     },
     parse: parseColor,
-    render: props => (
-      <ColorField
-        colorType="hex"
-        providerType="passthrough"
-        onChange={v => props.onChange(v.color)}
-        value={{
-          color: props.value,
-          palette: constants.palette
-        }}
-      />
-    )
+    render: props => {
+      const color = formatColor(props.value);
+      return (
+        <ColorField
+          colorType="hex"
+          providerType="passthrough"
+          onChange={v => props.onChange(parseColor(v.color))}
+          value={{
+            color: color,
+            palette: constants.palette
+          }}
+        />
+      )
+    }
   },
   'background-image': {
     format: v => `url("${v}")`,
@@ -304,6 +323,7 @@ export const definitionMap = {
     parse: parseNumber,
     render: renderPosition
   },
+
   // HACKY - REWRITE
   transform: {
     //'translate(0, 0) rotateZ(45deg) scale(1, 1)',
@@ -369,10 +389,62 @@ export const definitionMap = {
             onChange={y => onChange({ ...value, scale: { ...value.scale, y } })}
             value={value.scale.y}
           />
+
+          <NumberField
+            label="TranslateX"
+            onChange={x => onChange({ ...value, translate: { ...value.translate, x } })}
+            value={value.translate.x}
+          />
+          <NumberField
+            label="TranslateY"
+            onChange={y => onChange({ ...value, translate: { ...value.translate, y } })}
+            value={value.translate.y}
+          />
         </>
       )
     }
   },
+
+  // TRANSFORM USING MATRIX
+  // transform: {
+  //   // IDENTITY_MATRIX, decomposeMatrix, formatMatrix, lerpMatrix, parseMatrix, recomposeMatrix
+  //   defaultValue: IDENTITY_MATRIX,
+  //   format: v => formatMatrix(v),
+  //   preview: v => <div>a matrix</div>,
+  //   lerp: (from, to, t) => lerpMatrix(from, to, t),
+  //   parse: str => parseMatrix(str),
+  //   render: ({ onChange, value }) => {
+  //     const decomposed = decomposeMatrix(value);
+
+  //     const createInput = (name, getValue = v => v, setValue = v => v) => (
+  //       <div>
+  //         <label>
+  //           {name}
+  //           <input
+  //             type="number"
+  //             onChange={e => onChange(
+  //               recomposeMatrix({
+  //                 ...decomposed,
+  //                 [name]: parseFloat(e.target.value)
+  //               })
+  //             )}
+  //             value={getValue(decomposed[name])}
+  //           />
+  //         </label>
+  //       </div>
+  //     )
+
+  //     return (
+  //       <div>
+  //         {createInput('translateX')}
+  //         {createInput('translateY')}
+  //         {createInput('translateZ')}
+  //       </div>
+  //     )
+  //   }
+  // },
+
+
   top: {
     defaultValue: 0,
     format: formatPixels,
