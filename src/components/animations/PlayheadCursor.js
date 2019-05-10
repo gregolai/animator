@@ -61,13 +61,13 @@ const PlayheadCursor = ({ animation, height }) => {
             instances.forEach(instance => {
               const delay = getInstanceDefinitionValue(
                 instance.id,
-                'animation-delay'
+                'animationDelay'
               );
               if (playhead < delay) return;
 
               const duration = getInstanceDefinitionValue(
                 instance.id,
-                'animation-duration'
+                'animationDuration'
               );
               if (playhead >= delay + duration) return;
 

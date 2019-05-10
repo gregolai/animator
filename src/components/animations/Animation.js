@@ -13,7 +13,7 @@ import styles from './Animation.module.scss';
 const TWEEN_HEIGHT_PX = 33;
 
 const HeadLeft = ({ animation }) => {
-  const { createTween, deleteAnimation, setAnimationName, getUnusedPropDefinitions } = AnimationStore.use();
+  const { createTween, deleteAnimation, setAnimationName, getUnusedStyleProps } = AnimationStore.use();
   return (
     <div className={styles.left}>
       <ExpandingTitle
@@ -28,7 +28,7 @@ const HeadLeft = ({ animation }) => {
         onSelect={definitionId => {
           createTween(animation.id, definitionId);
         }}
-        options={getUnusedPropDefinitions(animation.id).map(definition => ({
+        options={getUnusedStyleProps(animation.id).map(definition => ({
           label: definition.id,
           value: definition.id
         }))}

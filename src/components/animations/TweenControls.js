@@ -3,7 +3,7 @@ import { React, cx, isNumber } from 'common';
 import CursorTime from './CursorTime';
 import { AnimationStore, UIStore } from 'stores';
 import { IconButton, Popover, ValueButton, ValueEditor } from 'components/shared';
-import { getDefinition } from 'utils/definitions';
+import { getStyleProp } from 'utils/cc/styleProps';
 import { InterpolateProp } from 'utils/AnimationController';
 
 import styles from './TweenControls.module.scss';
@@ -28,7 +28,7 @@ const TweenControls = ({ className, tween }) => {
       {value => {
         const keyframeAtTime = getKeyframeAtTime(tween.id, cursorTime);
 
-        const definition = getDefinition(tween.definitionId);
+        const definition = getStyleProp(tween.definitionId);
 
         const isLocked = isTweenLocked(tween.id);
         const isExpanded = isTweenExpanded(tween.id);

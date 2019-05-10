@@ -14,7 +14,8 @@ const ValueButton = ({
   onClick,
   onClear,
   value
-}) => (
+}) => {
+  return (
     <Hover>
       {({ hoverRef, isHovering }) => (
         <Button
@@ -49,5 +50,6 @@ const ValueButton = ({
       )}
     </Hover>
   );
+};
 
 export default ValueButton;

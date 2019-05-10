@@ -4,7 +4,7 @@ import { AnimationStore, UIStore, StageStore } from 'stores';
 import { Canvas, Hover } from 'components/shared';
 import Controls from './components/Controls';
 
-import { getDefinition } from 'utils/definitions';
+import { getStyleProp } from 'utils/cc/styleProps';
 import AnimationController from 'utils/AnimationController';
 import PlaybackController from 'utils/PlaybackController';
 
@@ -85,9 +85,9 @@ const Instance = ({ instance }) => {
   // is instance hidden?
   if (isInstanceHidden(instance.id)) return null;
 
-  const delay = getInstanceDefinitionValue(instance.id, 'animation-delay');
-  const duration = getInstanceDefinitionValue(instance.id, 'animation-duration');
-  const easing = getInstanceDefinitionValue(instance.id, 'animation-timing-function');
+  const delay = getInstanceDefinitionValue(instance.id, 'animationDelay');
+  const duration = getInstanceDefinitionValue(instance.id, 'animationDuration');
+  const easing = getInstanceDefinitionValue(instance.id, 'animationTimingFunction');
 
   // Use cursor time if it's active. Otherwise, use global playhead
   const time = animationCursor.isActive ?
@@ -143,7 +143,7 @@ const Instance = ({ instance }) => {
               style={{
                 ...Object.keys(instance.definitionValues).reduce(
                   (style, definitionId) => {
-                    const definition = getDefinition(definitionId);
+                    const definition = getStyleProp(definitionId);
                     const value = instance.definitionValues[definitionId];
                     style[definition.styleName] = definition.format(value);
                     return style;

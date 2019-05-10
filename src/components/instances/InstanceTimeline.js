@@ -21,8 +21,8 @@ const InstanceTimeline = ({ className, instance }) => {
   const { isInstanceHidden, tickSpacing } = UIStore.use();
 
   const isHidden = isInstanceHidden(instance.id);
-  const delay = getInstanceDefinitionValue(instance.id, 'animation-delay');
-  const duration = getInstanceDefinitionValue(instance.id, 'animation-duration');
+  const delay = getInstanceDefinitionValue(instance.id, 'animationDelay');
+  const duration = getInstanceDefinitionValue(instance.id, 'animationDuration');
 
   const tweens = getTweens(instance.animationId);
   const height = tweens.length * 22;

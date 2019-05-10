@@ -1,6 +1,6 @@
 import React from 'react';
 import interpolateKeyframes from 'utils/cc/interpolateKeyframes';
-import { getDefinition } from 'utils/definitions';
+import { getStyleProp } from 'utils/cc/styleProps';
 
 export const InterpolateProp = ({
   children,
@@ -9,7 +9,7 @@ export const InterpolateProp = ({
   keyframes,
   time
 }) => {
-  const definition = getDefinition(definitionId);
+  const definition = getStyleProp(definitionId);
   if (time === undefined) return children(undefined);
 
   return children(
@@ -32,7 +32,7 @@ const AnimationController = ({
     Object.entries(keyframes)
       .reduce((map, [definitionId, keyframes]) => {
 
-        const definition = getDefinition(definitionId);
+        const definition = getStyleProp(definitionId);
         if (definition) {
           const value = interpolateKeyframes(keyframes, ratio, definition.lerp, easing)
           if (value !== undefined) {

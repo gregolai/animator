@@ -6,6 +6,9 @@ export default {
   color: str => {
     return color.parseColor(str);
   },
+  easing: str => {
+    return str; // could actually be an array
+  },
   enum: (str, list) => {
     return list.indexOf(str) !== -1 ? str : undefined;
   },

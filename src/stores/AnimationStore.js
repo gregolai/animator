@@ -2,7 +2,8 @@ import { React, normalizeRatio, createUniqueName, getRandomColor, isNumber } fro
 import rework from 'rework';
 import difference from 'lodash/difference';
 
-import { getDefinition, getDefinitions } from 'utils/definitions';
+import { getStyleProp, getStyleProps, getCssProp, canInterpolate } from 'utils/cc/styleProps';
+
 import { exportJSF } from 'utils/importexport';
 
 import db from 'utils/db';
@@ -26,13 +27,14 @@ const createAnimation = ({ name = undefined }) => {
 const createInstance = ({
   animationId,
   definitionValues = {
-    'animation-delay': getDefinition('animation-delay').parse(0),
-    'animation-duration': getDefinition('animation-duration').parse(1000),
-    'animation-timing-function': getDefinition('animation-timing-function').parse('linear'),
-    position: getDefinition('position').parse('absolute'),
-    width: getDefinition('width').parse(30),
-    height: getDefinition('height').parse(30),
-    'background-color': getDefinition('background-color').parse('blue')
+    animationDelay: 0,
+    animationDuration: 1000,
+    animationTimingFunction: 'linear',
+
+    position: 'absolute',
+    backgroundColor: getStyleProp('backgroundColor').parse('blue'),
+    width: 30,
+    height: 30
   },
   name = createUniqueName()
 }) => {
@@ -89,7 +91,7 @@ const fromCSSString = cssString => {
 
           // each "prop: value" pair
           keyframe.declarations.forEach(decl => {
-            const definition = getDefinition(decl.property);
+            const definition = getCssProp(decl.property);
             if (!definition) {
               console.warn(`Definition for CSS prop not yet supported: ${decl.property}`);
               return; // EARLY EXIT
@@ -153,7 +155,7 @@ const fromCSSString = cssString => {
               // FIND ANIMATION BY NAME
               animation = animations.find(anim => anim.name === animName);
             } else {
-              const definition = getDefinition(decl.property);
+              const definition = getCssProp(decl.property);
               if (!definition) {
                 console.warn(`Definition for CSS prop not yet supported: ${decl.property}`);
                 return; // EARLY EXIT
@@ -291,7 +293,7 @@ export default class AnimationStore extends React.Component {
 
   getInstanceDefinitionValue = (instanceId, definitionId) => {
     const instance = this.getInstance(instanceId);
-    const definition = getDefinition(definitionId);
+    const definition = getStyleProp(definitionId);
 
     if (!instance || !definition) {
       return undefined;
@@ -306,7 +308,7 @@ export default class AnimationStore extends React.Component {
 
   setInstanceDefinitionValue = (instanceId, definitionId, value) => {
     const instance = this.getInstance(instanceId);
-    const definition = getDefinition(definitionId);
+    const definition = getStyleProp(definitionId);
 
     if (!instance || !definition) {
       return;
@@ -341,7 +343,7 @@ export default class AnimationStore extends React.Component {
 
   // CREATE - Tween
   createTween = (animationId, definitionId) => {
-    const definition = getDefinition(definitionId);
+    const definition = getStyleProp(definitionId);
 
     // ensure definition and prevent duplicates
     if (
@@ -387,7 +389,7 @@ export default class AnimationStore extends React.Component {
 
     // db value cannot be undefined
     if (value === undefined) {
-      value = getDefinition(tween.definitionId).defaultValue;
+      value = getStyleProp(tween.definitionId).defaultValue;
       if (value === undefined) {
         return null;
       }
@@ -462,19 +464,19 @@ export default class AnimationStore extends React.Component {
     const tween = this.getTween(tweenId);
     if (!tween || !isNumber(time)) return undefined;
 
-    const definition = getDefinition(tween.definitionId);
+    const definition = getStyleProp(tween.definitionId);
 
     return interpolateKeyframes(this.getKeyframes(tweenId), time, definition.lerp, easing);
   };
 
-  getUnusedPropDefinitions = animationId => {
+  getUnusedStyleProps = animationId => {
     if (animationId === -1) {
       return [];
     }
 
     return difference(
-      getDefinitions(d => d.lerp !== undefined),
-      this.getTweens(animationId).map(t => getDefinition(t.definitionId))
+      getStyleProps(styleProp => canInterpolate(styleProp.id)),
+      this.getTweens(animationId).map(t => getStyleProp(t.definitionId))
     );
   };
 
@@ -575,7 +577,7 @@ export default class AnimationStore extends React.Component {
           getKeyframeAtTime: this.getKeyframeAtTime,
           getKeyframes: this.getKeyframes,
 
-          getUnusedPropDefinitions: this.getUnusedPropDefinitions,
+          getUnusedStyleProps: this.getUnusedStyleProps,
 
           interpolate: this.interpolate,
 

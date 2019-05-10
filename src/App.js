@@ -83,8 +83,8 @@ const App = withStores(() => {
   const { getInstances, getInstanceDefinitionValue } = AnimationStore.use();
 
   const maxDuration = getInstances().reduce((max, instance) => {
-    const delay = getInstanceDefinitionValue(instance.id, 'animation-delay');
-    const duration = getInstanceDefinitionValue(instance.id, 'animation-duration');
+    const delay = getInstanceDefinitionValue(instance.id, 'animationDelay');
+    const duration = getInstanceDefinitionValue(instance.id, 'animationDuration');
     return Math.max(delay + duration, max)
   }, 0);
 

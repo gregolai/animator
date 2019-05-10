@@ -19,9 +19,9 @@ const CursorTime = ({ children, animation }) => {
 
   if (selectedInstanceId !== -1) {
     const instance = getInstance(selectedInstanceId);
-    const delay = getInstanceDefinitionValue(instance.id, 'animation-delay');
-    const duration = getInstanceDefinitionValue(instance.id, 'animation-duration');
-    easing = getInstanceDefinitionValue(instance.id, 'animation-timing-function');
+    const delay = getInstanceDefinitionValue(instance.id, 'animationDelay');
+    const duration = getInstanceDefinitionValue(instance.id, 'animationDuration');
+    easing = getInstanceDefinitionValue(instance.id, 'animationTimingFunction');
 
     cursorTime = (playhead - delay) / duration;
     cursorTime = cursorTime < 0 || cursorTime > 1 ?

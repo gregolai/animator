@@ -1,1 +1,1 @@
-export { default } from './styleProps';
+export * from './styleProps';

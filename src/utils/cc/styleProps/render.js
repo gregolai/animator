@@ -2,6 +2,9 @@ import { React, normalizeRatio } from 'common';
 import { ColorSquare, DropdownCustom } from 'components/shared';
 import { DropdownSelect, ColorField, NumberField, RangeField, UrlParseField } from 'components/core';
 
+import { getEasingArray } from '../easing';
+
+import enums from './enums';
 import format from './format';
 import parse from './parse';
 
@@ -15,9 +18,13 @@ const listToOptions = list => {
   });
 }
 
+const BezierComponent = ({ value, onChange }) => (
+  <RangeField min={0} max={1} step={0.01} onChange={onChange} value={value} />
+);
+
 export default {
   color: ({ onChange, value }) => {
-    const color = format.color(value);
+    const color = value === undefined ? undefined : format.color(value);
     return (
       <div style={{ width: 320 }}>
         <ColorField
@@ -31,6 +38,30 @@ export default {
         />
       </div>
     )
+  },
+
+  easing: ({ onChange, value }) => {
+    return (
+      <DropdownCustom
+        customOption={{ label: 'cubic-bezier', value }}
+        onChange={onChange}
+        options={listToOptions(enums.animationTimingFunction)}
+        placeholder="Easing"
+        renderCustom={({ onChange, value }) => {
+          const [x0, y0, x1, y1] = getEasingArray(value);
+          return (
+            <>
+              <BezierComponent onChange={x0 => onChange([x0, y0, x1, y1])} value={x0} />
+              <BezierComponent onChange={y0 => onChange([x0, y0, x1, y1])} value={y0} />
+              <BezierComponent onChange={x1 => onChange([x0, y0, x1, y1])} value={x1} />
+              <BezierComponent onChange={y1 => onChange([x0, y0, x1, y1])} value={y1} />
+            </>
+          );
+
+        }}
+        value={value}
+      />
+    );
   },
 
   enum: ({ list, onChange, placeholder, value }) => {
@@ -58,18 +89,22 @@ export default {
     )
   },
 
-  ratioRange: ({ step = 0.01, onChange, value }) => {
+  image: ({ onChange, value }) => {
     return (
-      <RangeField
-        max={1}
-        min={0}
-        step={step}
-        onChange={onChange}
-        value={value} />
+      <>
+        {value && (
+          <img alt="" style={{ height: 120, width: '100%', objectFit: 'contain' }} src={value} />
+        )}
+        <UrlParseField
+          placeholder="URL"
+          onChange={v => onChange(v.url)}
+          value={value}
+        />
+      </>
     );
   },
 
-  integerRange: ({ step = 1, min = -1000, max = 1000, onChange, value }) => {
+  integerRange: ({ step = 1, min = -1000, max = 1000, onChange, value = 0 }) => {
     return (
       <RangeField
         max={max}
@@ -81,7 +116,7 @@ export default {
     );
   },
 
-  pixelRange: ({ step = 1, min = -1000, max = 1000, onChange, value }) => {
+  pixelRange: ({ step = 1, min = -1000, max = 1000, onChange, value = 0 }) => {
     return (
       <RangeField
         detail="px"
@@ -94,7 +129,19 @@ export default {
     );
   },
 
-  timeRange: ({ step = 10, min = 0, max = 10000, onChange, value }) => {
+  ratioRange: ({ step = 0.01, onChange, value = 0 }) => {
+    return (
+      <RangeField
+        max={1}
+        min={0}
+        step={step}
+        onChange={onChange}
+        value={value}
+      />
+    );
+  },
+
+  timeRange: ({ step = 10, min = 0, max = 10000, onChange, value = 0 }) => {
     return (
       <RangeField
         detail="ms"
@@ -103,16 +150,6 @@ export default {
         step={step}
         onChange={v => onChange(Math.round(v))}
         value={Math.round(value)}
-      />
-    );
-  },
-
-  url: ({ onChange, value }) => {
-    return (
-      <UrlParseField
-        placeholder="URL"
-        onChange={v => onChange(v.url)}
-        value={value}
       />
     );
   }

@@ -19,8 +19,12 @@ export const roundToInterval = (value, interval) => {
 };
 
 export const normalizeRatio = (time, precision = 2) => {
-  time = Number(time).toFixed(2);
+  time = Number(time).toFixed(precision);
   return clamp(parseFloat(time), 0, 1);
+};
+
+export const normalizeFloat = (time, precision = 2) => {
+  return parseFloat(Number(time).toFixed(precision));
 };
 
 export { React, cx, noop, clamp, chunk, isNumber };

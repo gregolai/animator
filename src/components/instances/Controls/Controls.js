@@ -9,13 +9,13 @@ import {
   ValueButton,
   ValueEditor
 } from 'components/shared';
-import { getDefinition, getDefinitions } from 'utils/definitions';
+import { getStyleProp, getStyleProps } from 'utils/cc/styleProps';
 
 import BaseProps from './BaseProps';
 
 import styles from './Controls.module.scss';
 
-const ANIMATION_PROPS = ['animation-delay', 'animation-duration', 'animation-timing-function'];
+const ANIMATION_PROPS = ['animationDelay', 'animationDuration', 'animationTimingFunction'];
 
 const Controls = ({ className, instance }) => {
   const [expandedDefinitionId, setExpandedDefinition] = React.useState('');
@@ -84,7 +84,7 @@ const Controls = ({ className, instance }) => {
               return (
                 <ValueButton
                   key={definitionId}
-                  definition={getDefinition(definitionId)}
+                  definition={getStyleProp(definitionId)}
                   isToggled={expandedDefinitionId === definitionId}
                   onClick={() => {
                     const wasExpanded = expandedDefinitionId === definitionId;
@@ -129,7 +129,7 @@ const Controls = ({ className, instance }) => {
             <BaseProps
               instance={instance}
               definitions={
-                getDefinitions(definition => ANIMATION_PROPS.indexOf(definition.id) === -1)
+                getStyleProps(definition => ANIMATION_PROPS.indexOf(definition.id) === -1)
               }
             />
           </>
