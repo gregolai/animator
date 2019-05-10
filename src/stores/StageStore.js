@@ -4,17 +4,20 @@ import { createPersist } from 'utils/persist';
 const persist = createPersist('StageStore', {
   gridSize: 22,
   showGrid: true,
-  gridSnap: false
+  gridSnap: false,
+  offset: { x: 0, y: 0 }
 });
 
 const Context = React.createContext();
 export default class StageStore extends React.Component {
-  static Consumer = Context.Consumer;
+
+  static use = () => React.useContext(Context);
 
   state = {
     gridSize: persist.gridSize.read(),
     showGrid: persist.showGrid.read(),
-    gridSnap: persist.gridSnap.read()
+    gridSnap: persist.gridSnap.read(),
+    offset: persist.offset.read()
   };
 
   setGridSize = gridSize => {
@@ -32,8 +35,14 @@ export default class StageStore extends React.Component {
     persist.gridSnap.write(gridSnap);
   };
 
+  setOffset = (x, y) => {
+    const offset = { x, y };
+    this.setState({ offset });
+    persist.offset.write(offset);
+  }
+
   render() {
-    const { gridSize, showGrid, gridSnap } = this.state;
+    const { gridSize, showGrid, gridSnap, offset } = this.state;
 
     return (
       <Context.Provider
@@ -45,7 +54,10 @@ export default class StageStore extends React.Component {
           setShowGrid: this.setShowGrid,
 
           gridSnap,
-          setGridSnap: this.setGridSnap
+          setGridSnap: this.setGridSnap,
+
+          offset,
+          setOffset: this.setOffset
         }}
       >
         {this.props.children}

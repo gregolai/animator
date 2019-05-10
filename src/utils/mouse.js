@@ -1,4 +1,4 @@
-import { React, noop } from 'common';
+import { noop } from 'common';
 
 const isLessThanDistance = (deltaX, deltaY, distance) => {
   return deltaX * deltaX + deltaY * deltaY < distance * distance;
@@ -6,7 +6,7 @@ const isLessThanDistance = (deltaX, deltaY, distance) => {
 
 export const startDrag = (
   mouseDownEvent,
-  { distance = 1, measureTarget, onDragStart = noop, onDrag = noop, onDragEnd = noop }
+  { distance = 0, measureTarget, onDragStart = noop, onDrag = noop, onDragEnd = noop }
 ) => {
   if (mouseDownEvent.persist) {
     mouseDownEvent.persist();
@@ -15,6 +15,11 @@ export const startDrag = (
   const { clientX: startX, clientY: startY, button } = mouseDownEvent;
 
   let isDragging = false;
+
+  // cache rect
+  const measureRect = measureTarget ?
+    measureTarget.getBoundingClientRect() :
+    undefined;
 
   const _createArgs = ({ clientX, clientY, ctrlKey, shiftKey, metaKey, target }) => {
     const obj = {
@@ -29,12 +34,11 @@ export const startDrag = (
       deltaY: clientY - startY
     };
 
-    if (measureTarget) {
-      const rect = measureTarget.getBoundingClientRect();
-      obj.localX = clientX - rect.left;
-      obj.localY = clientY - rect.top;
-      obj.ratioX = obj.localX / rect.width;
-      obj.ratioY = obj.localY / rect.height;
+    if (measureRect) {
+      obj.localX = clientX - measureRect.left;
+      obj.localY = clientY - measureRect.top;
+      obj.ratioX = obj.localX / measureRect.width;
+      obj.ratioY = obj.localY / measureRect.height;
     }
 
     return obj;
@@ -81,51 +85,3 @@ export const startDrag = (
   document.addEventListener('mousemove', _onMouseMove);
   document.addEventListener('mouseup', _onMouseUp);
 };
-
-export class MouseOffset extends React.Component {
-  static defaultProps = {
-    isActive: true,
-    onMove: noop
-  };
-
-  clientX = 0;
-  clientY = 0;
-
-  componentDidMount() {
-    document.addEventListener('mousemove', this.onMouseMove);
-  }
-
-  componentWillUnmount() {
-    document.removeEventListener('mousemove', this.onMouseMove);
-  }
-
-  getMouseOffset(target) {
-    const rect = target.getBoundingClientRect();
-    return {
-      x0: this.clientX - rect.left,
-      y0: this.clientY - rect.top,
-      x1: this.clientX - rect.right,
-      y1: this.clientY - rect.bottom
-    };
-  }
-
-  onMouseMove = e => {
-    this.clientX = e.clientX;
-    this.clientY = e.clientY;
-
-    if (!this.props.isActive) return;
-    if (!this.ref) return;
-
-    this.props.onMove(this.getMouseOffset(this.ref));
-  };
-
-  captureRef = ref => {
-    this.ref = ref;
-  };
-
-  render() {
-    return this.props.children({
-      captureRef: this.captureRef
-    });
-  }
-}

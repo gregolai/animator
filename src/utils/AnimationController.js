@@ -1,5 +1,5 @@
 import React from 'react';
-import interpolate from 'utils/interpolate';
+import interpolateKeyframes from 'utils/cc/interpolateKeyframes';
 import { getDefinition } from 'utils/definitions';
 
 export const InterpolateProp = ({
@@ -13,7 +13,7 @@ export const InterpolateProp = ({
   if (time === undefined) return children(undefined);
 
   return children(
-    definition ? interpolate(keyframes, time, definition.lerp, easing) : undefined
+    definition ? interpolateKeyframes(keyframes, time, definition.lerp, easing) : undefined
   );
 }
 
@@ -34,7 +34,7 @@ const AnimationController = ({
 
         const definition = getDefinition(definitionId);
         if (definition) {
-          const value = interpolate(keyframes, ratio, definition.lerp, easing)
+          const value = interpolateKeyframes(keyframes, ratio, definition.lerp, easing)
           if (value !== undefined) {
             if (format) {
               map[definition.styleName] = definition.format(value);

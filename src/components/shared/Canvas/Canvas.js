@@ -72,61 +72,8 @@ export default class Canvas extends React.Component {
     this.cvs = ref;
   };
 
-  onMouseDown = e => {
-    const { clientX, clientY, button, metaKey, ctrlKey, shiftKey } = e;
-    if (button !== 0) return; // left mouse only
-
-    this.isButtonDown = true;
-
-    const { onMouseDown } = this.props;
-    if (onMouseDown) {
-      const rect = this.cvs.getBoundingClientRect();
-      onMouseDown({
-        x: clientX - rect.left,
-        y: clientY - rect.top,
-        button,
-        metaKey,
-        ctrlKey,
-        shiftKey
-      });
-    }
-  };
-
-  onMouseMove = e => {
-    const { clientX, clientY } = e;
-    const { onMouseMove } = this.props;
-
-    if (onMouseMove) {
-      const rect = this.cvs.getBoundingClientRect();
-      onMouseMove({
-        isButtonDown: this.isButtonDown,
-        x: clientX - rect.left,
-        y: clientY - rect.top
-      });
-    }
-  };
-
-  onMouseUp = e => {
-    const { clientX, clientY, button, metaKey, ctrlKey, shiftKey } = e;
-    if (button !== 0) return; // left mouse only
-
-    this.isButtonDown = false;
-
-    const { onMouseUp } = this.props;
-    if (onMouseUp) {
-      const rect = this.cvs.getBoundingClientRect();
-      onMouseUp({
-        x: clientX - rect.left,
-        y: clientY - rect.top,
-        button,
-        metaKey,
-        ctrlKey,
-        shiftKey
-      });
-    }
-  };
-
   render() {
+    const { onMouseDown } = this.props;
     const { width, height } = this.state;
     return (
       <canvas
@@ -134,9 +81,7 @@ export default class Canvas extends React.Component {
         className={styles.container}
         height={height}
         width={width}
-        onMouseDown={this.onMouseDown}
-        onMouseMove={this.onMouseMove}
-        onMouseUp={this.onMouseUp}
+        onMouseDown={onMouseDown}
       />
     );
   }

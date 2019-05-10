@@ -13,7 +13,9 @@ const EASING_MAP = {
 };
 
 export const getEasingArray = easing => {
-  return Array.isArray(easing) ? easing : EASING_MAP[easing] || EASING_MAP.linear;
+  return Array.isArray(easing) ?
+    easing :
+    EASING_MAP[easing] || EASING_MAP.linear;
 };
 
 export const getEasingOptions = () =>

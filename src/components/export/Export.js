@@ -12,7 +12,7 @@ import styles from './Export.module.scss';
 const Export = ({ onRequestClose }) => {
 
   const [choice, setChoice] = React.useState('');
-
+  const { getExportCSS, getExportJSF } = AnimationStore.use();
   return (
     <>
       {/* CHOICE */}
@@ -40,17 +40,13 @@ const Export = ({ onRequestClose }) => {
         onRequestClose={() => setChoice('')}
         title="Export CSS"
       >
-        <AnimationStore.Consumer>
-          {({ getExportCSS }) => (
-            <TextareaField
-              fieldIndex={0}
-              className={styles.textarea}
-              label="CSS Keyframes"
-              onChange={() => { }}
-              value={getExportCSS()}
-            />
-          )}
-        </AnimationStore.Consumer>
+        <TextareaField
+          fieldIndex={0}
+          className={styles.textarea}
+          label="CSS Keyframes"
+          onChange={() => { }}
+          value={getExportCSS()}
+        />
       </ImportExportModal>
 
       {/* CHOICE: JSF */}
@@ -60,17 +56,13 @@ const Export = ({ onRequestClose }) => {
         onRequestClose={() => setChoice('')}
         title="Export JSF"
       >
-        <AnimationStore.Consumer>
-          {({ getExportJSF }) => (
-            <TextareaField
-              fieldIndex={0}
-              className={styles.textarea}
-              label="UISCHEMA"
-              onChange={() => { }}
-              value={getExportJSF()}
-            />
-          )}
-        </AnimationStore.Consumer>
+        <TextareaField
+          fieldIndex={0}
+          className={styles.textarea}
+          label="UISCHEMA"
+          onChange={() => { }}
+          value={getExportJSF()}
+        />
       </ImportExportModal>
     </>
   )

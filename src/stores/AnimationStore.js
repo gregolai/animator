@@ -6,7 +6,7 @@ import { getDefinition, getAnimatedDefinitions } from 'utils/definitions';
 import { exportJSF } from 'utils/importexport';
 
 import db from 'utils/db';
-import interpolate from 'utils/interpolate';
+import interpolateKeyframes from 'utils/cc/interpolateKeyframes';
 import { createPersist } from 'utils/persist';
 
 const persist = createPersist('AnimationStore', {
@@ -184,7 +184,8 @@ const fromCSSString = cssString => {
 
 const Context = React.createContext();
 export default class AnimationStore extends React.Component {
-  static Consumer = Context.Consumer;
+
+  static use = () => React.useContext(Context);
 
   state = {
     animations: persist.animations.read(),
@@ -463,7 +464,7 @@ export default class AnimationStore extends React.Component {
 
     const definition = getDefinition(tween.definitionId);
 
-    return interpolate(this.getKeyframes(tweenId), time, definition.lerp, easing);
+    return interpolateKeyframes(this.getKeyframes(tweenId), time, definition.lerp, easing);
   };
 
   getUnusedPropDefinitions = animationId => {

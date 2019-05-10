@@ -3,40 +3,34 @@ import { BooleanField, NumberField } from 'components/core';
 
 import { StageStore } from 'stores';
 
-import styles from './Controls.scss';
+import styles from './Controls.module.scss';
 
-export default () => (
-  <StageStore.Consumer>
-    {({ showGrid, setShowGrid, gridSnap, setGridSnap, gridSize, setGridSize }) => (
-      <div className={styles.container}>
-        <div className={styles.leftControls}>{/* NOTHING HERE? */}</div>
+export default () => {
+  const { showGrid, setShowGrid, gridSnap, setGridSnap, gridSize, setGridSize } = StageStore.use();
+  return (
+    <div className={styles.container}>
 
-        <div className={styles.rightControls}>
+      {showGrid && (
+        <>
           <BooleanField
-            flush
-            className={styles.showGrid}
-            label="Show Grid"
-            onChange={setShowGrid}
-            value={showGrid}
-          />
-          <BooleanField
-            flush
-            className={styles.gridSnap}
             label="Snap To Grid"
             onChange={setGridSnap}
             value={gridSnap}
           />
           <NumberField
-            flush
-            className={styles.gridSize}
             label="Grid Size"
             min={8}
             max={88}
             onChange={setGridSize}
             value={gridSize}
           />
-        </div>
-      </div>
-    )}
-  </StageStore.Consumer>
-);
+        </>
+      )}
+      <BooleanField
+        label="Show Grid"
+        onChange={setShowGrid}
+        value={showGrid}
+      />
+    </div>
+  );
+};

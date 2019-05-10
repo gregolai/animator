@@ -3,7 +3,7 @@ import SplitPane from 'react-split-pane';
 // import cssbeautify from 'cssbeautify';
 
 import { ButtonField } from 'components/core';
-import { withStores, AnimationStore, ImporterStore } from 'stores';
+import { withStores, AnimationStore, UIStore, ImporterStore } from 'stores';
 
 import Stage from './components/stage/Stage';
 import Export from './components/export/Export';
@@ -12,6 +12,8 @@ import MediaControls from './components/media/MediaControls';
 
 import Animations from './components/animations/Animations';
 import Instances from './components/instances/Instances';
+
+import PlaybackController from 'utils/PlaybackController';
 
 import styles from './App.module.scss';
 
@@ -46,119 +48,134 @@ import styles from './App.module.scss';
 //   });
 // }
 
+const ImportButton = () => {
+  const { setOpen } = ImporterStore.use();
+  return (
+    <div className={styles.menuItem}>
+      <ButtonField
+        size="small"
+        color="warning"
+        onClick={() => setOpen(true)}
+        label="Import"
+      />
+    </div>
+  );
+}
+
+const AddAnimationButton = () => {
+  const { createAnimation } = AnimationStore.use();
+  return (
+    <div className={styles.menuItem}>
+      <ButtonField
+        size="small"
+        color="primary"
+        label="Create Animation"
+        onClick={() => createAnimation()}
+      />
+    </div>
+  );
+}
+
 const App = withStores(() => {
   const [debug, toggleDebug] = React.useState(true);
-
   const [showExportModal, setShowExportModal] = React.useState(false);
 
+  const { getInstances, getInstanceDefinitionValue } = AnimationStore.use();
+
+  const maxDuration = getInstances().reduce((max, instance) => {
+    const delay = getInstanceDefinitionValue(instance.id, 'animation-delay');
+    const duration = getInstanceDefinitionValue(instance.id, 'animation-duration');
+    return Math.max(delay + duration, max)
+  }, 0);
+
   return (
-    <div className={styles.container}>
-      {/* DEBUG */}
-      <label
-        style={{
-          userSelect: 'none',
-          position: 'fixed',
-          zIndex: 999,
-          top: 0,
-          left: 0
-        }}
-      >
-        Debug <input type="checkbox" onChange={() => toggleDebug(!debug)} checked={debug} />
-      </label>
-      <button
-        style={{
-          userSelect: 'none',
-          position: 'fixed',
-          zIndex: 999,
-          top: 20,
-          left: 0
-        }}
-        onClick={() => {
-          localStorage.clear();
-          window.location.reload();
-        }}
-      >
-        Reset Cache
+    <PlaybackController duration={maxDuration}>
+      <div className={styles.container}>
+        {/* DEBUG */}
+        <label
+          style={{
+            userSelect: 'none',
+            position: 'fixed',
+            zIndex: 999,
+            top: 0,
+            left: 0
+          }}
+        >
+          Debug <input type="checkbox" onChange={() => toggleDebug(!debug)} checked={debug} />
+        </label>
+        <button
+          style={{
+            userSelect: 'none',
+            position: 'fixed',
+            zIndex: 999,
+            top: 20,
+            left: 0
+          }}
+          onClick={() => {
+            localStorage.clear();
+            window.location.reload();
+          }}
+        >
+          Reset Cache
       </button>
 
 
-      {/* MODALS */}
-      <ImportCSSModal />
-      {showExportModal && <Export onRequestClose={() => setShowExportModal(false)} />}
+        {/* MODALS */}
+        <ImportCSSModal />
+        {showExportModal && <Export onRequestClose={() => setShowExportModal(false)} />}
 
-      <SplitPane
-        split="horizontal"
-        minSize={300}
-        maxSize={-300}
-        defaultSize={window.innerHeight * 0.5}
-      >
-        {/* TOP REGION */}
         <SplitPane
-          split="vertical"
+          split="horizontal"
           minSize={300}
-          maxSize={1200}
-          defaultSize={window.innerWidth * 0.5}
+          maxSize={-300}
+          defaultSize={window.innerHeight * 0.5}
         >
-          <div className={styles.topLeft}>
-            <div className={styles.menu}>
+          {/* TOP REGION */}
+          <SplitPane
+            split="vertical"
+            minSize={300}
+            maxSize={1200}
+            defaultSize={window.innerWidth * 0.5}
+          >
+            <div className={styles.topLeft}>
+              <div className={styles.menu}>
 
-              {/* IMPORT */}
-              <ImporterStore.Consumer>
-                {({ setOpen }) => (
-                  <div className={styles.menuItem}>
-                    <ButtonField
-                      size="small"
-                      color="warning"
-                      onClick={() => setOpen(true)}
-                      label="Import"
-                    />
-                  </div>
-                )}
-              </ImporterStore.Consumer>
+                {/* IMPORT */}
+                <ImportButton />
 
-              {/* EXPORT */}
-              <div className={styles.menuItem}>
-                <ButtonField
-                  size="small"
-                  color="warning"
-                  onClick={() => setShowExportModal(true)}
-                  label="Export"
-                />
+                {/* EXPORT */}
+                <div className={styles.menuItem}>
+                  <ButtonField
+                    size="small"
+                    color="warning"
+                    onClick={() => setShowExportModal(true)}
+                    label="Export"
+                  />
+                </div>
+
+                {/* ADD ANIMATION */}
+                <AddAnimationButton />
               </div>
 
-              {/* ADD ANIMATION */}
-              <AnimationStore.Consumer>
-                {({ createAnimation }) => (
-                  <div className={styles.menuItem}>
-                    <ButtonField
-                      size="small"
-                      color="primary"
-                      label="Create Animation"
-                      onClick={() => createAnimation()}
-                    />
-                  </div>
-                )}
-              </AnimationStore.Consumer>
+              {/* KEYFRAME ANIMATIONS */}
+              <Animations className={styles.timeline} />
             </div>
 
-            {/* KEYFRAME ANIMATIONS */}
-            <Animations className={styles.timeline} />
-          </div>
+            {/* STAGE REGION */}
+            <div className={styles.topRight}>
+              <Stage className={styles.stage} />
+              <MediaControls />
+            </div>
+          </SplitPane>
 
-          {/* STAGE REGION */}
-          <div className={styles.topRight}>
-            <Stage className={styles.stage} showControls />
-            <MediaControls />
+          {/* BOTTOM REGION */}
+          <div className={styles.bottom}>
+            {/* INSTANCE EDITING */}
+            <Instances />
           </div>
         </SplitPane>
-
-        {/* BOTTOM REGION */}
-        <div className={styles.bottom}>
-          {/* INSTANCE EDITING */}
-          <Instances />
-        </div>
-      </SplitPane>
-    </div>
+      </div>
+    </PlaybackController>
   );
 });
 

@@ -1,115 +1,39 @@
-import { React, normalizeRatio, roundToInterval, INTERVAL_MS } from 'common';
+import { React, normalizeRatio, INTERVAL_MS } from 'common';
 import { createPersist } from 'utils/persist';
 
 const persist = createPersist('UIStore', {
   expandedTweenId: -1,
-  hiddenTweens: {},
+  hiddenInstances: {},
   lockedTweens: {},
   selectedInstanceId: -1,
-
-  // MEDIA
-  isLooping: true,
-  isReversed: false,
-  playhead: 0,
   tickSpacing: 4
 });
 
 const Context = React.createContext();
 export default class UIStore extends React.Component {
-  static Consumer = Context.Consumer;
+
+  static use = () => React.useContext(Context);
 
   state = {
     expandedTweenId: persist.expandedTweenId.read(),
-    hiddenTweens: persist.hiddenTweens.read(),
+    hiddenInstances: persist.hiddenInstances.read(),
     lockedTweens: persist.lockedTweens.read(),
     selectedInstanceId: persist.selectedInstanceId.read(),
 
-    // MEDIA
-    isLooping: persist.isLooping.read(),
-    isPlaying: false,
-    isReversed: persist.isReversed.read(),
-    localPlayhead: { animationId: -1, time: 0 },
-    playhead: persist.playhead.read(),
+    animationCursor: {
+      isActive: false,
+      ratio: 0,
+    },
+
     tickSpacing: persist.tickSpacing.read()
   };
 
-  constructor(props) {
-    super(props);
-
-    this._controls = (() => {
-      let raf = null;
-      let prevTime;
-
-      const loop = () => {
-        const curTime = Date.now();
-
-        const timeStep = curTime - prevTime;
-
-        let stop = false;
-        let nextPlayhead = this.state.playhead + (this.state.isReversed ? -timeStep : timeStep);
-
-        const DURATION = 99999;
-        if (nextPlayhead >= DURATION) {
-          if (this.state.isLooping) {
-            nextPlayhead -= DURATION; // loop
-          } else {
-            nextPlayhead = DURATION; // clamp
-            stop = true;
-          }
-        } else if (nextPlayhead < 0) {
-          if (this.state.isLooping) {
-            nextPlayhead += DURATION; // loop
-          } else {
-            nextPlayhead = 0;
-            stop = true;
-          }
-        }
-
-        this.setState({ playhead: nextPlayhead, isPlaying: !stop });
-
-        if (!stop) {
-          // continue playing
-          prevTime = curTime;
-          raf = requestAnimationFrame(loop);
-        }
-      };
-
-      return {
-        play: () => {
-          if (this.state.isPlaying) return;
-
-          let { playhead } = this.state;
-
-          // reset if necessary
-          if (!this.state.isReversed && playhead === 1) {
-            playhead = 0;
-          } else if (this.state.isReversed && playhead === 0) {
-            playhead = 1;
-          }
-
-          this.setState({ isPlaying: true, playhead }, () => {
-            prevTime = Date.now();
-            raf = requestAnimationFrame(loop);
-          });
-        },
-        pause: () => {
-          cancelAnimationFrame(raf);
-          this.setState({ isPlaying: false });
-        },
-        stop: () => {
-          cancelAnimationFrame(raf);
-          this.setState({ isPlaying: false, playhead: 0 });
-        }
-      };
-    })();
-  }
-
   componentDidMount() {
-    document.addEventListener('keydown', this.onKeyDown);
+    //document.addEventListener('keydown', this.onKeyDown);
   }
 
   componentWillUnmount() {
-    document.removeEventListener('keydown', this.onKeyDown);
+    //document.removeEventListener('keydown', this.onKeyDown);
   }
 
   onKeyDown = e => {
@@ -197,23 +121,6 @@ export default class UIStore extends React.Component {
     persist.expandedTweenId.write(expandedTweenId);
   };
 
-  isTweenHidden = tweenId => {
-    return !!this.state.hiddenTweens[tweenId];
-  };
-
-  setTweenHidden = (tweenId, hide) => {
-    const hiddenTweens = { ...this.state.hiddenTweens };
-
-    if (hide) {
-      hiddenTweens[tweenId] = true;
-    } else {
-      delete hiddenTweens[tweenId];
-    }
-
-    this.setState({ hiddenTweens });
-    persist.hiddenTweens.write(hiddenTweens);
-  };
-
   isTweenLocked = tweenId => {
     return !!this.state.lockedTweens[tweenId];
   };
@@ -231,34 +138,23 @@ export default class UIStore extends React.Component {
     persist.lockedTweens.write(lockedTweens);
   };
 
-  setLooping = isLooping => {
-    this.setState({ isLooping });
-    persist.isLooping.write(isLooping);
-  };
+  isInstanceHidden = instanceId => {
+    return !!this.state.hiddenInstances[instanceId];
+  }
 
-  setReversed = isReversed => {
-    this.setState({ isReversed });
-    persist.isReversed.write(isReversed);
-  };
+  setInstanceHidden = (instanceId, hide) => {
+    const hiddenInstances = { ...this.state.hiddenInstances };
 
-  setPlaying = () => {
-    this._controls.play();
-  };
+    if (hide) {
+      hiddenInstances[instanceId] = true;
+    } else {
+      delete hiddenInstances[instanceId];
+    }
 
-  setPaused = () => {
-    this._controls.pause();
-  };
+    this.setState({ hiddenInstances });
+    persist.hiddenInstances.write(hiddenInstances);
+  }
 
-  setStopped = () => {
-    this._controls.stop();
-  };
-
-  setPlayhead = time => {
-    const playhead = Math.max(time, 0);
-
-    this.setState({ playhead });
-    persist.playhead.write(playhead);
-  };
 
   setTickSpacing = tickSpacing => {
     tickSpacing = Math.max(1, tickSpacing);
@@ -267,21 +163,18 @@ export default class UIStore extends React.Component {
     persist.tickSpacing.write(tickSpacing);
   };
 
-  setLocalPlayhead = (animationId, time) => {
-    time = normalizeRatio(time);
+  setAnimationCursor = (ratio, isActive) => {
+    ratio = normalizeRatio(ratio);
 
-    this.setState({
-      localPlayhead: { animationId, time }
-    });
+    const animationCursor = {
+      isActive,
+      ratio
+    }
+    this.setState({ animationCursor });
   };
 
-  getLocalPlayhead = (animationId) => {
-    const { localPlayhead } = this.state;
-    return localPlayhead.animationId === animationId ? localPlayhead.time : undefined;
-  }
-
   render() {
-    const { isLooping, isPlaying, isReversed, playhead, tickSpacing } = this.state;
+    const { animationCursor, tickSpacing } = this.state;
 
     return (
       <Context.Provider
@@ -292,30 +185,17 @@ export default class UIStore extends React.Component {
           isTweenExpanded: this.isTweenExpanded,
           setTweenExpanded: this.setTweenExpanded,
 
-          isTweenHidden: this.isTweenHidden,
-          setTweenHidden: this.setTweenHidden,
+          isInstanceHidden: this.isInstanceHidden,
+          setInstanceHidden: this.setInstanceHidden,
 
           isTweenLocked: this.isTweenLocked,
           setTweenLocked: this.setTweenLocked,
 
-
-          isLooping,
-          isPlaying,
-          isReversed,
-          playhead,
           tickSpacing,
-
-          setLooping: this.setLooping,
-          setReversed: this.setReversed,
-          setPlaying: this.setPlaying,
-          setPaused: this.setPaused,
-          setStopped: this.setStopped,
-          setPlayhead: this.setPlayhead,
           setTickSpacing: this.setTickSpacing,
 
-
-          setLocalPlayhead: this.setLocalPlayhead,
-          getLocalPlayhead: this.getLocalPlayhead
+          animationCursor,
+          setAnimationCursor: this.setAnimationCursor
         }}
       >
         {this.props.children}

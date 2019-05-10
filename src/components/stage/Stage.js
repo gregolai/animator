@@ -6,164 +6,179 @@ import Controls from './components/Controls';
 
 import { getDefinition } from 'utils/definitions';
 import AnimationController from 'utils/AnimationController';
+import PlaybackController from 'utils/PlaybackController';
 
-import styles from './Stage.scss';
+import styles from './Stage.module.scss';
 
 const GRID_COLOR = '#f2f2f2';
+const AXIS_COLOR = '#d2d2d2';
 
-const StageCanvas = () => (
-  <StageStore.Consumer>
-    {({ gridSize, showGrid }) => (
-      <Canvas
-        onResize={({ cvs, ctx }) => {
-          ctx.clearRect(0, 0, cvs.width, cvs.height);
-          if (!showGrid) return;
+const StageCanvas = () => {
+  const { gridSize, showGrid, offset, setOffset } = StageStore.use();
 
-          const width = cvs.width;
-          const height = cvs.height;
-
-          /* eslint-disable no-lone-blocks */
-          ctx.save();
-          {
-            ctx.beginPath();
-            for (let x = gridSize; x <= width; x += gridSize) {
-              ctx.moveTo(x + 0.5, 0);
-              ctx.lineTo(x + 0.5, height);
-            }
-
-            for (let y = gridSize; y <= height; y += gridSize) {
-              ctx.moveTo(0, y + 0.5);
-              ctx.lineTo(width, y + 0.5);
-            }
-            ctx.closePath();
-
-            ctx.lineWidth = 1;
-            ctx.strokeStyle = GRID_COLOR;
-            ctx.stroke();
+  return (
+    <Canvas
+      onMouseDown={e => {
+        const { x, y } = offset;
+        startDrag(e, {
+          distance: 1,
+          onDrag: ({ deltaX, deltaY }) => {
+            setOffset(x - deltaX, y - deltaY);
           }
-          ctx.restore();
-        }}
-      />
-    )}
-  </StageStore.Consumer>
-);
+        })
+      }}
+
+      onResize={({ cvs, ctx }) => {
+        const { width, height } = cvs;
+
+        ctx.clearRect(0, 0, width, height);
+        if (!showGrid) return;
+
+        /* eslint-disable no-lone-blocks */
+        ctx.save();
+        {
+          ctx.translate(-offset.x, -offset.y);
+
+          ctx.fillStyle = GRID_COLOR;
+
+          // vertical lines
+          const endX = Math.ceil((offset.x + width) / gridSize);
+          let x = Math.ceil(offset.x / gridSize);
+          while (x < endX) {
+            if (x !== 0) ctx.fillRect(x * gridSize - 1, offset.y, 1, height);
+            ++x;
+          }
+
+          // horizontal lines
+          const endY = Math.ceil((offset.y + height) / gridSize);
+          let y = Math.ceil(offset.y / gridSize);
+          while (y < endY) {
+            if (y !== 0) ctx.fillRect(offset.x, y * gridSize - 1, width, 1);
+            ++y;
+          }
+
+          // draw axis
+          ctx.fillStyle = AXIS_COLOR;
+          ctx.fillRect(-1, offset.y, 1, height);
+          ctx.fillRect(offset.x, -1, width, 1);
+        }
+        ctx.restore();
+      }}
+    />
+  );
+};
 
 
 const Instance = ({ instance }) => {
   const [isDragging, setDragging] = React.useState(false);
 
+  const {
+    getKeyframes,
+    getTweens,
+    getInstanceDefinitionValue,
+    setInstanceDefinitionValue
+  } = AnimationStore.use();
+  const { animationCursor, isInstanceHidden, setSelectedInstance } = UIStore.use();
+  const { playhead } = PlaybackController.use();
+  const { showGrid, gridSize, gridSnap } = StageStore.use();
 
+  // is instance hidden?
+  if (isInstanceHidden(instance.id)) return null;
+
+  const delay = getInstanceDefinitionValue(instance.id, 'animation-delay');
+  const duration = getInstanceDefinitionValue(instance.id, 'animation-duration');
+  const easing = getInstanceDefinitionValue(instance.id, 'animation-timing-function');
+
+  // Use cursor time if it's active. Otherwise, use global playhead
+  const time = animationCursor.isActive ?
+    delay + duration * animationCursor.ratio :
+    playhead;
 
   return (
-    <AnimationStore.Consumer>
-      {({
-        getKeyframes,
-        getTweens,
-        getInstanceDefinitionValue,
-        setInstanceDefinitionValue
-      }) => (
-          <UIStore.Consumer>
-            {({ setSelectedInstance, playhead }) => (
-              <Hover>
-                {({ hoverRef, isHovering }) => (
-                  <AnimationController
-                    format={true}
-                    easing={getInstanceDefinitionValue(instance.id, 'animation-timing-function')}
-                    delay={getInstanceDefinitionValue(instance.id, 'animation-delay')}
-                    duration={getInstanceDefinitionValue(instance.id, 'animation-duration')}
-                    keyframes={
-                      getTweens(instance.animationId).reduce((map, tween) => {
-                        map[tween.definitionId] = getKeyframes(tween.id);
-                        return map;
-                      }, {})
+    <Hover>
+      {({ hoverRef, isHovering }) => (
+        <AnimationController
+          format={true}
+          delay={delay}
+          duration={duration}
+          easing={easing}
+          keyframes={
+            getTweens(instance.animationId).reduce((map, tween) => {
+              map[tween.definitionId] = getKeyframes(tween.id);
+              return map;
+            }, {})
+          }
+          time={time}
+        >
+          {interpolatedStyles => (
+            <div
+              ref={hoverRef}
+              className={cx(styles.instance, {
+                [styles.dragging]: isDragging
+              })}
+              onMouseDown={e => {
+                if (e.button !== 0) return;
+
+                setSelectedInstance(instance.id);
+
+                const initX = getInstanceDefinitionValue(instance.id, 'left') || 0;
+                const initY = getInstanceDefinitionValue(instance.id, 'top') || 0;
+
+                startDrag(e, {
+
+                  onDragStart: () => setDragging(true),
+                  onDrag: ({ deltaX, deltaY }) => {
+                    let x = initX + deltaX;
+                    let y = initY + deltaY;
+                    if (showGrid && gridSnap) {
+                      x = roundToInterval(x, gridSize);
+                      y = roundToInterval(y, gridSize);
                     }
-                    time={playhead}
-                  >
-                    {interpolatedStyles => (
-                      <StageStore.Consumer>
-                        {({ gridSize, gridSnap }) => (
-                          <div
-                            ref={hoverRef}
-                            className={cx(styles.instance, {
-                              [styles.dragging]: isDragging
-                            })}
-                            onMouseDown={event => {
-                              if (event.button !== 0) return;
+                    setInstanceDefinitionValue(instance.id, 'left', x);
+                    setInstanceDefinitionValue(instance.id, 'top', y);
+                  },
+                  onDragEnd: () => setDragging(false),
+                })
+              }}
+              style={{
+                ...Object.keys(instance.definitionValues).reduce(
+                  (style, definitionId) => {
+                    const definition = getDefinition(definitionId);
+                    const value = instance.definitionValues[definitionId];
+                    style[definition.styleName] = definition.format(value);
+                    return style;
+                  },
+                  {}
+                ),
 
-                              setSelectedInstance(instance.id);
-
-                              const initX = getInstanceDefinitionValue(instance.id, 'left') || 0;
-                              const initY = getInstanceDefinitionValue(instance.id, 'top') || 0;
-
-                              startDrag(event, {
-
-                                onDragStart: () => setDragging(true),
-                                onDrag: ({ deltaX, deltaY }) => {
-                                  let x = initX + deltaX;
-                                  let y = initY + deltaY;
-                                  if (gridSnap) {
-                                    x = roundToInterval(x, gridSize);
-                                    y = roundToInterval(y, gridSize);
-                                  }
-                                  console.log('onDrag', { x, y })
-                                  setInstanceDefinitionValue(instance.id, 'left', x);
-                                  setInstanceDefinitionValue(instance.id, 'top', y);
-                                },
-                                onDragEnd: () => setDragging(false),
-                              })
-                            }}
-                            style={{
-                              ...Object.keys(instance.definitionValues).reduce(
-                                (style, definitionId) => {
-                                  const definition = getDefinition(definitionId);
-                                  const value = instance.definitionValues[definitionId];
-                                  style[definition.styleName] = definition.format(value);
-                                  return style;
-                                },
-                                {}
-                              ),
-
-                              ...interpolatedStyles
-                            }}
-                          >
-                            {isHovering && <div className={styles.name}>{instance.name}</div>}
-                          </div>
-                        )}
-                      </StageStore.Consumer>
-                    )}
-                  </AnimationController>
-                )}
-              </Hover>
-            )}
-          </UIStore.Consumer>
-
-        )}
-    </AnimationStore.Consumer>
+                ...interpolatedStyles
+              }}
+            >
+              {isHovering && <div className={styles.name}>{instance.name}</div>}
+            </div>
+          )}
+        </AnimationController>
+      )}
+    </Hover>
   )
 }
 
-export default ({ className, showControls }) => {
-
-
+export default ({ className }) => {
+  const { getInstances } = AnimationStore.use();
+  const { offset } = StageStore.use();
 
   return (
     <div className={cx(styles.container, className)}>
       <StageCanvas />
-
-      <AnimationStore.Consumer>
-        {({ getInstances }) => (
-          <div className={styles.instances}>
-            {getInstances().map(instance => (
-              <Instance
-                key={instance.id}
-                instance={instance}
-              />
-            ))}
-          </div>
-        )}
-      </AnimationStore.Consumer>
-
-      {showControls && <Controls />}
+      <div className={styles.instances} style={{ left: -offset.x, top: -offset.y }}>
+        {getInstances().map(instance => (
+          <Instance
+            key={instance.id}
+            instance={instance}
+          />
+        ))}
+      </div>
+      <Controls />
     </div>
   );
 };

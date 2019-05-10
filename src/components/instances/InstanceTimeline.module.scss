@@ -3,5 +3,12 @@
 :local {
   .container {
     position: relative;
+
+    transition: opacity 250ms ease-in-out;
+    opacity: 1;
+
+    &.hidden {
+      opacity: 0.2;
+    }
   }
 }

@@ -17,68 +17,65 @@ const drawKeyframe = (ctx, x, y) => {
 }
 
 const InstanceTimeline = ({ className, instance }) => {
+  const { getTweens, getKeyframes, getInstanceDefinitionValue } = AnimationStore.use();
+  const { isInstanceHidden, tickSpacing } = UIStore.use();
+
+  const isHidden = isInstanceHidden(instance.id);
+  const delay = getInstanceDefinitionValue(instance.id, 'animation-delay');
+  const duration = getInstanceDefinitionValue(instance.id, 'animation-duration');
+
+  const tweens = getTweens(instance.animationId);
+  const height = tweens.length * 22;
+
   return (
+    <div
+      className={cx(styles.container, {
+        [styles.hidden]: isHidden
+      }, className)}
+      style={{ height }}
+    >
+      <Canvas
+        onResize={({ cvs, ctx }) => {
+          const { width, height } = cvs;
+          ctx.clearRect(0, 0, width, height);
 
-    <UIStore.Consumer>
-      {({ tickSpacing }) => (
-        <AnimationStore.Consumer>
-          {({ getTweens, getKeyframes, getInstanceDefinitionValue }) => {
-            const delay = getInstanceDefinitionValue(instance.id, 'animation-delay');
-            const duration = getInstanceDefinitionValue(instance.id, 'animation-duration');
+          const pxDelay = timeToPixels(delay, tickSpacing);
+          const pxDuration = timeToPixels(duration, tickSpacing);
 
-            const tweens = getTweens(instance.animationId);
-            const height = tweens.length * 22;
+          // delay bar
+          if (delay > 0) {
+            ctx.fillStyle = DELAY_COLOR;
+            ctx.fillRect(0, 0, pxDelay, height);
+          }
 
-            return (
-              <div className={cx(styles.container, className)} style={{ height }}>
-                <Canvas
-                  onResize={({ cvs, ctx }) => {
-                    const { width, height } = cvs;
-                    ctx.clearRect(0, 0, width, height);
+          // duration bar
+          ctx.fillStyle = DURATION_COLOR;
+          ctx.fillRect(pxDelay, 0, pxDuration, height);
 
-                    const pxDelay = timeToPixels(delay, tickSpacing);
-                    const pxDuration = timeToPixels(duration, tickSpacing);
+          // render tween bars
+          tweens.forEach((tween, tweenIndex, tweens) => {
 
-                    // delay bar
-                    if (delay > 0) {
-                      ctx.fillStyle = DELAY_COLOR;
-                      ctx.fillRect(0, 0, pxDelay, height);
-                    }
+            const keyframes = getKeyframes(tween.id);
+            const y = Math.round((tweenIndex + 1) * (height / (tweens.length + 1)));
 
-                    // duration bar
-                    ctx.fillStyle = DURATION_COLOR;
-                    ctx.fillRect(pxDelay, 0, pxDuration, height);
+            let x0, x1;
+            for (let i = 0; i < keyframes.length - 1; ++i) {
+              x0 = pxDelay + Math.floor(keyframes[i].time * pxDuration);
+              x1 = pxDelay + Math.floor(keyframes[i + 1].time * pxDuration);
 
-                    // render tween bars
-                    tweens.forEach((tween, tweenIndex, tweens) => {
+              ctx.fillStyle = 'black';
+              ctx.fillRect(x0, y, x1 - x0, 2);
 
-                      const keyframes = getKeyframes(tween.id);
-                      const y = Math.round((tweenIndex + 1) * (height / (tweens.length + 1)));
+              // draw keyframe
+              drawKeyframe(ctx, x0, y);
+            }
 
-                      let x0, x1;
-                      for (let i = 0; i < keyframes.length - 1; ++i) {
-                        x0 = pxDelay + Math.floor(keyframes[i].time * pxDuration);
-                        x1 = pxDelay + Math.floor(keyframes[i + 1].time * pxDuration);
-
-                        ctx.fillStyle = 'black';
-                        ctx.fillRect(x0, y, x1 - x0, 2);
-
-                        // draw keyframe
-                        drawKeyframe(ctx, x0, y);
-                      }
-
-                      // draw last keyframe
-                      drawKeyframe(ctx, x1, y);
-                    })
-                  }}
-                />
-              </div>
-            );
-          }}
-        </AnimationStore.Consumer>
-      )}
-    </UIStore.Consumer>
-
+            // draw last keyframe
+            drawKeyframe(ctx, x1, y);
+          })
+        }}
+      />
+    </div>
   );
 };
 

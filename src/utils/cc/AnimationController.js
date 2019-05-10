@@ -4,36 +4,38 @@ import { canInterpolate, getStyleProp } from './styleProps';
 
 const AnimationController = ({
   children,
-  delay = 0,
-  duration = 1000,
-  easing = 'linear',
+  delay,
+  duration,
+  easing,
   format = true,
   keyframes = {},
-  time = 0
+  time
 }) => {
   const ratio = (time - delay) / duration;
 
   return children(
-    Object.entries(keyframes)
-      .reduce((map, [propName, keyframes]) => {
+    Object.entries(keyframes).reduce((map, [propName, keyframesArray]) => {
+      const styleProp = getStyleProp(propName);
 
-        const styleProp = getStyleProp(propName);
+      if (styleProp && canInterpolate(propName)) {
+        const value = interpolateKeyframes(
+          keyframesArray,
+          ratio,
+          styleProp.lerp,
+          easing
+        );
 
-        if (styleProp && canInterpolate(propName)) {
-
-          const value = interpolateKeyframes(keyframes, ratio, styleProp.lerp, easing);
-
-          if (format) {
-            // e.g. { marginLeft: '10px' }
-            map[propName] = styleProp.format(value);
-          } else {
-            // e.g. { 'marginLeft': 10 }
-            map[propName] = value;
-          }
+        if (format) {
+          // e.g. { marginLeft: '10px' }
+          map[propName] = styleProp.format(value);
+        } else {
+          // e.g. { 'marginLeft': 10 }
+          map[propName] = value;
         }
+      }
 
-        return map;
-      }, {})
+      return map;
+    }, {})
   );
 };
 export default AnimationController;

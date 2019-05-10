@@ -16,7 +16,8 @@ const persist = createPersist('ImporterStore', {
 
 const Context = React.createContext();
 export default class ImporterStore extends React.Component {
-  static Consumer = Context.Consumer;
+
+  static use = () => React.useContext(Context);
 
   state = {
     isOpen: persist.isOpen.read(),

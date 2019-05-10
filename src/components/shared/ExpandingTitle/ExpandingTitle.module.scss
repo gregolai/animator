@@ -20,6 +20,11 @@
 
   .btnEdit {
     margin-left: $grid-px;
+    visibility: visible;
+
+    &.hidden {
+      visibility: hidden;
+    }
   }
 
   .color {
@@ -28,6 +33,14 @@
 
   .clickable {
     cursor: pointer;
+
+    .title {
+      transition: all 250ms ease-out;
+
+      &:hover {
+        color: $color-font-0;
+      }
+    }
   }
 
   .title,
@@ -40,10 +53,10 @@
 
     transition: all 250ms ease-out;
 
-    &:hover,
-    &:hover * {
-      color: $color-font-0;
-    }
+    // &:hover,
+    // &:hover * {
+    //   color: $color-font-0;
+    // }
 
     &.expanded,
     &.expanded * {

@@ -1,5 +1,4 @@
-import React from 'react';
-import classnames from 'classnames';
+import { React, cx } from 'common';
 import { ContextField } from 'components/core';
 import { ColorSquare, Hover, IconButton } from 'components/shared';
 
@@ -18,13 +17,14 @@ const ExpandingTitle = ({
   const [editing, setEditing] = React.useState(false);
 
   const hasEditIcon = !!onEdit && !editing;
+  const isClickable = !!onClick;
 
   return (
     <Hover>
       {({ hoverRef, isHovering }) => (
         <div
           ref={hoverRef}
-          className={classnames(
+          className={cx(
             styles.container,
             {
               [styles.hasAccessory]: accessory
@@ -36,12 +36,14 @@ const ExpandingTitle = ({
           {color && <ColorSquare className={styles.color} color={color} />}
           {!editing && (
             <div
-              className={styles.clickable}
+              className={cx({
+                [styles.clickable]: isClickable
+              })}
               role="button"
               onClick={onClick}
             >
               <ContextField
-                className={classnames(styles.title, {
+                className={cx(styles.title, {
                   [styles.expanded]: isExpanded
                 })}
                 label={label}
@@ -71,9 +73,11 @@ const ExpandingTitle = ({
             />
           )}
 
-          {isHovering && hasEditIcon && (
+          {hasEditIcon && (
             <IconButton
-              className={styles.btnEdit}
+              className={cx(styles.btnEdit, {
+                [styles.hidden]: !isHovering
+              })}
               icon="visitLink"
               onClick={() => {
                 setEditLabel(label);

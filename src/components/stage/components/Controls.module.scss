@@ -1,0 +1,11 @@
+@import "../../../constants.scss";
+
+:local {
+  $control-width-px: $grid-px * 14;
+
+  .container {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+  }
+}

@@ -1,4 +1,4 @@
-import { React, cx, chunk } from 'common';
+import { React, chunk } from 'common';
 
 import { AnimationStore } from 'stores';
 import {
@@ -9,31 +9,28 @@ import {
 
 import styles from './BaseProps.module.scss';
 
-const EditButton = ({ definition, isToggled, onClick, instance }) => (
-  <AnimationStore.Consumer>
-    {({ setInstanceDefinitionValue, getInstanceDefinitionValue }) => {
+const EditButton = ({ definition, isToggled, onClick, instance }) => {
+  const { setInstanceDefinitionValue, getInstanceDefinitionValue } = AnimationStore.use();
 
-      const value = getInstanceDefinitionValue(instance.id, definition.id);
-      const canClear = value !== undefined;
+  const value = getInstanceDefinitionValue(instance.id, definition.id);
+  const canClear = value !== undefined;
 
-      return (
-        <ValueButton
-          accessory={canClear && (
-            <IconButton
-              icon="clear"
-              onClick={() => setInstanceDefinitionValue(instance.id, definition.id, undefined)}
-            />
-          )}
-          className={styles.button}
-          definition={definition}
-          isToggled={isToggled}
-          onClick={onClick}
-          value={value}
+  return (
+    <ValueButton
+      accessory={canClear && (
+        <IconButton
+          icon="clear"
+          onClick={() => setInstanceDefinitionValue(instance.id, definition.id, undefined)}
         />
-      );
-    }}
-  </AnimationStore.Consumer>
-);
+      )}
+      className={styles.button}
+      definition={definition}
+      isToggled={isToggled}
+      onClick={onClick}
+      value={value}
+    />
+  );
+};
 
 
 const BaseProps = ({ definitions, instance }) => {
@@ -43,6 +40,8 @@ const BaseProps = ({ definitions, instance }) => {
     setExpandedDefinition(expandedDefinitionId === definitionId ? -1 : definitionId);
 
   const rows = chunk(definitions, 2);
+
+  const { getInstanceDefinitionValue, setInstanceDefinitionValue } = AnimationStore.use();
 
   return (
     <div className={styles.container}>
@@ -70,17 +69,13 @@ const BaseProps = ({ definitions, instance }) => {
           {/* VALUE EDITOR */}
           {(expandedDefinitionId === definition1.id ||
             (definition2 && expandedDefinitionId === definition2.id)) && (
-              <AnimationStore.Consumer>
-                {({ getInstanceDefinitionValue, setInstanceDefinitionValue }) => (
-                  <ValueEditor
-                    definitionId={expandedDefinitionId}
-                    value={getInstanceDefinitionValue(instance.id, expandedDefinitionId)}
-                    onChange={value =>
-                      setInstanceDefinitionValue(instance.id, expandedDefinitionId, value)
-                    }
-                  />
-                )}
-              </AnimationStore.Consumer>
+              <ValueEditor
+                definitionId={expandedDefinitionId}
+                value={getInstanceDefinitionValue(instance.id, expandedDefinitionId)}
+                onChange={value =>
+                  setInstanceDefinitionValue(instance.id, expandedDefinitionId, value)
+                }
+              />
             )}
         </React.Fragment>
       ))}

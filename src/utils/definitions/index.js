@@ -1,4 +1,5 @@
 import { React, normalizeRatio, isNumber } from 'common';
+import colorNames from 'css-color-names';
 import { color } from '@sqs/utils';
 import palettes from 'nice-color-palettes';
 import camelCase from 'lodash/camelCase';
@@ -10,6 +11,7 @@ import { IDENTITY_MATRIX, decomposeMatrix, formatMatrix, lerpMatrix, parseMatrix
 const constants = {
   animationDirections: ['normal', 'reverse', 'alternate', 'alternate-reverse'],
   backgroundRepeat: ['repeat', 'repeat-x', 'repeat-y', 'space', 'round', 'no-repeat'],
+  lineStyles: ['none', 'hidden', 'dotted', 'dashed', 'solid', 'double', 'groove', 'ridge', 'inset', 'outset'],
   palette: [...palettes[0], ...palettes[1], ...palettes[2]],
   positions: ['static', 'relative', 'absolute', 'sticky', 'fixed']
 };
@@ -44,17 +46,62 @@ const formatColor = v => {
 
 const lerpNumber = (from, to, t) => from + t * (to - from);
 
+const lerpColor = (from, to, t) => {
+  const red = lerpNumber(from.red, to.red, t);
+  const green = lerpNumber(from.green, to.green, t);
+  const blue = lerpNumber(from.blue, to.blue, t);
+  const alpha = lerpNumber(from.alpha, to.alpha, t);
+  return { red, green, blue, alpha };
+}
+
+const renderOptions = ({ options, onChange, value }) => {
+
+  return (
+    <DropdownSelect
+      isFloating={false}
+      options={
+        options.map(opt => {
+          return typeof opt === 'string' ? { label: opt, value: opt } : opt;
+        })
+      }
+      onChange={onChange}
+      value={value}
+    />
+  );
+
+}
+
 const renderMargin = ({ onChange, value = 0 }) => (
   <RangeField detail="px" max={1000} min={-1000} step={1} onChange={onChange} value={value} />
 );
 
-const renderPosition = ({ onChange, value = 0 }) => (
-  <RangeField detail="px" max={1000} min={-1000} step={1} onChange={onChange} value={value} />
-);
+const renderPosition = ({ onChange, value = 0 }) => {
+  value = Math.round(value);
+  return (
+    <RangeField detail="px" max={1000} min={-1000} step={1} onChange={onChange} value={value} />
+  );
+};
 
 const renderRatio = ({ onChange, value = 1 }) => (
   <RangeField max={1} min={0} step={0.01} onChange={onChange} value={value} />
 );
+
+const renderColor = ({ onChange, value }) => {
+  const color = formatColor(value);
+  return (
+    <div style={{ width: 320 }}>
+      <ColorField
+        colorType="rgba"
+        providerType="passthrough"
+        onChange={v => onChange(parseColor(v.color))}
+        value={{
+          color,
+          palette: constants.palette
+        }}
+      />
+    </div>
+  );
+}
 
 const BezierComponent = ({ value, onChange }) => (
   <RangeField min={0} max={1} step={0.01} onChange={onChange} value={value} />
@@ -143,26 +190,23 @@ export const definitionMap = {
         </div>
       );
     },
-    lerp: (from, to, t) => {
-      const red = lerpNumber(from.red, to.red, t);
-      const green = lerpNumber(from.green, to.green, t);
-      const blue = lerpNumber(from.blue, to.blue, t);
-      const alpha = lerpNumber(from.alpha, to.alpha, t);
-      return { red, green, blue, alpha };
-    },
+    lerp: (from, to, t) => lerpColor(from, to, t),
     parse: parseColor,
     render: props => {
       const color = formatColor(props.value);
       return (
-        <ColorField
-          colorType="hex"
-          providerType="passthrough"
-          onChange={v => props.onChange(parseColor(v.color))}
-          value={{
-            color: color,
-            palette: constants.palette
-          }}
-        />
+        <div style={{ width: 320 }}>
+          <ColorField
+            colorType="rgba"
+            providerType="passthrough"
+            showTransparentColor={true}
+            onChange={v => props.onChange(parseColor(v.color))}
+            value={{
+              color: color,
+              palette: constants.palette
+            }}
+          />
+        </div>
       )
     }
   },
@@ -230,6 +274,63 @@ export const definitionMap = {
       />
     )
   },
+
+  'border-right': {
+    defaultValue: { width: 0, style: 'solid', color: { red: 0, green: 0, blue: 0, alpha: 1 } },
+    format: v => {
+      const width = formatPixels(v.width);
+      const style = v.style;
+      const color = formatColor(v.color);
+      return `${width} ${style} ${color}`;
+    },
+    preview: v => 'hello',
+    lerp: (from, to, t) => {
+      const width = lerpNumber(from.width, to.width, t);
+      const style = t < 0.5 ? from.style : to.style;
+      const color = lerpColor(from.color, to.color, t);
+      return { width, style, color };
+    },
+    parse: str => {
+      const parts = str.split(' ');
+      let style = 'solid',
+        width = 0,
+        color = { red: 0, green: 0, blue: 0, alpha: 1 };
+
+      parts.forEach(part => {
+        if (constants.lineStyles.indexOf(part) !== -1) {
+          style = part;
+        } else if (colorNames[part] !== undefined || part.startsWith('#') || part.startsWith('rgb') || part.startsWith('hsl')) {
+          color = parseColor(part);
+        } else if (!isNaN(parseFloat(part))) {
+          width = parseNumber(part);
+        }
+      })
+      return { style, width, color };
+    },
+    render: ({ onChange, value }) => {
+      const { width, style, color } = value;
+      return (
+        <>
+          {renderPosition({
+            onChange: width => onChange({ ...value, width }),
+            value: width
+          })}
+          {renderOptions({
+            options: constants.lineStyles,
+            onChange: style => onChange({ ...value, style }),
+            value: style
+          })}
+          {renderColor({
+            onChange: color => onChange({ ...value, color }),
+            value: color
+          })}
+        </>
+      )
+
+      //return <div>VALUE: {JSON.stringify(value)}</div>
+    }
+  },
+
   bottom: {
     defaultValue: 0,
     format: formatPixels,
@@ -328,7 +429,7 @@ export const definitionMap = {
   transform: {
     //'translate(0, 0) rotateZ(45deg) scale(1, 1)',
     defaultValue: { translate: { x: 0, y: 0 }, rotate: { z: 0, }, scale: { x: 1, y: 1 } },
-    format: v => `translate(${v.translate.x}, ${v.translate.y}) rotateZ(${v.rotate.z}deg) scale(${v.scale.x}, ${v.scale.y})`,
+    format: v => `translate(${v.translate.x}px, ${v.translate.y}px) rotateZ(${v.rotate.z}deg) scale(${v.scale.x}, ${v.scale.y})`,
     preview: v => `(${Math.round(v.translate.x)}, ${Math.round(v.translate.y)}) (${Math.round(v.rotate.z)}) (${Number(v.scale.x).toFixed(2)}, ${Number(v.scale.y).toFixed(2)})`,
     lerp: (from, to, t) => {
       return {
@@ -374,6 +475,17 @@ export const definitionMap = {
       return (
         <>
           <NumberField
+            label="TranslateX"
+            onChange={x => onChange({ ...value, translate: { ...value.translate, x } })}
+            value={value.translate.x}
+          />
+          <NumberField
+            label="TranslateY"
+            onChange={y => onChange({ ...value, translate: { ...value.translate, y } })}
+            value={value.translate.y}
+          />
+
+          <NumberField
             label="Rot"
             onChange={rot => onChange({ ...value, rotate: { ...value.rotate, z: rot } })}
             value={value.rotate.z}
@@ -388,17 +500,6 @@ export const definitionMap = {
             label="ScaleY"
             onChange={y => onChange({ ...value, scale: { ...value.scale, y } })}
             value={value.scale.y}
-          />
-
-          <NumberField
-            label="TranslateX"
-            onChange={x => onChange({ ...value, translate: { ...value.translate, x } })}
-            value={value.translate.x}
-          />
-          <NumberField
-            label="TranslateY"
-            onChange={y => onChange({ ...value, translate: { ...value.translate, y } })}
-            value={value.translate.y}
           />
         </>
       )
@@ -466,6 +567,9 @@ export const definitionMap = {
 // Auto-apply CSS and Inline CSS names
 Object.keys(definitionMap).forEach(name => {
   definitionMap[name]['id'] = name;
+
+  definitionMap[name]['cssName'] = name; // e.g. background-color
+
   definitionMap[name]['styleName'] = camelCase(name);
 });
 

@@ -6,6 +6,7 @@ import AnimationController from 'utils/AnimationController';
 
 const createAnimation = (name) => ({
   children,
+  easing,
   is: TagName = 'div',
   delay,
   direction,
@@ -14,7 +15,6 @@ const createAnimation = (name) => ({
   iterationCount,
   playState,
   style,
-  timingFunction,
   ...rest
 }) => (
     <TagName
@@ -28,7 +28,7 @@ const createAnimation = (name) => ({
         animationDelay: `${delay}ms`,
         animationIterationCount: iterationCount,
         animationPlayState: playState,
-        animationTimingFunction: timingFunction
+        animationTimingFunction: easing
       }}
     >
       {children}

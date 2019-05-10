@@ -2,12 +2,10 @@
 
 :local {
   .container {
-    background-color: $color-bg-0;
-  }
-
-  .top,
-  .bottom {
     display: flex;
+    align-items: center;
+    padding: $grid-px;
+    background-color: $color-bg-0;
   }
 
   .play,
@@ -16,9 +14,8 @@
     flex: 1;
   }
 
-  .duration,
   .loop,
   .reverse {
-    flex: 1;
+    flex: 0; // shrink
   }
 }
