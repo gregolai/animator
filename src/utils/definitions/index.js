@@ -583,11 +583,3 @@ export const getDefinitions = (filterFn) => {
     definitionArray.filter(filterFn) :
     definitionArray;
 }
-
-export const getAnimatedDefinitions = () => {
-  return definitionArray.filter(definition => definition.lerp !== undefined);
-};
-
-export const getInstanceDefinitions = () => {
-  return definitionArray.filter(definition => definition.lerp === undefined);
-};

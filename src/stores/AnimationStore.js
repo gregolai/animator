@@ -2,7 +2,7 @@ import { React, normalizeRatio, createUniqueName, getRandomColor, isNumber } fro
 import rework from 'rework';
 import difference from 'lodash/difference';
 
-import { getDefinition, getAnimatedDefinitions } from 'utils/definitions';
+import { getDefinition, getDefinitions } from 'utils/definitions';
 import { exportJSF } from 'utils/importexport';
 
 import db from 'utils/db';
@@ -473,7 +473,7 @@ export default class AnimationStore extends React.Component {
     }
 
     return difference(
-      getAnimatedDefinitions(),
+      getDefinitions(d => d.lerp !== undefined),
       this.getTweens(animationId).map(t => getDefinition(t.definitionId))
     );
   };

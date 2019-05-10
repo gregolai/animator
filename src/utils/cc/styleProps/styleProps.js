@@ -204,6 +204,12 @@ export const getStyleProp = propId => {
   return stylePropMap[propId];
 };
 
+export const getStyleProps = filterFn => {
+  return filterFn ?
+    stylePropArray.filter(filterFn) :
+    stylePropArray;
+}
+
 export const canInterpolate = propId => {
   const entry = getStyleProp(propId);
   return entry && isFunction(entry.lerp);
