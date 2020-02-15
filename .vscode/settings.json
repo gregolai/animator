@@ -1,10 +1,7 @@
 {
-  "editor.formatOnSave": true,
-  "prettier.singleQuote": true,
-  "eslint.enable": false,
-  "search.exclude": {
-    "**/node_modules": true,
-    "**/bower_components": true,
-    "src/OLD": true
-  }
+	"search.exclude": {
+		"**/node_modules": true,
+		"**/bower_components": true,
+		"src/OLD": true
+	}
 }

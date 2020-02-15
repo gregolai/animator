@@ -6,11 +6,11 @@ import uid from 'uid';
  * @param {Function|string} id
  */
 const getOne = (list, id) => {
-  const index = list.findIndex(isFunction(id) ? id : item => item.id === id);
-  return {
-    index,
-    item: list[index] || null
-  };
+	const index = list.findIndex(isFunction(id) ? id : item => item.id === id);
+	return {
+		index,
+		item: list[index] || null
+	};
 };
 
 /**
@@ -18,171 +18,171 @@ const getOne = (list, id) => {
  * @param {Function|Array<string>} ids
  */
 const getMany = (list, ids) => {
-  const indices = [];
-  const items = [];
+	const indices = [];
+	const items = [];
 
-  const filterFn = isFunction(ids) ? ids : item => ids.indexOf(item.id) !== -1;
+	const filterFn = isFunction(ids) ? ids : item => ids.indexOf(item.id) !== -1;
 
-  for (let i = 0; i < list.length; ++i) {
-    if (filterFn(list[i], i, list)) {
-      indices.push(i);
-      items.push(list[i]);
-    }
-  }
-  return { indices, items };
+	for (let i = 0; i < list.length; ++i) {
+		if (filterFn(list[i], i, list)) {
+			indices.push(i);
+			items.push(list[i]);
+		}
+	}
+	return { indices, items };
 };
 
 const db = {
-  /**
-   * @param {Array<object>} list
-   * @param {object} value
-   * @param {boolean} mutateList
-   */
-  createOne: (list, value, mutateList = false) => {
-    if (!mutateList) {
-      list = [...list];
-    }
+	/**
+	 * @param {Array<object>} list
+	 * @param {object} value
+	 * @param {boolean} mutateList
+	 */
+	createOne: (list, value, mutateList = false) => {
+		if (!mutateList) {
+			list = [...list];
+		}
 
-    const item = {
-      id: uid(8),
-      ...value
-    };
-    const index = list.length;
-    list.push(item);
-    return { list, item, index };
-  },
+		const item = {
+			id: uid(8),
+			...value
+		};
+		const index = list.length;
+		list.push(item);
+		return { list, item, index };
+	},
 
-  /**
-   * @param {Array<object>} list
-   * @param {Array<object>} values
-   * @param {boolean} mutateList
-   */
-  createMany: (list, values, mutateList = false) => {
-    if (!mutateList) {
-      list = [...list];
-    }
+	/**
+	 * @param {Array<object>} list
+	 * @param {Array<object>} values
+	 * @param {boolean} mutateList
+	 */
+	createMany: (list, values, mutateList = false) => {
+		if (!mutateList) {
+			list = [...list];
+		}
 
-    const items = [];
-    const indices = [];
+		const items = [];
+		const indices = [];
 
-    values.forEach(value => {
-      const { item, index } = db.createOne(
-        list,
-        {
-          id: uid(8),
-          ...value
-        },
-        true
-      );
-      items.push(item);
-      indices.push(index);
-    });
+		values.forEach(value => {
+			const { item, index } = db.createOne(
+				list,
+				{
+					id: uid(8),
+					...value
+				},
+				true
+			);
+			items.push(item);
+			indices.push(index);
+		});
 
-    return { list, items, indices };
-  },
+		return { list, items, indices };
+	},
 
-  /**
-   * @param {Array<object>} list
-   * @param {Function|string} id
-   */
-  getOne: (list, id) => {
-    const { item, index } = getOne(list, id);
-    return { item, index };
-  },
+	/**
+	 * @param {Array<object>} list
+	 * @param {Function|string} id
+	 */
+	getOne: (list, id) => {
+		const { item, index } = getOne(list, id);
+		return { item, index };
+	},
 
-  /**
-   * @param {Array<object>} list
-   * @param {Function|Array<string>} ids
-   */
-  getMany: (list, ids) => {
-    const { items, indices } = getMany(list, ids);
-    return { items, indices };
-  },
+	/**
+	 * @param {Array<object>} list
+	 * @param {Function|Array<string>} ids
+	 */
+	getMany: (list, ids) => {
+		const { items, indices } = getMany(list, ids);
+		return { items, indices };
+	},
 
-  /**
-   * @param {Array<object>} list
-   * @param {Function|string} id
-   * @param {object} value
-   * @param {boolean} mutateList
-   */
-  setOne: (list, id, value, mutateList = false) => {
-    if (!mutateList) {
-      list = [...list];
-    }
+	/**
+	 * @param {Array<object>} list
+	 * @param {Function|string} id
+	 * @param {object} value
+	 * @param {boolean} mutateList
+	 */
+	setOne: (list, id, value, mutateList = false) => {
+		if (!mutateList) {
+			list = [...list];
+		}
 
-    const { index, item } = getOne(list, id);
-    if (item) {
-      list[index] = {
-        ...item,
-        ...value,
-        id: item.id // retain the id
-      };
-    }
+		const { index, item } = getOne(list, id);
+		if (item) {
+			list[index] = {
+				...item,
+				...value,
+				id: item.id // retain the id
+			};
+		}
 
-    return { list, index, item };
-  },
+		return { list, index, item };
+	},
 
-  /**
-   * @param {Array<object>} list
-   * @param {Function|Array<string>} ids
-   * @param {object} value
-   * @param {boolean} mutateList
-   */
-  setMany: (list, ids, value, mutateList = false) => {
-    if (!mutateList) {
-      list = [...list];
-    }
+	/**
+	 * @param {Array<object>} list
+	 * @param {Function|Array<string>} ids
+	 * @param {object} value
+	 * @param {boolean} mutateList
+	 */
+	setMany: (list, ids, value, mutateList = false) => {
+		if (!mutateList) {
+			list = [...list];
+		}
 
-    const { indices, items } = getMany(list, ids);
-    for (let i = 0; i < indices.length; ++i) {
-      const index = indices[i];
-      const item = items[i];
-      list[index] = {
-        ...item,
-        ...value,
-        id: item.id // retain the id
-      };
-    }
+		const { indices, items } = getMany(list, ids);
+		for (let i = 0; i < indices.length; ++i) {
+			const index = indices[i];
+			const item = items[i];
+			list[index] = {
+				...item,
+				...value,
+				id: item.id // retain the id
+			};
+		}
 
-    return { list, indices, items };
-  },
+		return { list, indices, items };
+	},
 
-  /**
-   * @param {Array<object>} list
-   * @param {Function|string} id
-   * @param {boolean} mutateList
-   */
-  deleteOne: (list, id, mutateList) => {
-    if (!mutateList) {
-      list = [...list];
-    }
+	/**
+	 * @param {Array<object>} list
+	 * @param {Function|string} id
+	 * @param {boolean} mutateList
+	 */
+	deleteOne: (list, id, mutateList) => {
+		if (!mutateList) {
+			list = [...list];
+		}
 
-    const { item, index } = getOne(list, id);
-    if (item) {
-      list.splice(index, 1);
-    }
-    return { list, item, index };
-  },
+		const { item, index } = getOne(list, id);
+		if (item) {
+			list.splice(index, 1);
+		}
+		return { list, item, index };
+	},
 
-  /**
-   * @param {Array<object>} list
-   * @param {Function|Array<string>} ids
-   * @param {boolean} mutateList
-   */
-  deleteMany: (list, ids, mutateList = false) => {
-    if (!mutateList) {
-      list = [...list];
-    }
+	/**
+	 * @param {Array<object>} list
+	 * @param {Function|Array<string>} ids
+	 * @param {boolean} mutateList
+	 */
+	deleteMany: (list, ids, mutateList = false) => {
+		if (!mutateList) {
+			list = [...list];
+		}
 
-    const { items, indices } = getMany(list, ids);
+		const { items, indices } = getMany(list, ids);
 
-    // splice backwards because length changes
-    for (let i = indices.length - 1; i >= 0; --i) {
-      list.splice(indices[i], 1);
-    }
+		// splice backwards because length changes
+		for (let i = indices.length - 1; i >= 0; --i) {
+			list.splice(indices[i], 1);
+		}
 
-    return { list, items, indices };
-  }
+		return { list, items, indices };
+	}
 };
 
 export default db;

@@ -5,15 +5,15 @@ import StageStore from './StageStore';
 import UIStore from './UIStore';
 
 export const withStores = Component => props => (
-  <ImporterStore>
-    <AnimationStore>
-      <UIStore>
-        <StageStore>
-          <Component {...props} />
-        </StageStore>
-      </UIStore>
-    </AnimationStore>
-  </ImporterStore>
+	<ImporterStore>
+		<AnimationStore>
+			<UIStore>
+				<StageStore>
+					<Component {...props} />
+				</StageStore>
+			</UIStore>
+		</AnimationStore>
+	</ImporterStore>
 );
 
 export { AnimationStore, ImporterStore, StageStore, UIStore };

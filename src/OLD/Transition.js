@@ -2,16 +2,16 @@ import * as PropTypes from 'prop-types';
 import React from 'react';
 
 const timeoutsShape =
-  process.env.NODE_ENV !== 'production'
-    ? PropTypes.oneOfType([
-        PropTypes.number,
-        PropTypes.shape({
-          enter: PropTypes.number,
-          exit: PropTypes.number,
-          appear: PropTypes.number
-        }).isRequired
-      ])
-    : null;
+	process.env.NODE_ENV !== 'production'
+		? PropTypes.oneOfType([
+				PropTypes.number,
+				PropTypes.shape({
+					enter: PropTypes.number,
+					exit: PropTypes.number,
+					appear: PropTypes.number
+				}).isRequired
+		  ])
+		: null;
 
 export const UNMOUNTED = 'unmounted';
 export const EXITED = 'exited';
@@ -111,453 +111,453 @@ export const EXITING = 'exiting';
  * `'exiting'` to `'exited'`.
  */
 class Transition extends React.Component {
-  static contextTypes = {
-    transitionGroup: PropTypes.object
-  };
-  static childContextTypes = {
-    transitionGroup: () => {}
-  };
+	static contextTypes = {
+		transitionGroup: PropTypes.object
+	};
+	static childContextTypes = {
+		transitionGroup: () => {}
+	};
 
-  constructor(props, context) {
-    super(props, context);
+	constructor(props, context) {
+		super(props, context);
 
-    let parentGroup = context.transitionGroup;
-    // In the context of a TransitionGroup all enters are really appears
-    let appear = parentGroup && !parentGroup.isMounting ? props.enter : props.appear;
+		let parentGroup = context.transitionGroup;
+		// In the context of a TransitionGroup all enters are really appears
+		let appear = parentGroup && !parentGroup.isMounting ? props.enter : props.appear;
 
-    let initialStatus;
+		let initialStatus;
 
-    this.appearStatus = null;
+		this.appearStatus = null;
 
-    if (props.in) {
-      if (appear) {
-        initialStatus = EXITED;
-        this.appearStatus = ENTERING;
-      } else {
-        initialStatus = ENTERED;
-      }
-    } else {
-      if (props.unmountOnExit || props.mountOnEnter) {
-        initialStatus = UNMOUNTED;
-      } else {
-        initialStatus = EXITED;
-      }
-    }
+		if (props.in) {
+			if (appear) {
+				initialStatus = EXITED;
+				this.appearStatus = ENTERING;
+			} else {
+				initialStatus = ENTERED;
+			}
+		} else {
+			if (props.unmountOnExit || props.mountOnEnter) {
+				initialStatus = UNMOUNTED;
+			} else {
+				initialStatus = EXITED;
+			}
+		}
 
-    this.state = { status: initialStatus };
+		this.state = { status: initialStatus };
 
-    this.nextCallback = null;
-  }
+		this.nextCallback = null;
+	}
 
-  getChildContext() {
-    return { transitionGroup: null }; // allows for nested Transitions
-  }
+	getChildContext() {
+		return { transitionGroup: null }; // allows for nested Transitions
+	}
 
-  static getDerivedStateFromProps({ in: nextIn }, prevState) {
-    if (nextIn && prevState.status === UNMOUNTED) {
-      return { status: EXITED };
-    }
-    return null;
-  }
+	static getDerivedStateFromProps({ in: nextIn }, prevState) {
+		if (nextIn && prevState.status === UNMOUNTED) {
+			return { status: EXITED };
+		}
+		return null;
+	}
 
-  // getSnapshotBeforeUpdate(prevProps) {
-  //   let nextStatus = null
+	// getSnapshotBeforeUpdate(prevProps) {
+	//   let nextStatus = null
 
-  //   if (prevProps !== this.props) {
-  //     const { status } = this.state
+	//   if (prevProps !== this.props) {
+	//     const { status } = this.state
 
-  //     if (this.props.in) {
-  //       if (status !== ENTERING && status !== ENTERED) {
-  //         nextStatus = ENTERING
-  //       }
-  //     } else {
-  //       if (status === ENTERING || status === ENTERED) {
-  //         nextStatus = EXITING
-  //       }
-  //     }
-  //   }
+	//     if (this.props.in) {
+	//       if (status !== ENTERING && status !== ENTERED) {
+	//         nextStatus = ENTERING
+	//       }
+	//     } else {
+	//       if (status === ENTERING || status === ENTERED) {
+	//         nextStatus = EXITING
+	//       }
+	//     }
+	//   }
 
-  //   return { nextStatus }
-  // }
+	//   return { nextStatus }
+	// }
 
-  componentDidMount() {
-    this.updateStatus(true, this.appearStatus);
-  }
+	componentDidMount() {
+		this.updateStatus(true, this.appearStatus);
+	}
 
-  componentDidUpdate(prevProps) {
-    let nextStatus = null;
-    if (prevProps !== this.props) {
-      const { status } = this.state;
+	componentDidUpdate(prevProps) {
+		let nextStatus = null;
+		if (prevProps !== this.props) {
+			const { status } = this.state;
 
-      if (this.props.in) {
-        if (status !== ENTERING && status !== ENTERED) {
-          nextStatus = ENTERING;
-        }
-      } else {
-        if (status === ENTERING || status === ENTERED) {
-          nextStatus = EXITING;
-        }
-      }
-    }
-    this.updateStatus(false, nextStatus);
-  }
+			if (this.props.in) {
+				if (status !== ENTERING && status !== ENTERED) {
+					nextStatus = ENTERING;
+				}
+			} else {
+				if (status === ENTERING || status === ENTERED) {
+					nextStatus = EXITING;
+				}
+			}
+		}
+		this.updateStatus(false, nextStatus);
+	}
 
-  componentWillUnmount() {
-    this.cancelNextCallback();
-  }
+	componentWillUnmount() {
+		this.cancelNextCallback();
+	}
 
-  getTimeouts() {
-    const { timeout } = this.props;
-    let exit, enter, appear;
+	getTimeouts() {
+		const { timeout } = this.props;
+		let exit, enter, appear;
 
-    exit = enter = appear = timeout;
+		exit = enter = appear = timeout;
 
-    if (timeout != null && typeof timeout !== 'number') {
-      exit = timeout.exit;
-      enter = timeout.enter;
-      // TODO: remove fallback for next major
-      appear = timeout.appear !== undefined ? timeout.appear : enter;
-    }
-    return { exit, enter, appear };
-  }
+		if (timeout != null && typeof timeout !== 'number') {
+			exit = timeout.exit;
+			enter = timeout.enter;
+			// TODO: remove fallback for next major
+			appear = timeout.appear !== undefined ? timeout.appear : enter;
+		}
+		return { exit, enter, appear };
+	}
 
-  updateStatus(mounting = false, nextStatus) {
-    if (nextStatus !== null) {
-      // nextStatus will always be ENTERING or EXITING.
-      this.cancelNextCallback();
-      //const node = ReactDOM.findDOMNode(this)
+	updateStatus(mounting = false, nextStatus) {
+		if (nextStatus !== null) {
+			// nextStatus will always be ENTERING or EXITING.
+			this.cancelNextCallback();
+			//const node = ReactDOM.findDOMNode(this)
 
-      if (nextStatus === ENTERING) {
-        this.performEnter(this.node, mounting);
-      } else {
-        this.performExit(this.node);
-      }
-    } else if (this.props.unmountOnExit && this.state.status === EXITED) {
-      this.setState({ status: UNMOUNTED });
-    }
-  }
+			if (nextStatus === ENTERING) {
+				this.performEnter(this.node, mounting);
+			} else {
+				this.performExit(this.node);
+			}
+		} else if (this.props.unmountOnExit && this.state.status === EXITED) {
+			this.setState({ status: UNMOUNTED });
+		}
+	}
 
-  performEnter(node, mounting) {
-    const { enter } = this.props;
-    const appearing = this.context.transitionGroup
-      ? this.context.transitionGroup.isMounting
-      : mounting;
+	performEnter(node, mounting) {
+		const { enter } = this.props;
+		const appearing = this.context.transitionGroup
+			? this.context.transitionGroup.isMounting
+			: mounting;
 
-    const timeouts = this.getTimeouts();
-    const enterTimeout = appearing ? timeouts.appear : timeouts.enter;
-    // no enter animation skip right to ENTERED
-    // if we are mounting and running this it means appear _must_ be set
-    if (!mounting && !enter) {
-      this.safeSetState({ status: ENTERED }, () => {
-        this.props.onEntered(node);
-      });
-      return;
-    }
-    console.log('onEnter');
-    this.props.onEnter(node, appearing).then(() => {
-      this.safeSetState({ status: ENTERING }, () => {
-        console.log('onEntering');
-        this.props.onEntering(node, appearing).then(() => {
-          this.onTransitionEnd(node, enterTimeout, () => {
-            this.safeSetState({ status: ENTERED }, () => {
-              console.log('onEntered');
-              this.props.onEntered(node, appearing);
-            });
-          });
-        });
-      });
-    });
-  }
+		const timeouts = this.getTimeouts();
+		const enterTimeout = appearing ? timeouts.appear : timeouts.enter;
+		// no enter animation skip right to ENTERED
+		// if we are mounting and running this it means appear _must_ be set
+		if (!mounting && !enter) {
+			this.safeSetState({ status: ENTERED }, () => {
+				this.props.onEntered(node);
+			});
+			return;
+		}
+		console.log('onEnter');
+		this.props.onEnter(node, appearing).then(() => {
+			this.safeSetState({ status: ENTERING }, () => {
+				console.log('onEntering');
+				this.props.onEntering(node, appearing).then(() => {
+					this.onTransitionEnd(node, enterTimeout, () => {
+						this.safeSetState({ status: ENTERED }, () => {
+							console.log('onEntered');
+							this.props.onEntered(node, appearing);
+						});
+					});
+				});
+			});
+		});
+	}
 
-  performExit(node) {
-    const { exit } = this.props;
-    const timeouts = this.getTimeouts();
+	performExit(node) {
+		const { exit } = this.props;
+		const timeouts = this.getTimeouts();
 
-    // no exit animation skip right to EXITED
-    if (!exit) {
-      this.safeSetState({ status: EXITED }, () => {
-        this.props.onExited(node);
-      });
-      return;
-    }
-    console.log('onExit');
-    this.props.onExit(node).then(() => {
-      this.safeSetState({ status: EXITING }, () => {
-        console.log('onExiting');
-        this.props.onExiting(node).then(() => {
-          this.onTransitionEnd(node, timeouts.exit, () => {
-            this.safeSetState({ status: EXITED }, () => {
-              console.log('onExited');
-              this.props.onExited(node);
-            });
-          });
-        });
-      });
-    });
-  }
+		// no exit animation skip right to EXITED
+		if (!exit) {
+			this.safeSetState({ status: EXITED }, () => {
+				this.props.onExited(node);
+			});
+			return;
+		}
+		console.log('onExit');
+		this.props.onExit(node).then(() => {
+			this.safeSetState({ status: EXITING }, () => {
+				console.log('onExiting');
+				this.props.onExiting(node).then(() => {
+					this.onTransitionEnd(node, timeouts.exit, () => {
+						this.safeSetState({ status: EXITED }, () => {
+							console.log('onExited');
+							this.props.onExited(node);
+						});
+					});
+				});
+			});
+		});
+	}
 
-  cancelNextCallback() {
-    if (this.nextCallback !== null) {
-      this.nextCallback.cancel();
-      this.nextCallback = null;
-    }
-  }
+	cancelNextCallback() {
+		if (this.nextCallback !== null) {
+			this.nextCallback.cancel();
+			this.nextCallback = null;
+		}
+	}
 
-  safeSetState(nextState, callback) {
-    // This shouldn't be necessary, but there are weird race conditions with
-    // setState callbacks and unmounting in testing, so always make sure that
-    // we can cancel any pending setState callbacks after we unmount.
-    callback = this.setNextCallback(callback);
-    this.setState(nextState, callback);
-  }
+	safeSetState(nextState, callback) {
+		// This shouldn't be necessary, but there are weird race conditions with
+		// setState callbacks and unmounting in testing, so always make sure that
+		// we can cancel any pending setState callbacks after we unmount.
+		callback = this.setNextCallback(callback);
+		this.setState(nextState, callback);
+	}
 
-  setNextCallback(callback) {
-    let active = true;
+	setNextCallback(callback) {
+		let active = true;
 
-    this.nextCallback = event => {
-      if (active) {
-        active = false;
-        this.nextCallback = null;
+		this.nextCallback = event => {
+			if (active) {
+				active = false;
+				this.nextCallback = null;
 
-        callback(event);
-      }
-    };
+				callback(event);
+			}
+		};
 
-    this.nextCallback.cancel = () => {
-      active = false;
-    };
+		this.nextCallback.cancel = () => {
+			active = false;
+		};
 
-    return this.nextCallback;
-  }
+		return this.nextCallback;
+	}
 
-  onTransitionEnd(node, timeout, handler) {
-    this.setNextCallback(handler);
+	onTransitionEnd(node, timeout, handler) {
+		this.setNextCallback(handler);
 
-    const doesNotHaveTimeoutOrListener = timeout == null && !this.props.addEndListener;
-    if (!node || doesNotHaveTimeoutOrListener) {
-      setTimeout(this.nextCallback, 0);
-      return;
-    }
+		const doesNotHaveTimeoutOrListener = timeout == null && !this.props.addEndListener;
+		if (!node || doesNotHaveTimeoutOrListener) {
+			setTimeout(this.nextCallback, 0);
+			return;
+		}
 
-    if (this.props.addEndListener) {
-      this.props.addEndListener(node, this.nextCallback);
-    }
+		if (this.props.addEndListener) {
+			this.props.addEndListener(node, this.nextCallback);
+		}
 
-    if (timeout != null) {
-      setTimeout(this.nextCallback, timeout);
-    }
-  }
+		if (timeout != null) {
+			setTimeout(this.nextCallback, timeout);
+		}
+	}
 
-  captureRef = ref => {
-    this.node = ref;
-    if (this.props.captureRef) {
-      this.props.captureRef(ref);
-    }
-  };
+	captureRef = ref => {
+		this.node = ref;
+		if (this.props.captureRef) {
+			this.props.captureRef(ref);
+		}
+	};
 
-  render() {
-    const status = this.state.status;
-    if (status === UNMOUNTED) {
-      return null;
-    }
+	render() {
+		const status = this.state.status;
+		if (status === UNMOUNTED) {
+			return null;
+		}
 
-    const { children, ...childProps } = this.props;
-    // filter props for Transtition
-    delete childProps.in;
-    delete childProps.mountOnEnter;
-    delete childProps.unmountOnExit;
-    delete childProps.appear;
-    delete childProps.enter;
-    delete childProps.exit;
-    delete childProps.timeout;
-    delete childProps.addEndListener;
-    delete childProps.onEnter;
-    delete childProps.onEntering;
-    delete childProps.onEntered;
-    delete childProps.onExit;
-    delete childProps.onExiting;
-    delete childProps.onExited;
+		const { children, ...childProps } = this.props;
+		// filter props for Transtition
+		delete childProps.in;
+		delete childProps.mountOnEnter;
+		delete childProps.unmountOnExit;
+		delete childProps.appear;
+		delete childProps.enter;
+		delete childProps.exit;
+		delete childProps.timeout;
+		delete childProps.addEndListener;
+		delete childProps.onEnter;
+		delete childProps.onEntering;
+		delete childProps.onEntered;
+		delete childProps.onExit;
+		delete childProps.onExiting;
+		delete childProps.onExited;
 
-    delete childProps.captureRef;
+		delete childProps.captureRef;
 
-    if (typeof children === 'function') {
-      return children(status, childProps);
-    }
+		if (typeof children === 'function') {
+			return children(status, childProps);
+		}
 
-    const child = React.Children.only(children);
-    return React.cloneElement(child, {
-      ...childProps,
-      ref: this.captureRef
-    });
-  }
+		const child = React.Children.only(children);
+		return React.cloneElement(child, {
+			...childProps,
+			ref: this.captureRef
+		});
+	}
 }
 
 Transition.propTypes = {
-  /**
-   * A `function` child can be used instead of a React element. This function is
-   * called with the current transition status (`'entering'`, `'entered'`,
-   * `'exiting'`, `'exited'`, `'unmounted'`), which can be used to apply context
-   * specific props to a component.
-   *
-   * ```jsx
-   * <Transition in={this.state.in} timeout={150}>
-   *   {state => (
-   *     <MyComponent className={`fade fade-${state}`} />
-   *   )}
-   * </Transition>
-   * ```
-   */
-  children: PropTypes.oneOfType([PropTypes.func.isRequired, PropTypes.element.isRequired])
-    .isRequired,
+	/**
+	 * A `function` child can be used instead of a React element. This function is
+	 * called with the current transition status (`'entering'`, `'entered'`,
+	 * `'exiting'`, `'exited'`, `'unmounted'`), which can be used to apply context
+	 * specific props to a component.
+	 *
+	 * ```jsx
+	 * <Transition in={this.state.in} timeout={150}>
+	 *   {state => (
+	 *     <MyComponent className={`fade fade-${state}`} />
+	 *   )}
+	 * </Transition>
+	 * ```
+	 */
+	children: PropTypes.oneOfType([PropTypes.func.isRequired, PropTypes.element.isRequired])
+		.isRequired,
 
-  /**
-   * Show the component; triggers the enter or exit states
-   */
-  in: PropTypes.bool,
+	/**
+	 * Show the component; triggers the enter or exit states
+	 */
+	in: PropTypes.bool,
 
-  /**
-   * By default the child component is mounted immediately along with
-   * the parent `Transition` component. If you want to "lazy mount" the component on the
-   * first `in={true}` you can set `mountOnEnter`. After the first enter transition the component will stay
-   * mounted, even on "exited", unless you also specify `unmountOnExit`.
-   */
-  mountOnEnter: PropTypes.bool,
+	/**
+	 * By default the child component is mounted immediately along with
+	 * the parent `Transition` component. If you want to "lazy mount" the component on the
+	 * first `in={true}` you can set `mountOnEnter`. After the first enter transition the component will stay
+	 * mounted, even on "exited", unless you also specify `unmountOnExit`.
+	 */
+	mountOnEnter: PropTypes.bool,
 
-  /**
-   * By default the child component stays mounted after it reaches the `'exited'` state.
-   * Set `unmountOnExit` if you'd prefer to unmount the component after it finishes exiting.
-   */
-  unmountOnExit: PropTypes.bool,
+	/**
+	 * By default the child component stays mounted after it reaches the `'exited'` state.
+	 * Set `unmountOnExit` if you'd prefer to unmount the component after it finishes exiting.
+	 */
+	unmountOnExit: PropTypes.bool,
 
-  /**
-   * Normally a component is not transitioned if it is shown when the `<Transition>` component mounts.
-   * If you want to transition on the first mount set `appear` to `true`, and the
-   * component will transition in as soon as the `<Transition>` mounts.
-   *
-   * > Note: there are no specific "appear" states. `appear` only adds an additional `enter` transition.
-   */
-  appear: PropTypes.bool,
+	/**
+	 * Normally a component is not transitioned if it is shown when the `<Transition>` component mounts.
+	 * If you want to transition on the first mount set `appear` to `true`, and the
+	 * component will transition in as soon as the `<Transition>` mounts.
+	 *
+	 * > Note: there are no specific "appear" states. `appear` only adds an additional `enter` transition.
+	 */
+	appear: PropTypes.bool,
 
-  /**
-   * Enable or disable enter transitions.
-   */
-  enter: PropTypes.bool,
+	/**
+	 * Enable or disable enter transitions.
+	 */
+	enter: PropTypes.bool,
 
-  /**
-   * Enable or disable exit transitions.
-   */
-  exit: PropTypes.bool,
+	/**
+	 * Enable or disable exit transitions.
+	 */
+	exit: PropTypes.bool,
 
-  /**
-   * The duration of the transition, in milliseconds.
-   * Required unless `addEndListener` is provided.
-   *
-   * You may specify a single timeout for all transitions:
-   *
-   * ```jsx
-   * timeout={500}
-   * ```
-   *
-   * or individually:
-   *
-   * ```jsx
-   * timeout={{
-   *  appear: 500,
-   *  enter: 300,
-   *  exit: 500,
-   * }}
-   * ```
-   *
-   * - `appear` defaults to the value of `enter`
-   * - `enter` defaults to `0`
-   * - `exit` defaults to `0`
-   *
-   * @type {number | { enter?: number, exit?: number, appear?: number }}
-   */
-  timeout: (props, ...args) => {
-    let pt = timeoutsShape;
-    if (!props.addEndListener) pt = pt.isRequired;
-    return pt(props, ...args);
-  },
+	/**
+	 * The duration of the transition, in milliseconds.
+	 * Required unless `addEndListener` is provided.
+	 *
+	 * You may specify a single timeout for all transitions:
+	 *
+	 * ```jsx
+	 * timeout={500}
+	 * ```
+	 *
+	 * or individually:
+	 *
+	 * ```jsx
+	 * timeout={{
+	 *  appear: 500,
+	 *  enter: 300,
+	 *  exit: 500,
+	 * }}
+	 * ```
+	 *
+	 * - `appear` defaults to the value of `enter`
+	 * - `enter` defaults to `0`
+	 * - `exit` defaults to `0`
+	 *
+	 * @type {number | { enter?: number, exit?: number, appear?: number }}
+	 */
+	timeout: (props, ...args) => {
+		let pt = timeoutsShape;
+		if (!props.addEndListener) pt = pt.isRequired;
+		return pt(props, ...args);
+	},
 
-  /**
-   * Add a custom transition end trigger. Called with the transitioning
-   * DOM node and a `done` callback. Allows for more fine grained transition end
-   * logic. **Note:** Timeouts are still used as a fallback if provided.
-   *
-   * ```jsx
-   * addEndListener={(node, done) => {
-   *   // use the css transitionend event to mark the finish of a transition
-   *   node.addEventListener('transitionend', done, false);
-   * }}
-   * ```
-   */
-  addEndListener: PropTypes.func,
+	/**
+	 * Add a custom transition end trigger. Called with the transitioning
+	 * DOM node and a `done` callback. Allows for more fine grained transition end
+	 * logic. **Note:** Timeouts are still used as a fallback if provided.
+	 *
+	 * ```jsx
+	 * addEndListener={(node, done) => {
+	 *   // use the css transitionend event to mark the finish of a transition
+	 *   node.addEventListener('transitionend', done, false);
+	 * }}
+	 * ```
+	 */
+	addEndListener: PropTypes.func,
 
-  /**
-   * Callback fired before the "entering" status is applied. An extra parameter
-   * `isAppearing` is supplied to indicate if the enter stage is occurring on the initial mount
-   *
-   * @type Function(node: HtmlElement, isAppearing: bool) -> void
-   */
-  onEnter: PropTypes.func,
+	/**
+	 * Callback fired before the "entering" status is applied. An extra parameter
+	 * `isAppearing` is supplied to indicate if the enter stage is occurring on the initial mount
+	 *
+	 * @type Function(node: HtmlElement, isAppearing: bool) -> void
+	 */
+	onEnter: PropTypes.func,
 
-  /**
-   * Callback fired after the "entering" status is applied. An extra parameter
-   * `isAppearing` is supplied to indicate if the enter stage is occurring on the initial mount
-   *
-   * @type Function(node: HtmlElement, isAppearing: bool)
-   */
-  onEntering: PropTypes.func,
+	/**
+	 * Callback fired after the "entering" status is applied. An extra parameter
+	 * `isAppearing` is supplied to indicate if the enter stage is occurring on the initial mount
+	 *
+	 * @type Function(node: HtmlElement, isAppearing: bool)
+	 */
+	onEntering: PropTypes.func,
 
-  /**
-   * Callback fired after the "entered" status is applied. An extra parameter
-   * `isAppearing` is supplied to indicate if the enter stage is occurring on the initial mount
-   *
-   * @type Function(node: HtmlElement, isAppearing: bool) -> void
-   */
-  onEntered: PropTypes.func,
+	/**
+	 * Callback fired after the "entered" status is applied. An extra parameter
+	 * `isAppearing` is supplied to indicate if the enter stage is occurring on the initial mount
+	 *
+	 * @type Function(node: HtmlElement, isAppearing: bool) -> void
+	 */
+	onEntered: PropTypes.func,
 
-  /**
-   * Callback fired before the "exiting" status is applied.
-   *
-   * @type Function(node: HtmlElement) -> void
-   */
-  onExit: PropTypes.func,
+	/**
+	 * Callback fired before the "exiting" status is applied.
+	 *
+	 * @type Function(node: HtmlElement) -> void
+	 */
+	onExit: PropTypes.func,
 
-  /**
-   * Callback fired after the "exiting" status is applied.
-   *
-   * @type Function(node: HtmlElement) -> void
-   */
-  onExiting: PropTypes.func,
+	/**
+	 * Callback fired after the "exiting" status is applied.
+	 *
+	 * @type Function(node: HtmlElement) -> void
+	 */
+	onExiting: PropTypes.func,
 
-  /**
-   * Callback fired after the "exited" status is applied.
-   *
-   * @type Function(node: HtmlElement) -> void
-   */
-  onExited: PropTypes.func
+	/**
+	 * Callback fired after the "exited" status is applied.
+	 *
+	 * @type Function(node: HtmlElement) -> void
+	 */
+	onExited: PropTypes.func
 };
 
 // Name the function so it is clearer in the documentation
 function noop() {}
 
 Transition.defaultProps = {
-  in: false,
-  mountOnEnter: false,
-  unmountOnExit: false,
-  appear: false,
-  enter: true,
-  exit: true,
+	in: false,
+	mountOnEnter: false,
+	unmountOnExit: false,
+	appear: false,
+	enter: true,
+	exit: true,
 
-  onEnter: noop,
-  onEntering: noop,
-  onEntered: noop,
+	onEnter: noop,
+	onEntering: noop,
+	onEntered: noop,
 
-  onExit: noop,
-  onExiting: noop,
-  onExited: noop
+	onExit: noop,
+	onExiting: noop,
+	onExited: noop
 };
 
 Transition.UNMOUNTED = 0;
