@@ -23,7 +23,7 @@ const getMany = (list, ids) => {
 
 	const filterFn = isFunction(ids) ? ids : item => ids.indexOf(item.id) !== -1;
 
-	for (let i = 0; i < list.length; ++i) {
+	for (let i = 0, ii = list.length; i < ii; ++i) {
 		if (filterFn(list[i], i, list)) {
 			indices.push(i);
 			items.push(list[i]);
@@ -44,8 +44,8 @@ const db = {
 		}
 
 		const item = {
-			id: uid(8),
-			...value
+			...value,
+			id: uid(8)
 		};
 		const index = list.length;
 		list.push(item);
@@ -69,8 +69,8 @@ const db = {
 			const { item, index } = db.createOne(
 				list,
 				{
-					id: uid(8),
-					...value
+					...value,
+					id: uid(8)
 				},
 				true
 			);
