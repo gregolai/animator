@@ -1,5 +1,5 @@
-import { React, normalizeRatio, INTERVAL_MS } from 'common';
-import { createPersist } from 'utils/persist';
+import { React, INTERVAL_MS } from 'common';
+import { createPersist, normalizeRatio } from 'utils';
 
 const persist = createPersist('UIStore', {
   expandedTweenId: -1,
@@ -11,7 +11,6 @@ const persist = createPersist('UIStore', {
 
 const Context = React.createContext();
 export default class UIStore extends React.Component {
-
   static use = () => React.useContext(Context);
 
   state = {
@@ -22,7 +21,7 @@ export default class UIStore extends React.Component {
 
     animationCursor: {
       isActive: false,
-      ratio: 0,
+      ratio: 0
     },
 
     tickSpacing: persist.tickSpacing.read()
@@ -140,7 +139,7 @@ export default class UIStore extends React.Component {
 
   isInstanceHidden = instanceId => {
     return !!this.state.hiddenInstances[instanceId];
-  }
+  };
 
   setInstanceHidden = (instanceId, hide) => {
     const hiddenInstances = { ...this.state.hiddenInstances };
@@ -153,8 +152,7 @@ export default class UIStore extends React.Component {
 
     this.setState({ hiddenInstances });
     persist.hiddenInstances.write(hiddenInstances);
-  }
-
+  };
 
   setTickSpacing = tickSpacing => {
     tickSpacing = Math.max(1, tickSpacing);
@@ -169,7 +167,7 @@ export default class UIStore extends React.Component {
     const animationCursor = {
       isActive,
       ratio
-    }
+    };
     this.setState({ animationCursor });
   };
 

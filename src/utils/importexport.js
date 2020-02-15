@@ -1,4 +1,4 @@
-import { createUniqueName, getRandomColor } from 'common';
+import { createUniqueName, getRandomColor } from 'utils';
 import rework from 'rework';
 import { CSSLint } from 'csslint';
 import jsonBeautify from 'json-beautify';
@@ -10,13 +10,14 @@ export const lintJSF = jsfString => {
   const warnings = [];
   const errors = [];
 
-  const isValid = jsfString[0] === '{' && jsfString[jsfString.length - 1] === '}';
+  const isValid =
+    jsfString[0] === '{' && jsfString[jsfString.length - 1] === '}';
   if (!isValid) {
     errors.push({ message: 'This is not valid JSF' });
   }
 
   return { warnings, errors };
-}
+};
 
 export const lintCSS = cssString => {
   const { messages } = CSSLint.verify(cssString);
@@ -25,8 +26,7 @@ export const lintCSS = cssString => {
   return { warnings, errors };
 };
 
-export const importJSF = (jsfString) => {
-
+export const importJSF = jsfString => {
   const jsfObject = JSON.parse(jsfString);
 
   const animations = [];
@@ -34,63 +34,83 @@ export const importJSF = (jsfString) => {
   const instances = [];
   const tweens = [];
 
-  Object.entries(jsfObject.animations || {})
-    .forEach(([animationId, jsfAnimation]) => {
-
+  Object.entries(jsfObject.animations || {}).forEach(
+    ([animationId, jsfAnimation]) => {
       // create animation
-      db.createOne(animations, {
-        id: animationId,
-        color: getRandomColor(),
-        name: jsfAnimation.name || createUniqueName()
-      }, true);
+      db.createOne(
+        animations,
+        {
+          id: animationId,
+          color: getRandomColor(),
+          name: jsfAnimation.name || createUniqueName()
+        },
+        true
+      );
 
-
-      Object.entries(jsfAnimation.keyframes || {})
-        .forEach(([definitionId, jsfKeyValuePairs]) => {
-
+      Object.entries(jsfAnimation.keyframes || {}).forEach(
+        ([definitionId, jsfKeyValuePairs]) => {
           // create tween
-          const { item: tween } = db.createOne(tweens, {
-            animationId,
-            definitionId
-          }, true);
+          const { item: tween } = db.createOne(
+            tweens,
+            {
+              animationId,
+              definitionId
+            },
+            true
+          );
           const tweenId = tween.id;
 
           jsfKeyValuePairs.forEach(([time, value]) => {
-
             // prevent duplicate keyframe times
-            if (db.getOne(keyframes, kf => kf.tweenId === tweenId && kf.time === time).item) return;
+            if (
+              db.getOne(
+                keyframes,
+                kf => kf.tweenId === tweenId && kf.time === time
+              ).item
+            )
+              return;
 
             // create keyframe
-            db.createOne(keyframes, {
-              animationId,
-              tweenId,
-              time,
-              value
-            }, true);
-          })
-        })
-    });
+            db.createOne(
+              keyframes,
+              {
+                animationId,
+                tweenId,
+                time,
+                value
+              },
+              true
+            );
+          });
+        }
+      );
+    }
+  );
 
-  Object.entries(jsfObject.instances || {})
-    .forEach(([instanceId, jsfInstance]) => {
+  Object.entries(jsfObject.instances || {}).forEach(
+    ([instanceId, jsfInstance]) => {
       // require animation
       const animationId = jsfInstance.animation;
       if (!db.getOne(animations, animationId).item) return;
 
-      db.createOne(instances, {
-        animationId,
-        color: getRandomColor(),
-        definitionValues: jsfInstance.baseProps,
-        id: instanceId,
-        name: jsfInstance.name || createUniqueName()
-      }, true);
-    });
+      db.createOne(
+        instances,
+        {
+          animationId,
+          color: getRandomColor(),
+          definitionValues: jsfInstance.baseProps,
+          id: instanceId,
+          name: jsfInstance.name || createUniqueName()
+        },
+        true
+      );
+    }
+  );
 
   return { animations, keyframes, instances, tweens };
-}
+};
 
 export const exportJSF = ({ animations, instances, keyframes, tweens }) => {
-
   const jsfObject = {
     type: 'animated',
     properties: {
@@ -105,18 +125,16 @@ export const exportJSF = ({ animations, instances, keyframes, tweens }) => {
        *     name
        *   }
        * }
-      */
+       */
       animations: animations.reduce((map, animation) => {
-
         map[animation.id] = {
           keyframes: tweens
             .filter(t => t.animationId === animation.id)
             .reduce((map, tween) => {
-
               map[tween.definitionId] = keyframes
                 .filter(kf => kf.tweenId === tween.id)
-                .sort((a, b) => a.time < b.time ? -1 : 1)
-                .map(kf => ([kf.time, kf.value]));
+                .sort((a, b) => (a.time < b.time ? -1 : 1))
+                .map(kf => [kf.time, kf.value]);
 
               return map;
             }, {}),
@@ -136,25 +154,23 @@ export const exportJSF = ({ animations, instances, keyframes, tweens }) => {
        *     name
        *   }
        * }
-      */
+       */
       instances: instances.reduce((map, instance) => {
-
         map[instance.id] = {
           animation: instance.animationId,
           baseProps: instance.definitionValues,
           name: instance.name
-        }
+        };
 
         return map;
       }, {})
     }
-  }
+  };
 
-  const jsfString = jsonBeautify(jsfObject, null, 2, 100)
+  const jsfString = jsonBeautify(jsfObject, null, 2, 100);
 
   return jsfString;
-}
-
+};
 
 // const jsf = {
 //   type: 'keyframes',

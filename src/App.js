@@ -4,6 +4,7 @@ import SplitPane from 'react-split-pane';
 
 import { ButtonField } from 'components/core';
 import { withStores, AnimationStore, UIStore, ImporterStore } from 'stores';
+import { PlaybackController } from 'utils';
 
 import Stage from './components/stage/Stage';
 import Export from './components/export/Export';
@@ -12,8 +13,6 @@ import MediaControls from './components/media/MediaControls';
 
 import Animations from './components/animations/Animations';
 import Instances from './components/instances/Instances';
-
-import PlaybackController from 'utils/PlaybackController';
 
 import styles from './App.module.scss';
 
@@ -60,7 +59,7 @@ const ImportButton = () => {
       />
     </div>
   );
-}
+};
 
 const AddAnimationButton = () => {
   const { createAnimation } = AnimationStore.use();
@@ -74,7 +73,7 @@ const AddAnimationButton = () => {
       />
     </div>
   );
-}
+};
 
 const App = withStores(() => {
   const [debug, toggleDebug] = React.useState(true);
@@ -84,8 +83,11 @@ const App = withStores(() => {
 
   const maxDuration = getInstances().reduce((max, instance) => {
     const delay = getInstanceDefinitionValue(instance.id, 'animationDelay');
-    const duration = getInstanceDefinitionValue(instance.id, 'animationDuration');
-    return Math.max(delay + duration, max)
+    const duration = getInstanceDefinitionValue(
+      instance.id,
+      'animationDuration'
+    );
+    return Math.max(delay + duration, max);
   }, 0);
 
   return (
@@ -101,7 +103,12 @@ const App = withStores(() => {
             left: 0
           }}
         >
-          Debug <input type="checkbox" onChange={() => toggleDebug(!debug)} checked={debug} />
+          Debug{' '}
+          <input
+            type="checkbox"
+            onChange={() => toggleDebug(!debug)}
+            checked={debug}
+          />
         </label>
         <button
           style={{
@@ -117,12 +124,13 @@ const App = withStores(() => {
           }}
         >
           Reset Cache
-      </button>
-
+        </button>
 
         {/* MODALS */}
         <ImportCSSModal />
-        {showExportModal && <Export onRequestClose={() => setShowExportModal(false)} />}
+        {showExportModal && (
+          <Export onRequestClose={() => setShowExportModal(false)} />
+        )}
 
         <SplitPane
           split="horizontal"
@@ -139,7 +147,6 @@ const App = withStores(() => {
           >
             <div className={styles.topLeft}>
               <div className={styles.menu}>
-
                 {/* IMPORT */}
                 <ImportButton />
 

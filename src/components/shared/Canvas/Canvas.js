@@ -1,37 +1,30 @@
-import React from 'react';
+import { React, cx } from 'common';
 
 import styles from './Canvas.module.scss';
 
 export default class Canvas extends React.Component {
+  static defaultProps = {
+    loop: false
+  };
+
   state = {
     height: 0,
     width: 0
   };
 
-  isButtonDown = false;
+  _doFrame() {
+    const curTime = Date.now();
+    const deltaTime = curTime - this.prevTime;
+    const elapsedTime = curTime - this.startTime;
 
-  _startFrameLoop(onFrame) {
-    const cvs = this.cvs;
+    this.props.onFrame(this.cvs.getContext('2d'), deltaTime, elapsedTime);
 
-    const startTime = Date.now();
-    let prevTime = startTime;
+    this.prevTime = curTime;
+  }
 
+  _startFrameLoop() {
     const loop = () => {
-      const curTime = Date.now();
-      const dt = curTime - prevTime;
-
-      const ctx = cvs.getContext('2d');
-      ctx.save();
-      onFrame({
-        cvs,
-        ctx,
-        dt,
-        t: curTime - startTime
-      });
-      ctx.restore();
-
-      prevTime = curTime;
-
+      this._doFrame();
       this.raf = requestAnimationFrame(loop);
     };
     this.raf = requestAnimationFrame(loop);
@@ -44,9 +37,11 @@ export default class Canvas extends React.Component {
     });
     this.observer.observe(this.cvs);
 
-    const { onFrame } = this.props;
-    if (onFrame) {
-      this._startFrameLoop(onFrame);
+    this.startTime = Date.now();
+    this.prevTime = this.startTime;
+
+    if (this.props.loop) {
+      this._startFrameLoop();
     }
   }
 
@@ -57,14 +52,9 @@ export default class Canvas extends React.Component {
     }
   }
 
-  componentDidUpdate() {
-    const { onResize } = this.props;
-    if (onResize) {
-      const cvs = this.cvs;
-      const ctx = cvs.getContext('2d');
-      ctx.save();
-      onResize({ cvs, ctx });
-      ctx.restore();
+  componentDidUpdate(prevProps, prevState) {
+    if (!this.props.loop) {
+      this._doFrame();
     }
   }
 
@@ -73,12 +63,12 @@ export default class Canvas extends React.Component {
   };
 
   render() {
-    const { onMouseDown } = this.props;
+    const { className, onMouseDown } = this.props;
     const { width, height } = this.state;
     return (
       <canvas
         ref={this.captureRef}
-        className={styles.container}
+        className={cx(styles.container, className)}
         height={height}
         width={width}
         onMouseDown={onMouseDown}

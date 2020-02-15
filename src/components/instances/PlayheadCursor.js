@@ -1,7 +1,6 @@
-import { React, cx, startDrag } from 'common';
-
+import { React, cx } from 'common';
+import { startDrag, PlaybackController } from 'utils';
 import { UIStore } from 'stores';
-import PlaybackController from 'utils/PlaybackController';
 
 import { pixelsToTime, timeToPixels } from './utils';
 import styles from './PlayheadCursor.module.scss';

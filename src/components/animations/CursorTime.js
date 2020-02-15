@@ -1,6 +1,6 @@
-import { React, normalizeRatio, noop } from 'common';
+import { React, noop } from 'common';
+import { normalizeRatio, PlaybackController } from 'utils';
 import { AnimationStore, UIStore } from 'stores';
-import PlaybackController from 'utils/PlaybackController';
 
 const Context = React.createContext();
 
@@ -20,23 +20,30 @@ const CursorTime = ({ children, animation }) => {
   if (selectedInstanceId !== -1) {
     const instance = getInstance(selectedInstanceId);
     const delay = getInstanceDefinitionValue(instance.id, 'animationDelay');
-    const duration = getInstanceDefinitionValue(instance.id, 'animationDuration');
+    const duration = getInstanceDefinitionValue(
+      instance.id,
+      'animationDuration'
+    );
     easing = getInstanceDefinitionValue(instance.id, 'animationTimingFunction');
 
     cursorTime = (playhead - delay) / duration;
-    cursorTime = cursorTime < 0 || cursorTime > 1 ?
-      undefined :
-      normalizeRatio(cursorTime);
+    cursorTime =
+      cursorTime < 0 || cursorTime > 1 ? undefined : normalizeRatio(cursorTime);
 
-    setCursorTime = (ratio, _) => setPlayhead(delay + normalizeRatio(ratio) * duration);
+    setCursorTime = (ratio, _) =>
+      setPlayhead(delay + normalizeRatio(ratio) * duration);
   } else {
     easing = 'linear';
     cursorTime = animationCursor.ratio;
     setCursorTime = (ratio, isActive) => setAnimationCursor(ratio, isActive);
   }
 
-  return <Context.Provider value={{ easing, cursorTime, setCursorTime }}>{children}</Context.Provider>;
-}
+  return (
+    <Context.Provider value={{ easing, cursorTime, setCursorTime }}>
+      {children}
+    </Context.Provider>
+  );
+};
 
 CursorTime.use = () => React.useContext(Context);
 

@@ -1,4 +1,5 @@
-import { React, cx, roundToInterval, startDrag } from 'common';
+import { React, cx } from 'common';
+import { roundToInterval, startDrag, PlaybackController } from 'utils';
 
 import { AnimationStore, UIStore, StageStore } from 'stores';
 import { Canvas, Hover } from 'components/shared';
@@ -6,7 +7,6 @@ import Controls from './components/Controls';
 
 import { getStyleProp } from 'utils/cc/styleProps';
 import AnimationController from 'utils/AnimationController';
-import PlaybackController from 'utils/PlaybackController';
 
 import styles from './Stage.module.scss';
 
@@ -25,11 +25,10 @@ const StageCanvas = () => {
           onDrag: ({ deltaX, deltaY }) => {
             setOffset(x - deltaX, y - deltaY);
           }
-        })
+        });
       }}
-
-      onResize={({ cvs, ctx }) => {
-        const { width, height } = cvs;
+      onFrame={ctx => {
+        const { width, height } = ctx.canvas;
 
         ctx.clearRect(0, 0, width, height);
         if (!showGrid) return;
@@ -68,7 +67,6 @@ const StageCanvas = () => {
   );
 };
 
-
 const Instance = ({ instance }) => {
   const [isDragging, setDragging] = React.useState(false);
 
@@ -78,7 +76,11 @@ const Instance = ({ instance }) => {
     getInstanceDefinitionValue,
     setInstanceDefinitionValue
   } = AnimationStore.use();
-  const { animationCursor, isInstanceHidden, setSelectedInstance } = UIStore.use();
+  const {
+    animationCursor,
+    isInstanceHidden,
+    setSelectedInstance
+  } = UIStore.use();
   const { playhead } = PlaybackController.use();
   const { showGrid, gridSize, gridSnap } = StageStore.use();
 
@@ -87,12 +89,15 @@ const Instance = ({ instance }) => {
 
   const delay = getInstanceDefinitionValue(instance.id, 'animationDelay');
   const duration = getInstanceDefinitionValue(instance.id, 'animationDuration');
-  const easing = getInstanceDefinitionValue(instance.id, 'animationTimingFunction');
+  const easing = getInstanceDefinitionValue(
+    instance.id,
+    'animationTimingFunction'
+  );
 
   // Use cursor time if it's active. Otherwise, use global playhead
-  const time = animationCursor.isActive ?
-    delay + duration * animationCursor.ratio :
-    playhead;
+  const time = animationCursor.isActive
+    ? delay + duration * animationCursor.ratio
+    : playhead;
 
   return (
     <Hover>
@@ -102,12 +107,10 @@ const Instance = ({ instance }) => {
           delay={delay}
           duration={duration}
           easing={easing}
-          keyframes={
-            getTweens(instance.animationId).reduce((map, tween) => {
-              map[tween.definitionId] = getKeyframes(tween.id);
-              return map;
-            }, {})
-          }
+          keyframes={getTweens(instance.animationId).reduce((map, tween) => {
+            map[tween.definitionId] = getKeyframes(tween.id);
+            return map;
+          }, {})}
           time={time}
         >
           {interpolatedStyles => (
@@ -121,11 +124,12 @@ const Instance = ({ instance }) => {
 
                 setSelectedInstance(instance.id);
 
-                const initX = getInstanceDefinitionValue(instance.id, 'left') || 0;
-                const initY = getInstanceDefinitionValue(instance.id, 'top') || 0;
+                const initX =
+                  getInstanceDefinitionValue(instance.id, 'left') || 0;
+                const initY =
+                  getInstanceDefinitionValue(instance.id, 'top') || 0;
 
                 startDrag(e, {
-
                   onDragStart: () => setDragging(true),
                   onDrag: ({ deltaX, deltaY }) => {
                     let x = initX + deltaX;
@@ -137,8 +141,8 @@ const Instance = ({ instance }) => {
                     setInstanceDefinitionValue(instance.id, 'left', x);
                     setInstanceDefinitionValue(instance.id, 'top', y);
                   },
-                  onDragEnd: () => setDragging(false),
-                })
+                  onDragEnd: () => setDragging(false)
+                });
               }}
               style={{
                 ...Object.keys(instance.definitionValues).reduce(
@@ -160,8 +164,8 @@ const Instance = ({ instance }) => {
         </AnimationController>
       )}
     </Hover>
-  )
-}
+  );
+};
 
 export default ({ className }) => {
   const { getInstances } = AnimationStore.use();
@@ -170,12 +174,12 @@ export default ({ className }) => {
   return (
     <div className={cx(styles.container, className)}>
       <StageCanvas />
-      <div className={styles.instances} style={{ left: -offset.x, top: -offset.y }}>
+      <div
+        className={styles.instances}
+        style={{ left: -offset.x, top: -offset.y }}
+      >
         {getInstances().map(instance => (
-          <Instance
-            key={instance.id}
-            instance={instance}
-          />
+          <Instance key={instance.id} instance={instance} />
         ))}
       </div>
       <Controls />

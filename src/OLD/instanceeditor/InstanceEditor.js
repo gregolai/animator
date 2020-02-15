@@ -2,7 +2,10 @@ import React from 'react';
 import chunk from 'lodash/chunk';
 import { AnimationStore, MediaStore, UIStore } from 'stores';
 import { INTERVAL_MS } from 'utils/constants';
-import { getAnimatedDefinitions, getInstanceDefinitions } from 'utils/definitions';
+import {
+  getAnimatedDefinitions,
+  getInstanceDefinitions
+} from 'utils/definitions';
 import { IconButton, Ticks, ValueButton, ValueEditor } from 'components/shared';
 import CreateInstance from './CreateInstance';
 import InstanceHead from './InstanceHead';
@@ -17,7 +20,9 @@ const EditButton = ({ definition, isToggled, onClick, instance }) => (
         accessory={
           <IconButton
             icon="close"
-            onClick={() => setInstanceDefinitionValue(instance.id, definition.id, undefined)}
+            onClick={() =>
+              setInstanceDefinitionValue(instance.id, definition.id, undefined)
+            }
           />
         }
         className={styles.definition}
@@ -35,7 +40,9 @@ const Definitions = ({ instance, definitions }) => {
   const [expandedDefinitionId, setExpandedDefinition] = React.useState('');
 
   const toggleExpanded = definitionId =>
-    setExpandedDefinition(expandedDefinitionId === definitionId ? -1 : definitionId);
+    setExpandedDefinition(
+      expandedDefinitionId === definitionId ? -1 : definitionId
+    );
 
   const rows = chunk(definitions, 2);
 
@@ -66,9 +73,16 @@ const Definitions = ({ instance, definitions }) => {
               {({ getInstanceDefinitionValue, setInstanceDefinitionValue }) => (
                 <ValueEditor
                   definitionId={expandedDefinitionId}
-                  value={getInstanceDefinitionValue(instance.id, expandedDefinitionId)}
+                  value={getInstanceDefinitionValue(
+                    instance.id,
+                    expandedDefinitionId
+                  )}
                   onChange={value =>
-                    setInstanceDefinitionValue(instance.id, expandedDefinitionId, value)
+                    setInstanceDefinitionValue(
+                      instance.id,
+                      expandedDefinitionId,
+                      value
+                    )
                   }
                 />
               )}
@@ -128,14 +142,26 @@ const Instance = ({ instance }) => {
           <InstanceHead instance={instance} />
           {selectedInstanceId === instance.id && (
             <>
-              <Definitions instance={instance} definitions={getInstanceDefinitions()} />
-              <Definitions instance={instance} definitions={getAnimatedDefinitions()} />
+              <Definitions
+                instance={instance}
+                definitions={getInstanceDefinitions()}
+              />
+              <Definitions
+                instance={instance}
+                definitions={getAnimatedDefinitions()}
+              />
               <div style={{ position: 'relative', height: 50 }}>
                 <AnimationStore.Consumer>
                   {({ getInstanceDefinitionValue }) => (
                     <Timeline
-                      delay={getInstanceDefinitionValue(instance.id, 'animation-delay')}
-                      duration={getInstanceDefinitionValue(instance.id, 'animation-duration')}
+                      delay={getInstanceDefinitionValue(
+                        instance.id,
+                        'animation-delay'
+                      )}
+                      duration={getInstanceDefinitionValue(
+                        instance.id,
+                        'animation-duration'
+                      )}
                     />
                   )}
                 </AnimationStore.Consumer>

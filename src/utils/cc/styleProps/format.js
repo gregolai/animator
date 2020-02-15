@@ -12,6 +12,9 @@ export default {
     const a = Number(v.alpha).toFixed(2);
     return `rgba(${r}, ${g}, ${b}, ${a})`;
   },
+  deg: v => {
+    return `${v}deg`;
+  },
   easing: v => {
     if (Array.isArray(v)) {
       return `cubic-bezier(${v[0]}, ${v[1]}, ${v[2]}, ${v[3]})`;
@@ -36,4 +39,4 @@ export default {
   ratio: (v, precision = 2) => {
     return `${clamp(v, 0, 1).toFixed(precision)}`;
   }
-}
+};

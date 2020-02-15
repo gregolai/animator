@@ -7,9 +7,14 @@ export default {
   color: v => {
     const { alpha, ...rgb } = v;
     const hex = color.stringifyColor(rgb, 'hex');
+
     return (
       <div
         style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          borderRadius: 4,
           position: 'absolute',
           top: 0,
           left: 0,
@@ -39,5 +44,16 @@ export default {
   },
   pixels: v => {
     return `${v}px`;
+  },
+  opacity: v => {
+    return (
+      <div style={{ width: '100%' }}>
+        {format.ratio(v)}
+        <div style={{
+          height: 4,
+          backgroundColor: `hsl(0, 0%, ${v * 100}%)`
+        }} />
+      </div>
+    )
   }
 }

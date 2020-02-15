@@ -1,6 +1,12 @@
-import { React, normalizeRatio } from 'common';
+import { React } from 'common';
 import { ColorSquare, DropdownCustom } from 'components/shared';
-import { DropdownSelect, ColorField, NumberField, RangeField, UrlParseField } from 'components/core';
+import {
+  DropdownSelect,
+  ColorField,
+  NumberField,
+  RangeField,
+  UrlParseField
+} from 'components/core';
 
 import { getEasingArray } from '../easing';
 
@@ -16,7 +22,7 @@ const listToOptions = list => {
   return list.map(k => {
     return typeof k === 'object' ? k : { label: k, value: k };
   });
-}
+};
 
 const BezierComponent = ({ value, onChange }) => (
   <RangeField min={0} max={1} step={0.01} onChange={onChange} value={value} />
@@ -37,7 +43,7 @@ export default {
           }}
         />
       </div>
-    )
+    );
   },
 
   easing: ({ onChange, value }) => {
@@ -51,13 +57,24 @@ export default {
           const [x0, y0, x1, y1] = getEasingArray(value);
           return (
             <>
-              <BezierComponent onChange={x0 => onChange([x0, y0, x1, y1])} value={x0} />
-              <BezierComponent onChange={y0 => onChange([x0, y0, x1, y1])} value={y0} />
-              <BezierComponent onChange={x1 => onChange([x0, y0, x1, y1])} value={x1} />
-              <BezierComponent onChange={y1 => onChange([x0, y0, x1, y1])} value={y1} />
+              <BezierComponent
+                onChange={x0 => onChange([x0, y0, x1, y1])}
+                value={x0}
+              />
+              <BezierComponent
+                onChange={y0 => onChange([x0, y0, x1, y1])}
+                value={y0}
+              />
+              <BezierComponent
+                onChange={x1 => onChange([x0, y0, x1, y1])}
+                value={x1}
+              />
+              <BezierComponent
+                onChange={y1 => onChange([x0, y0, x1, y1])}
+                value={y1}
+              />
             </>
           );
-
         }}
         value={value}
       />
@@ -76,7 +93,14 @@ export default {
     );
   },
 
-  enumCustom: ({ label = 'Custom', renderCustom, list, onChange, placeholder, value }) => {
+  enumCustom: ({
+    label = 'Custom',
+    renderCustom,
+    list,
+    onChange,
+    placeholder,
+    value
+  }) => {
     return (
       <DropdownCustom
         customOption={{ label, value }}
@@ -86,14 +110,18 @@ export default {
         renderCustom={renderCustom}
         value={value}
       />
-    )
+    );
   },
 
   image: ({ onChange, value }) => {
     return (
       <>
         {value && (
-          <img alt="" style={{ height: 120, width: '100%', objectFit: 'contain' }} src={value} />
+          <img
+            alt=""
+            style={{ height: 120, width: '100%', objectFit: 'contain' }}
+            src={value}
+          />
         )}
         <UrlParseField
           placeholder="URL"
@@ -104,7 +132,13 @@ export default {
     );
   },
 
-  integerRange: ({ step = 1, min = -1000, max = 1000, onChange, value = 0 }) => {
+  integerRange: ({
+    step = 1,
+    min = -1000,
+    max = 1000,
+    onChange,
+    value = 0
+  }) => {
     return (
       <RangeField
         max={max}
@@ -153,4 +187,4 @@ export default {
       />
     );
   }
-}
+};

@@ -1,5 +1,5 @@
-import { React, cx, startDrag } from 'common';
-
+import { React, cx } from 'common';
+import { startDrag } from 'utils';
 import { AnimationStore } from 'stores';
 import { Ticks } from 'components/shared';
 
@@ -48,7 +48,11 @@ const TweenTimeline = ({ className, height, tween }) => {
   }
 
   return (
-    <div ref={timelineRef} style={{ height }} className={cx(styles.container, className)}>
+    <div
+      ref={timelineRef}
+      style={{ height }}
+      className={cx(styles.container, className)}
+    >
       <Ticks.EvenSpaced
         count={100}
         ticks={[

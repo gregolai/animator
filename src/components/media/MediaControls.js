@@ -1,15 +1,11 @@
-import React from 'react';
-import classnames from 'classnames';
-
+import { React } from 'common';
+import { PlaybackController } from 'utils';
 import { ButtonField, BooleanField } from 'components/core';
-
-import PlaybackController from 'utils/PlaybackController';
 
 import styles from './MediaControls.module.scss';
 
 // PLAY PAUSE CONTROLS
-const MediaControls = ({ className }) => {
-
+const MediaControls = () => {
   const {
     duration,
     isPlaying,
@@ -24,7 +20,7 @@ const MediaControls = ({ className }) => {
   } = PlaybackController.use();
 
   return (
-    <div className={classnames(styles.container, className)}>
+    <div className={styles.container}>
       {/* PLAY / PAUSE */}
       <div style={{ flex: 1 }}>
         <ButtonField

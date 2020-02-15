@@ -25,12 +25,12 @@ const HeadLeft = ({ animation }) => {
       <AddDropdown
         className={styles.btnAddTween}
         label="Add Tween"
-        onSelect={definitionId => {
-          createTween(animation.id, definitionId);
+        onSelect={stylePropId => {
+          createTween(animation.id, stylePropId);
         }}
-        options={getUnusedStyleProps(animation.id).map(definition => ({
-          label: definition.id,
-          value: definition.id
+        options={getUnusedStyleProps(animation.id).map(styleProp => ({
+          label: styleProp.id,
+          value: styleProp.id
         }))}
       />
     </div>

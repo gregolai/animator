@@ -1,30 +1,9 @@
-import React from 'react';
-import cx from 'classnames';
-import randomColor from 'randomcolor';
-import noop from 'lodash/noop';
-import chunk from 'lodash/chunk';
-import clamp from 'lodash/clamp';
-import isNumber from 'lodash/isNumber';
+export { default as React } from 'react';
+export { default as cx } from 'classnames';
 
-export { default as createUniqueName } from './utils/createUniqueName';
-export { startDrag } from './utils/mouse';
+export { default as noop } from 'lodash/noop';
+export { default as chunk } from 'lodash/chunk';
+export { default as clamp } from 'lodash/clamp';
+export { default as isNumber } from 'lodash/isNumber';
 
 export const INTERVAL_MS = 10;
-
-export const getRandomColor = () => randomColor();
-
-// for grid snap
-export const roundToInterval = (value, interval) => {
-  return Math.round(value / interval) * interval;
-};
-
-export const normalizeRatio = (time, precision = 2) => {
-  time = Number(time).toFixed(precision);
-  return clamp(parseFloat(time), 0, 1);
-};
-
-export const normalizeFloat = (time, precision = 2) => {
-  return parseFloat(Number(time).toFixed(precision));
-};
-
-export { React, cx, noop, clamp, chunk, isNumber };

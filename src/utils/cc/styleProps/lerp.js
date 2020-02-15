@@ -1,7 +1,7 @@
-import { normalizeFloat } from 'common';
+import { normalizeFloat } from 'utils';
 
 const lerpFloat = (from, to, t) => normalizeFloat(from + t * (to - from));
-const lerpInteger = (from, to, t) => Math.round(lerpFloat(from, to, t))
+const lerpInteger = (from, to, t) => Math.round(lerpFloat(from, to, t));
 
 export default {
   color: (from, to, t) => {
@@ -20,4 +20,4 @@ export default {
   static: (from, to, t) => {
     return t < 0.5 ? from : to;
   }
-}
+};

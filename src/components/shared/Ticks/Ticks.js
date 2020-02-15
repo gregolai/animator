@@ -41,14 +41,15 @@ class PixelSpaced extends React.Component {
     }
   };
 
-  onResize = ({ cvs, ctx }) => {
-    ctx.clearRect(0, 0, cvs.width, cvs.height);
+  onFrame = ctx => {
+    const { width, height } = ctx.canvas;
+    ctx.clearRect(0, 0, width, height);
     this.renderTicks(ctx);
   };
 
   render() {
     const { delay, spacing, ticks, ...rest } = this.props;
-    return <Canvas {...rest} onResize={this.onResize} />;
+    return <Canvas {...rest} onFrame={this.onFrame} />;
   }
 }
 
@@ -72,14 +73,15 @@ class EvenSpaced extends React.Component {
     }
   };
 
-  onResize = ({ cvs, ctx }) => {
-    ctx.clearRect(0, 0, cvs.width, cvs.height);
+  onFrame = ctx => {
+    const { width, height } = ctx.canvas;
+    ctx.clearRect(0, 0, width, height);
     this.renderTicks(ctx);
   };
 
   render() {
     const { count, ticks, ...rest } = this.props;
-    return <Canvas {...rest} onResize={this.onResize} />;
+    return <Canvas {...rest} onFrame={this.onFrame} />;
   }
 }
 

@@ -1,17 +1,49 @@
-import { React, normalizeRatio, isNumber } from 'common';
+import { React, isNumber } from 'common';
+import { normalizeRatio } from 'utils';
 import colorNames from 'css-color-names';
 import { color } from '@sqs/utils';
 import palettes from 'nice-color-palettes';
 import camelCase from 'lodash/camelCase';
 import { getEasingArray, getEasingOptions } from 'utils/easing';
-import { DropdownSelect, ColorField, NumberField, RangeField, UrlParseField } from 'components/core';
+import {
+  DropdownSelect,
+  ColorField,
+  NumberField,
+  RangeField,
+  UrlParseField
+} from 'components/core';
 import { ColorSquare, DropdownCustom } from 'components/shared';
-import { IDENTITY_MATRIX, decomposeMatrix, formatMatrix, lerpMatrix, parseMatrix, recomposeMatrix } from './matrix';
+import {
+  IDENTITY_MATRIX,
+  decomposeMatrix,
+  formatMatrix,
+  lerpMatrix,
+  parseMatrix,
+  recomposeMatrix
+} from './matrix';
 
 const constants = {
   animationDirections: ['normal', 'reverse', 'alternate', 'alternate-reverse'],
-  backgroundRepeat: ['repeat', 'repeat-x', 'repeat-y', 'space', 'round', 'no-repeat'],
-  lineStyles: ['none', 'hidden', 'dotted', 'dashed', 'solid', 'double', 'groove', 'ridge', 'inset', 'outset'],
+  backgroundRepeat: [
+    'repeat',
+    'repeat-x',
+    'repeat-y',
+    'space',
+    'round',
+    'no-repeat'
+  ],
+  lineStyles: [
+    'none',
+    'hidden',
+    'dotted',
+    'dashed',
+    'solid',
+    'double',
+    'groove',
+    'ridge',
+    'inset',
+    'outset'
+  ],
   palette: [...palettes[0], ...palettes[1], ...palettes[2]],
   positions: ['static', 'relative', 'absolute', 'sticky', 'fixed']
 };
@@ -42,7 +74,7 @@ const formatColor = v => {
     return `rgba(${r}, ${g}, ${b}, ${a})`;
   }
   return v;
-}
+};
 
 const lerpNumber = (from, to, t) => from + t * (to - from);
 
@@ -52,33 +84,43 @@ const lerpColor = (from, to, t) => {
   const blue = lerpNumber(from.blue, to.blue, t);
   const alpha = lerpNumber(from.alpha, to.alpha, t);
   return { red, green, blue, alpha };
-}
+};
 
 const renderOptions = ({ options, onChange, value }) => {
-
   return (
     <DropdownSelect
       isFloating={false}
-      options={
-        options.map(opt => {
-          return typeof opt === 'string' ? { label: opt, value: opt } : opt;
-        })
-      }
+      options={options.map(opt => {
+        return typeof opt === 'string' ? { label: opt, value: opt } : opt;
+      })}
       onChange={onChange}
       value={value}
     />
   );
-
-}
+};
 
 const renderMargin = ({ onChange, value = 0 }) => (
-  <RangeField detail="px" max={1000} min={-1000} step={1} onChange={onChange} value={value} />
+  <RangeField
+    detail="px"
+    max={1000}
+    min={-1000}
+    step={1}
+    onChange={onChange}
+    value={value}
+  />
 );
 
 const renderPosition = ({ onChange, value = 0 }) => {
   value = Math.round(value);
   return (
-    <RangeField detail="px" max={1000} min={-1000} step={1} onChange={onChange} value={value} />
+    <RangeField
+      detail="px"
+      max={1000}
+      min={-1000}
+      step={1}
+      onChange={onChange}
+      value={value}
+    />
   );
 };
 
@@ -101,7 +143,7 @@ const renderColor = ({ onChange, value }) => {
       />
     </div>
   );
-}
+};
 
 const BezierComponent = ({ value, onChange }) => (
   <RangeField min={0} max={1} step={0.01} onChange={onChange} value={value} />
@@ -115,7 +157,14 @@ export const definitionMap = {
     preview: formatMilliseconds,
     parse: parseMilliseconds,
     render: ({ onChange, value = 0 }) => (
-      <RangeField detail="ms" max={10000} min={0} step={50} onChange={onChange} value={value} />
+      <RangeField
+        detail="ms"
+        max={10000}
+        min={0}
+        step={50}
+        onChange={onChange}
+        value={value}
+      />
     )
   },
   // 'animation-direction': {
@@ -144,14 +193,25 @@ export const definitionMap = {
     preview: formatMilliseconds,
     parse: parseMilliseconds,
     render: ({ onChange, value }) => (
-      <RangeField detail="ms" max={10000} min={100} step={50} onChange={onChange} value={value} />
+      <RangeField
+        detail="ms"
+        max={10000}
+        min={100}
+        step={50}
+        onChange={onChange}
+        value={value}
+      />
     )
   },
   'animation-timing-function': {
     defaultValue: 'linear',
     friendlyLabel: 'Easing',
-    format: v => (typeof v === 'string' ? v : `cubic-bezier(${v[0]}, ${v[1]}, ${v[2]}, ${v[3]})`),
-    preview: v => (typeof v === 'string' ? v : `(${v[0]}, ${v[1]}) (${v[2]}, ${v[3]})`),
+    format: v =>
+      typeof v === 'string'
+        ? v
+        : `cubic-bezier(${v[0]}, ${v[1]}, ${v[2]}, ${v[3]})`,
+    preview: v =>
+      typeof v === 'string' ? v : `(${v[0]}, ${v[1]}) (${v[2]}, ${v[3]})`,
     parse: str => getEasingArray(str),
     render: ({ onChange, value }) => (
       <DropdownCustom
@@ -164,10 +224,22 @@ export const definitionMap = {
 
           return (
             <>
-              <BezierComponent onChange={x0 => onChange([x0, y0, x1, y1])} value={x0} />
-              <BezierComponent onChange={y0 => onChange([x0, y0, x1, y1])} value={y0} />
-              <BezierComponent onChange={x1 => onChange([x0, y0, x1, y1])} value={x1} />
-              <BezierComponent onChange={y1 => onChange([x0, y0, x1, y1])} value={y1} />
+              <BezierComponent
+                onChange={x0 => onChange([x0, y0, x1, y1])}
+                value={x0}
+              />
+              <BezierComponent
+                onChange={y0 => onChange([x0, y0, x1, y1])}
+                value={y0}
+              />
+              <BezierComponent
+                onChange={x1 => onChange([x0, y0, x1, y1])}
+                value={x1}
+              />
+              <BezierComponent
+                onChange={y1 => onChange([x0, y0, x1, y1])}
+                value={y1}
+              />
             </>
           );
         }}
@@ -207,7 +279,7 @@ export const definitionMap = {
             }}
           />
         </div>
-      )
+      );
     }
   },
   'background-image': {
@@ -215,10 +287,7 @@ export const definitionMap = {
     preview: v => 'custom',
     parse: v => v,
     render: ({ onChange, value }) => (
-      <UrlParseField
-        onChange={v => onChange(v.url)}
-        value={value}
-      />
+      <UrlParseField onChange={v => onChange(v.url)} value={value} />
     )
   },
   'background-repeat': {
@@ -264,19 +333,21 @@ export const definitionMap = {
         }}
         placeholder="Background Repeat"
         onChange={onChange}
-        options={
-          constants.backgroundRepeat.map(p => ({
-            label: p,
-            value: p
-          }))
-        }
+        options={constants.backgroundRepeat.map(p => ({
+          label: p,
+          value: p
+        }))}
         value={value}
       />
     )
   },
 
   'border-right': {
-    defaultValue: { width: 0, style: 'solid', color: { red: 0, green: 0, blue: 0, alpha: 1 } },
+    defaultValue: {
+      width: 0,
+      style: 'solid',
+      color: { red: 0, green: 0, blue: 0, alpha: 1 }
+    },
     format: v => {
       const width = formatPixels(v.width);
       const style = v.style;
@@ -299,12 +370,17 @@ export const definitionMap = {
       parts.forEach(part => {
         if (constants.lineStyles.indexOf(part) !== -1) {
           style = part;
-        } else if (colorNames[part] !== undefined || part.startsWith('#') || part.startsWith('rgb') || part.startsWith('hsl')) {
+        } else if (
+          colorNames[part] !== undefined ||
+          part.startsWith('#') ||
+          part.startsWith('rgb') ||
+          part.startsWith('hsl')
+        ) {
           color = parseColor(part);
         } else if (!isNaN(parseFloat(part))) {
           width = parseNumber(part);
         }
-      })
+      });
       return { style, width, color };
     },
     render: ({ onChange, value }) => {
@@ -325,7 +401,7 @@ export const definitionMap = {
             value: color
           })}
         </>
-      )
+      );
 
       //return <div>VALUE: {JSON.stringify(value)}</div>
     }
@@ -428,9 +504,21 @@ export const definitionMap = {
   // HACKY - REWRITE
   transform: {
     //'translate(0, 0) rotateZ(45deg) scale(1, 1)',
-    defaultValue: { translate: { x: 0, y: 0 }, rotate: { z: 0, }, scale: { x: 1, y: 1 } },
-    format: v => `translate(${v.translate.x}px, ${v.translate.y}px) rotateZ(${v.rotate.z}deg) scale(${v.scale.x}, ${v.scale.y})`,
-    preview: v => `(${Math.round(v.translate.x)}, ${Math.round(v.translate.y)}) (${Math.round(v.rotate.z)}) (${Number(v.scale.x).toFixed(2)}, ${Number(v.scale.y).toFixed(2)})`,
+    defaultValue: {
+      translate: { x: 0, y: 0 },
+      rotate: { z: 0 },
+      scale: { x: 1, y: 1 }
+    },
+    format: v =>
+      `translate(${v.translate.x}px, ${v.translate.y}px) rotateZ(${
+        v.rotate.z
+      }deg) scale(${v.scale.x}, ${v.scale.y})`,
+    preview: v =>
+      `(${Math.round(v.translate.x)}, ${Math.round(
+        v.translate.y
+      )}) (${Math.round(v.rotate.z)}) (${Number(v.scale.x).toFixed(
+        2
+      )}, ${Number(v.scale.y).toFixed(2)})`,
     lerp: (from, to, t) => {
       return {
         translate: {
@@ -444,18 +532,21 @@ export const definitionMap = {
           x: lerpNumber(from.scale.x, to.scale.x, t),
           y: lerpNumber(from.scale.y, to.scale.y, t)
         }
-      }
+      };
     },
     parse: v => {
       // hacky
       let [strTranslate = '', strRotate = '', strScale = ''] = v.split(' ');
 
-      strTranslate = strTranslate.replace('translate(', '').replace(')', '')
-      strRotate = strRotate.replace('rotateZ(', '').replace(')', '').replace('deg', '')
-      strScale = strScale.replace('scale(', '').replace(')', '')
+      strTranslate = strTranslate.replace('translate(', '').replace(')', '');
+      strRotate = strRotate
+        .replace('rotateZ(', '')
+        .replace(')', '')
+        .replace('deg', '');
+      strScale = strScale.replace('scale(', '').replace(')', '');
 
       const [translateX = '0', translateY = '0'] = strTranslate.split(',');
-      const [scaleX = '1', scaleY = '1'] = strScale.split(',')
+      const [scaleX = '1', scaleY = '1'] = strScale.split(',');
 
       return {
         translate: {
@@ -469,25 +560,31 @@ export const definitionMap = {
           x: parseFloat(scaleX),
           y: parseFloat(scaleY)
         }
-      }
+      };
     },
     render: ({ value, onChange }) => {
       return (
         <>
           <NumberField
             label="TranslateX"
-            onChange={x => onChange({ ...value, translate: { ...value.translate, x } })}
+            onChange={x =>
+              onChange({ ...value, translate: { ...value.translate, x } })
+            }
             value={value.translate.x}
           />
           <NumberField
             label="TranslateY"
-            onChange={y => onChange({ ...value, translate: { ...value.translate, y } })}
+            onChange={y =>
+              onChange({ ...value, translate: { ...value.translate, y } })
+            }
             value={value.translate.y}
           />
 
           <NumberField
             label="Rot"
-            onChange={rot => onChange({ ...value, rotate: { ...value.rotate, z: rot } })}
+            onChange={rot =>
+              onChange({ ...value, rotate: { ...value.rotate, z: rot } })
+            }
             value={value.rotate.z}
           />
 
@@ -502,7 +599,7 @@ export const definitionMap = {
             value={value.scale.y}
           />
         </>
-      )
+      );
     }
   },
 
@@ -545,7 +642,6 @@ export const definitionMap = {
   //   }
   // },
 
-
   top: {
     defaultValue: 0,
     format: formatPixels,
@@ -578,8 +674,6 @@ const definitionArray = Object.keys(definitionMap)
   .sort((a, b) => (a.name < b.name ? -1 : 1));
 
 export const getDefinition = definitionId => definitionMap[definitionId];
-export const getDefinitions = (filterFn) => {
-  return filterFn ?
-    definitionArray.filter(filterFn) :
-    definitionArray;
-}
+export const getDefinitions = filterFn => {
+  return filterFn ? definitionArray.filter(filterFn) : definitionArray;
+};

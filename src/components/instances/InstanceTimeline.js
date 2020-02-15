@@ -35,8 +35,8 @@ const InstanceTimeline = ({ className, instance }) => {
       style={{ height }}
     >
       <Canvas
-        onResize={({ cvs, ctx }) => {
-          const { width, height } = cvs;
+        onFrame={ctx => {
+          const { width, height } = ctx.canvas;
           ctx.clearRect(0, 0, width, height);
 
           const pxDelay = timeToPixels(delay, tickSpacing);

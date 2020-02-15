@@ -2,22 +2,33 @@ import React from 'react';
 
 export default class Hover extends React.Component {
   state = { isHovering: false };
-  onMouseEnter = () => this.setState({ isHovering: true });
-  onMouseLeave = () => this.setState({ isHovering: false });
+
+  onMouseEnter = e => this.setState({ isHovering: true });
+  onMouseLeave = e => this.setState({ isHovering: false });
+
+  addListeners(ref) {
+    this.ref = ref;
+    this.ref.addEventListener('mouseenter', this.onMouseEnter, false);
+    this.ref.addEventListener('mouseleave', this.onMouseLeave, false);
+  }
+
+  removeListeners() {
+    if (this.ref) {
+      this.ref.removeEventListener('mouseenter', this.onMouseEnter, false);
+      this.ref.removeEventListener('mouseleave', this.onMouseLeave, false);
+      this.ref = undefined;
+    }
+  }
 
   hoverRef = ref => {
     if (ref) {
-      this.ref = ref;
-      this.ref.addEventListener('mouseenter', this.onMouseEnter, false);
-      this.ref.addEventListener('mouseleave', this.onMouseLeave, false);
+      this.removeListeners();
+      this.addListeners(ref);
     }
   };
 
   componentWillUnmount() {
-    if (this.ref) {
-      this.ref.removeEventListener('mouseenter', this.onMouseEnter, false);
-      this.ref.removeEventListener('mouseleave', this.onMouseLeave, false);
-    }
+    this.removeListeners();
   }
 
   render() {

@@ -1,8 +1,7 @@
-import { React, startDrag, isNumber } from 'common';
+import { React, isNumber } from 'common';
+import { startDrag, PlaybackController } from 'utils';
 import { AnimationStore, UIStore } from 'stores';
 import { Canvas } from 'components/shared';
-
-import PlaybackController from 'utils/PlaybackController';
 
 import CursorTime from './CursorTime';
 import styles from './PlayheadCursor.module.scss';
@@ -10,10 +9,12 @@ import styles from './PlayheadCursor.module.scss';
 const drawLine = (ctx, x, lineWidth, color) => {
   ctx.fillStyle = color;
   ctx.fillRect(x - Math.floor(lineWidth / 2), 0, lineWidth, ctx.canvas.height);
-}
+};
 
 const PlayheadCursor = ({ animation, height }) => {
-  const [isDraggingLocalPlayhead, setDraggingLocalPlayhead] = React.useState(false);
+  const [isDraggingLocalPlayhead, setDraggingLocalPlayhead] = React.useState(
+    false
+  );
 
   const { cursorTime, setCursorTime } = CursorTime.use();
   const { getInstances, getInstanceDefinitionValue } = AnimationStore.use();
@@ -40,16 +41,15 @@ const PlayheadCursor = ({ animation, height }) => {
           },
           onDragEnd: ({ ratioX }) => {
             setCursorTime(ratioX, false);
-            setDraggingLocalPlayhead(false)
+            setDraggingLocalPlayhead(false);
           }
         });
       }}
     >
       <div style={{ height }}>
-
         <Canvas
-          onResize={({ cvs, ctx }) => {
-            const { width, height } = cvs;
+          onFrame={ctx => {
+            const { width, height } = ctx.canvas;
             ctx.clearRect(0, 0, width, height);
 
             if (!isPlaying && !isInstanceSelected && isNumber(cursorTime)) {
@@ -72,9 +72,8 @@ const PlayheadCursor = ({ animation, height }) => {
               if (playhead >= delay + duration) return;
 
               const x = Math.floor(((playhead - delay) / duration) * width);
-              const lineWidth = selectedInstanceId === instance.id || isPlaying ?
-                3 :
-                1;
+              const lineWidth =
+                selectedInstanceId === instance.id || isPlaying ? 3 : 1;
               drawLine(ctx, x, lineWidth, 'black');
             });
           }}

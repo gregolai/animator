@@ -9,8 +9,10 @@ import lerp from './lerp';
 import preview from './preview';
 import render from './render';
 
-import React from 'react';
-
+/**
+ * 
+ * @param {string} str 
+ */
 const tokenize = str => {
   str = str.trim();
 
@@ -23,6 +25,19 @@ const tokenize = str => {
 
   // split by single spaces
   return str.split(' ');
+}
+
+/**
+ * Extracts values from strings like:
+ *   rgba(10,20,30,1) => { key: 'rgba', values: ['10', '20', '30', '1'] }
+ *   translateX(20) => { key: 'translateX', values: ['20'] }
+ * @param {string} str 
+ */
+const extractParens = str => {
+  str = str.trim();
+
+  const [key, ...values] = str.match(/(\w+)/g);
+  return { key, values }
 }
 
 const stylePropMap = {
@@ -171,7 +186,7 @@ const stylePropMap = {
     parse: str => parse.ratio(str),
     lerp: (from, to, t) => lerp.float(from, to, t),
 
-    preview: v => preview.float(v),
+    preview: v => preview.opacity(v),
     render: ({ onChange, value }) => render.ratioRange({ onChange, value })
   },
   position: {
@@ -204,9 +219,153 @@ const stylePropMap = {
     render: ({ onChange, value }) => render.pixelRange({ onChange, value })
   },
 
-  // TODO: STORE AS MATRIX4x4
+  transform: {
+    format: v => `translate(0, 0)`,
+    parse: str => null,
+    lerp: (from, to, t) => from,
+    preview: v => 'TODO',
+    render: ({ onChange, value }) => null
+  },
+
   // transform: {
-  //   format: v => formatTransform(v)
+  //   format: v => {
+  //     const [tx, ty, tz] = v.translate;
+  //     const [rx, ry, rz] = v.rotate;
+  //     const [sx, sy, sz] = v.scale;
+      
+  //     const translate = `translate3d(${tx}, ${ty}, ${tz})`
+  //     const rotate = `rotateX(${format.deg(rx)}) rotateY(${format.deg(ry)}) rotateZ(${format.deg(rz)})`;
+  //     const scale = `scale3d(${sx}, ${sy}, ${sz})`;
+      
+  //     // ORDER: translate, rotate, scale
+  //     return `${translate} ${rotate} ${scale}`;
+  //   },
+  //   parse: str => {
+
+  //     tokenize(str).reduce((v, token) => {
+
+  //       if (token.startsWith('matrix')) {
+
+  //         const { key, values } = extractParens(token);
+
+  //         if (key === 'matrix') {
+  //           const [a, b, c, d, tx, ty] = values;
+  //           // TODO
+
+  //         } else if (key === 'matrix3d') {
+  //           // prettier-ignore
+  //           const [a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4] = values;
+  //           // TODO
+  //         }
+
+  //       } else if (token.startsWith('perspective')) {
+
+  //         const { values } = extractParens(token);
+  //         if (is.floatString(values[0])) {
+  //           // https://developer.mozilla.org/en-US/docs/Web/CSS/transform-function/perspective
+  //           const d = parse.float(values[0]);
+  //           const m = [
+  //             1, 0, 0, 0,
+  //             0, 1, 0, 0,
+  //             0, 0, 1, 0,
+  //             0, 0, 1 / d, 1
+  //           ]
+  //           // TODO
+  //         }
+
+  //       } else if (token.startsWith('rotate')) {
+
+  //       } else if (token.startsWith('scale')) {
+
+  //         // https://developer.mozilla.org/en-US/docs/Web/CSS/transform-function/scale3d
+  //         const { values } = extractParens(token);
+  //         const [x, y, z] = values;
+
+  //         if (is.floatString(x)) {
+  //           // TODO
+  //         }
+  //         if (is.floatString(y)) {
+  //           // TODO
+  //         }
+  //         if (is.floatString(z)) {
+  //           // TODO
+  //         }
+
+  //       } else if (token.startsWith('skew')) {
+
+  //         // https://developer.mozilla.org/en-US/docs/Web/CSS/transform-function/skew
+  //         const { values } = extractParens(token);
+  //         const [x, y] = values;
+  //         if (is.floatString(x)) {
+  //           // TODO
+  //         }
+  //         if (is.floatString(y)) {
+  //           // TODO
+  //         }
+
+  //       } else if (token.startsWith('translate')) {
+
+  //         // https://developer.mozilla.org/en-US/docs/Web/CSS/transform-function/translate3d
+  //         const { values } = extractParens(token);
+  //         const [x, y, z] = values;
+  //         if (is.floatString(x)) {
+  //           // TODO
+  //         }
+  //         if (is.floatString(y)) {
+  //           // TODO
+  //         }
+  //         if (is.floatString(z)) {
+  //           // TODO
+  //         }
+
+  //       }
+
+  //       return v;
+  //     }, {
+  //         translate: [0, 0, 0],
+  //         rotate: [0, 0, 0],
+  //         rotateOrder: 'XYZ',
+  //         scale: [0, 0, 0]
+  //       });
+  //   },
+  //   lerp: (from, to, t) => {
+  //     return {
+  //       translate: [
+  //         lerp.float(from.translate[0], to.translate[0], t),
+  //         lerp.float(from.translate[1], to.translate[1], t),
+  //         lerp.float(from.translate[2], to.translate[2], t),
+  //       ],
+  //       rotate: [
+  //         lerp.float(from.rotate[0], to.rotate[0], t),
+  //         lerp.float(from.rotate[1], to.rotate[1], t),
+  //         lerp.float(from.rotate[2], to.rotate[2], t),
+  //       ],
+  //       scale: [
+  //         lerp.float(from.scale[0], to.scale[0], t),
+  //         lerp.float(from.scale[1], to.scale[1], t),
+  //         lerp.float(from.scale[2], to.scale[2], t),
+  //       ]
+  //     }
+  //   },
+
+  //   preview: v => 'TODO',
+  //   render: ({ onChange, value = { translate: { x: 0, y: 0, z: 0 } } }) => {
+
+  //     return [
+  //       render.integerRange({
+  //         onChange: x => onChange({ ...value, translate: { ...value.translate, x } }),
+  //         value: value.translate.x
+  //       }),
+  //       render.integerRange({
+  //         onChange: y => onChange({ ...value, translate: { ...value.translate, y } }),
+  //         value: value.translate.y
+  //       }),
+  //       render.integerRange({
+  //         onChange: z => onChange({ ...value, translate: { ...value.translate, z } }),
+  //         value: value.translate.z
+  //       })
+  //     ]
+  //   }
   // },
 
   width: {
