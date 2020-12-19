@@ -1,20 +1,20 @@
-@import "../../constants.scss";
+@import '../../constants.scss';
 
 :local {
-  .container {
-    position: absolute;
-    left: $timeline-left-width + $grid-px;
-    right: 0;
-    top: 0;
-    height: 100%;
-    z-index: 1;
-  }
+	.container {
+		position: absolute;
+		left: $timeline-left-width + $grid-px;
+		right: 0;
+		top: 0;
+		height: 100%;
+		z-index: 1;
+	}
 
-  .cursor {
-    position: absolute;
-    top: 0;
-    width: 1px;
-    height: 100%;
-    background-color: black;
-  }
+	.cursor {
+		position: absolute;
+		top: 0;
+		width: 1px;
+		height: 100%;
+		background-color: black;
+	}
 }
