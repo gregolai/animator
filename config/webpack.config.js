@@ -218,37 +218,15 @@ module.exports = function(webpackEnv) {
 			runtimeChunk: true
 		},
 		resolve: {
-			// This allows you to set a fallback for where Webpack should look for modules.
-			// We placed these paths second because we want `node_modules` to "win"
-			// if there are any conflicts. This matches Node resolution mechanism.
-			// https://github.com/facebook/create-react-app/issues/253
-			modules: ['node_modules'].concat(
-				// It is guaranteed to exist because we tweak it in `env.js`
-				process.env.NODE_PATH.split(path.delimiter).filter(Boolean),
-				paths.appSrc
-			),
-			// These are the reasonable defaults supported by the Node ecosystem.
-			// We also include JSX as a common component filename extension to support
-			// some tools, although we do not recommend using it, see:
-			// https://github.com/facebook/create-react-app/issues/290
-			// `web` extension prefixes have been added for better support
-			// for React Native Web.
-			extensions: paths.moduleFileExtensions
-				.map(ext => `.${ext}`)
-				.filter(ext => useTypeScript || !ext.includes('ts')),
 			alias: {
-				// Support React Native Web
-				// https://www.smashingmagazine.com/2016/08/a-glimpse-into-the-future-with-react-native-for-web/
-				'react-native': 'react-native-web',
-
 				'@sqs': path.resolve(paths.appSrc, 'sqs-compat')
-			}
+			},
+			extensions: ['.ts', '.tsx', '.js', '.jsx'],
+			modules: [paths.appSrc, 'node_modules']
 		},
 		module: {
 			strictExportPresence: true,
 			rules: [
-				// Disable require.ensure as it's not a standard language feature.
-				{ parser: { requireEnsure: false } },
 				{
 					// "oneOf" will traverse all following loaders until one will
 					// match the requirements. When no loader matches it will fall
@@ -265,41 +243,14 @@ module.exports = function(webpackEnv) {
 								name: 'static/media/[name].[hash:8].[ext]'
 							}
 						},
-						// Process application JS with Babel.
-						// The preset includes JSX, Flow, TypeScript, and some ESnext features.
-						{
-							test: /\.(js|mjs|jsx|ts|tsx)$/,
-							include: paths.appSrc,
-							loader: require.resolve('babel-loader'),
-							options: {
-								// This is a feature of `babel-loader` for webpack (not Babel itself).
-								// It enables caching results in ./node_modules/.cache/babel-loader/
-								// directory for faster rebuilds.
-								cacheDirectory: true,
-								cacheCompression: isEnvProduction,
-								compact: isEnvProduction
-							}
-						},
-						// Process any JS outside of the app with Babel.
-						// Unlike the application JS, we only compile the standard ES features.
-						{
-							test: /\.(js|mjs)$/,
-							exclude: /@babel(?:\/|\\{1,2})runtime/,
-							loader: require.resolve('babel-loader'),
-							options: {
-								babelrc: false,
-								configFile: false,
-								compact: false,
-								cacheDirectory: true,
-								cacheCompression: isEnvProduction,
 
-								// If an error happens in a package, it's possible to be
-								// because it was compiled. Thus, we don't want the browser
-								// debugger to show the original code. Instead, the code
-								// being evaluated would be much more helpful.
-								sourceMaps: false
-							}
+						{
+							test: /.(js|jsx|ts|tsx)$/,
+							include: paths.appSrc,
+							loader: 'ts-loader',
+							options: {}
 						},
+
 						// "postcss" loader applies autoprefixer to our CSS.
 						// "css" loader resolves paths in CSS and adds assets as dependencies.
 						// "style" loader turns CSS into JS modules that inject <style> tags.

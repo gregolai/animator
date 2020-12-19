@@ -23,14 +23,7 @@ export const getEasingOptions = () =>
 	}));
 
 const createCache = maxSize => {
-	let head, tail, size, lookup;
-	const reset = () => {
-		head = null;
-		tail = null;
-		size = 0;
-		lookup = {};
-	};
-	reset();
+	let head, tail, size = 0, lookup = {};
 	return {
 		get: key => lookup[key],
 		set: (key, value) => {
@@ -46,8 +39,7 @@ const createCache = maxSize => {
 				tail = next;
 			}
 			lookup[key] = value;
-		},
-		reset
+		}
 	};
 };
 
