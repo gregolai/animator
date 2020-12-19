@@ -2,9 +2,9 @@ import { React, isNumber } from 'common';
 import { normalizeRatio } from 'utils';
 import colorNames from 'css-color-names';
 import { color } from '@sqs/utils';
-import palettes from 'nice-color-palettes';
 import camelCase from 'lodash/camelCase';
 import { getEasingArray, getEasingOptions } from 'utils/easing';
+import {nicePalette} from 'utils/nicePalette';
 import {
   DropdownSelect,
   ColorField,
@@ -44,7 +44,7 @@ const constants = {
     'inset',
     'outset'
   ],
-  palette: [...palettes[0], ...palettes[1], ...palettes[2]],
+  palette: nicePalette,
   positions: ['static', 'relative', 'absolute', 'sticky', 'fixed']
 };
 

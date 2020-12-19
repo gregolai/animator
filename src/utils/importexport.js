@@ -1,7 +1,5 @@
 import { createUniqueName, getRandomColor } from 'utils';
-import rework from 'rework';
 import { CSSLint } from 'csslint';
-import jsonBeautify from 'json-beautify';
 import db from 'utils/db';
 
 export const lintJSF = jsfString => {
@@ -155,7 +153,7 @@ export const exportJSF = ({ animations, instances, keyframes, tweens }) => {
 		}
 	};
 
-	const jsfString = jsonBeautify(jsfObject, null, 2, 100);
+	const jsfString = JSON.stringify(jsfObject, null, 2);
 
 	return jsfString;
 };

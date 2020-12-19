@@ -1,5 +1,5 @@
 import isFunction from 'lodash/isFunction';
-import uid from 'uid';
+import {uid} from './uid';
 
 /**
  * @param {Array<object>} list

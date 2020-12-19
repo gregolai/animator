@@ -14,9 +14,7 @@ import enums from './enums';
 import format from './format';
 import parse from './parse';
 
-import palettes from 'nice-color-palettes';
-
-const colorPalette = [...palettes[0], ...palettes[1], ...palettes[2]];
+import {nicePalette} from 'utils/nicePalette'
 
 const listToOptions = list => {
 	return list.map(k => {
@@ -39,7 +37,7 @@ export default {
 					onChange={v => onChange(parse.color(v.color))}
 					value={{
 						color,
-						palette: colorPalette
+						palette: nicePalette
 					}}
 				/>
 			</div>

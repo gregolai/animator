@@ -1,6 +1,5 @@
 import React from 'react';
 import isObject from 'lodash/isObject';
-import PropTypes from 'prop-types';
 import { getStyleProp } from './styleProps';
 
 // a tiny 6-character hexidecimal uid shim
