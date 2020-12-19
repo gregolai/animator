@@ -1,16 +1,11 @@
 const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
-const resolve = require('resolve');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const paths = require('./paths');
 const getClientEnvironment = require('./env');
-const ForkTsCheckerWebpackPlugin = require('react-dev-utils/ForkTsCheckerWebpackPlugin');
-
-// Source maps are resource heavy and can cause out of memory issue for large source files.
-const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== 'false';
 
 // This is the production and development configuration.
 // It is focused on developer experience, fast rebuilds, and a minimal bundle.
@@ -47,27 +42,6 @@ module.exports = function(webpackEnv) {
 			{
 				loader: require.resolve('css-loader'),
 				options: cssOptions
-			},
-			{
-				// Options for PostCSS as we reference these options twice
-				// Adds vendor prefixing based on your specified browser support in
-				// package.json
-				loader: require.resolve('postcss-loader'),
-				options: {
-					// Necessary for external CSS imports to work
-					// https://github.com/facebook/create-react-app/issues/2677
-					ident: 'postcss',
-					plugins: () => [
-						require('postcss-flexbugs-fixes'),
-						// require('postcss-preset-env')({
-						// 	autoprefixer: {
-						// 		flexbox: 'no-2009'
-						// 	},
-						// 	stage: 3
-						// })
-					],
-					sourceMap: isEnvProduction
-				}
 			}
 		].filter(Boolean);
 		if (preProcessor) {
@@ -217,32 +191,12 @@ module.exports = function(webpackEnv) {
 							options: {}
 						},
 
-						// Opt-in support for SASS (using .scss or .sass extensions).
-						// By default we support SASS Modules with the
-						// extensions .module.scss or .module.sass
 						{
 							test: /\.scss$/,
-							exclude: /\.module\.scss$/,
+							include: paths.appSrc,
 							use: getStyleLoaders(
 								{
-									importLoaders: 2,
-									sourceMap: isEnvProduction
-								},
-								'sass-loader'
-							),
-							// Don't consider CSS imports dead code even if the
-							// containing package claims to have no side effects.
-							// Remove this when webpack adds a warning or an error for this.
-							// See https://github.com/webpack/webpack/issues/6571
-							sideEffects: true
-						},
-						// Adds support for CSS Modules, but using SASS
-						// using the extension .module.scss or .module.sass
-						{
-							test: /\.module\.scss$/,
-							use: getStyleLoaders(
-								{
-									importLoaders: 2,
+									importLoaders: 1,
 									sourceMap: isEnvProduction,
 									modules: {
 										localIdentName: '[name]__[local]___[hash:base64:5]'
@@ -314,23 +268,6 @@ module.exports = function(webpackEnv) {
 					filename: 'static/css/[name].[contenthash:8].css',
 					chunkFilename: 'static/css/[name].[contenthash:8].chunk.css'
 				}),
-
-			new ForkTsCheckerWebpackPlugin({
-				typescript: resolve.sync('typescript', {
-					basedir: paths.appNodeModules
-				}),
-				async: isEnvDevelopment,
-				useTypescriptIncrementalApi: true,
-				checkSyntacticErrors: true,
-				tsconfig: paths.appTsConfig,
-				reportFiles: [
-					'**',
-					'!**/*.json',
-					'!**/src/setupProxy.*'
-				],
-				watch: paths.appSrc,
-				silent: true
-			}),
 
 			new webpack.DefinePlugin({
 				__DEV__: false,
