@@ -5,6 +5,7 @@
 		"baseUrl": "./src",
 		"declaration": true,
 		"esModuleInterop": true,
+		"importHelpers": true,
 		"inlineSourceMap": true,
 		"jsx": "react",
 		"jsxFactory": "React.createElement",
