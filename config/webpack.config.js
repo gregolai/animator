@@ -12,16 +12,6 @@ const ForkTsCheckerWebpackPlugin = require('react-dev-utils/ForkTsCheckerWebpack
 // Source maps are resource heavy and can cause out of memory issue for large source files.
 const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== 'false';
 
-
-// Check if TypeScript is setup
-const useTypeScript = fs.existsSync(paths.appTsConfig);
-
-// style files regexes
-const cssRegex = /\.css$/;
-const cssModuleRegex = /\.module\.css$/;
-const sassRegex = /\.(scss|sass)$/;
-const sassModuleRegex = /\.module\.(scss|sass)$/;
-
 // This is the production and development configuration.
 // It is focused on developer experience, fast rebuilds, and a minimal bundle.
 module.exports = function(webpackEnv) {
@@ -76,7 +66,7 @@ module.exports = function(webpackEnv) {
 						// 	stage: 3
 						// })
 					],
-					sourceMap: isEnvProduction && shouldUseSourceMap
+					sourceMap: isEnvProduction
 				}
 			}
 		].filter(Boolean);
@@ -84,7 +74,7 @@ module.exports = function(webpackEnv) {
 			loaders.push({
 				loader: require.resolve(preProcessor),
 				options: {
-					sourceMap: isEnvProduction && shouldUseSourceMap
+					sourceMap: isEnvProduction
 				}
 			});
 		}
@@ -95,11 +85,7 @@ module.exports = function(webpackEnv) {
 		mode: isEnvProduction ? 'production' : isEnvDevelopment && 'development',
 		// Stop compilation early in production
 		bail: isEnvProduction,
-		devtool: isEnvProduction
-			? shouldUseSourceMap
-				? 'source-map'
-				: false
-			: isEnvDevelopment && 'cheap-module-source-map',
+		devtool: isEnvDevelopment ? 'cheap-module-source-map' : false,
 		// These are the "entry points" to our application.
 		// This means they will be the "root" imports that are included in JS bundle.
 		entry: [
@@ -129,7 +115,7 @@ module.exports = function(webpackEnv) {
 			// In development, it does not produce real files.
 			filename: isEnvProduction
 				? 'static/js/[name].[contenthash:8].js'
-				: isEnvDevelopment && 'static/js/bundle.js',
+				: isEnvDevelopment && 'static/js/[name].chunk.js',
 			// There are also additional JS chunk files if you use code splitting.
 			chunkFilename: isEnvProduction
 				? 'static/js/[name].[contenthash:8].chunk.js'
@@ -180,31 +166,11 @@ module.exports = function(webpackEnv) {
 							// Turned on because emoji and regex is not minified properly using default
 							// https://github.com/facebook/create-react-app/issues/2488
 							ascii_only: true
-						}
-					},
-					// Use multi-process parallel running to improve the build speed
-					// Default number of concurrent runs: os.cpus().length - 1
-					parallel: true,
-					// Enable file caching
-					cache: true,
-					sourceMap: shouldUseSourceMap
-				}),
-				// // This is only used in production mode
-				// new OptimizeCSSAssetsPlugin({
-				// 	cssProcessorOptions: {
-				// 		// parser: safePostCssParser,
-				// 		map: shouldUseSourceMap
-				// 			? {
-				// 					// `inline: false` forces the sourcemap to be output into a
-				// 					// separate file
-				// 					inline: false,
-				// 					// `annotation: true` appends the sourceMappingURL to the end of
-				// 					// the css file, helping the browser find the sourcemap
-				// 					annotation: true
-				// 			  }
-				// 			: false
-				// 	}
-				// })
+						},
+						parallel: true,
+						sourceMap: true
+					}
+				})
 			],
 			// Automatically split vendor and commons
 			// https://twitter.com/wSokra/status/969633336732905474
@@ -251,48 +217,16 @@ module.exports = function(webpackEnv) {
 							options: {}
 						},
 
-						// "postcss" loader applies autoprefixer to our CSS.
-						// "css" loader resolves paths in CSS and adds assets as dependencies.
-						// "style" loader turns CSS into JS modules that inject <style> tags.
-						// In production, we use MiniCSSExtractPlugin to extract that CSS
-						// to a file, but in development "style" loader enables hot editing
-						// of CSS.
-						// By default we support CSS Modules with the extension .module.css
-						{
-							test: cssRegex,
-							exclude: cssModuleRegex,
-							use: getStyleLoaders({
-								importLoaders: 1,
-								sourceMap: isEnvProduction && shouldUseSourceMap
-							}),
-							// Don't consider CSS imports dead code even if the
-							// containing package claims to have no side effects.
-							// Remove this when webpack adds a warning or an error for this.
-							// See https://github.com/webpack/webpack/issues/6571
-							sideEffects: true
-						},
-						// Adds support for CSS Modules (https://github.com/css-modules/css-modules)
-						// using the extension .module.css
-						{
-							test: cssModuleRegex,
-							use: getStyleLoaders({
-								importLoaders: 1,
-								sourceMap: isEnvProduction && shouldUseSourceMap,
-								modules: {
-									localIdentName: '[name]__[local]___[hash:base64:5]'
-								}
-							})
-						},
 						// Opt-in support for SASS (using .scss or .sass extensions).
 						// By default we support SASS Modules with the
 						// extensions .module.scss or .module.sass
 						{
-							test: sassRegex,
-							exclude: sassModuleRegex,
+							test: /\.scss$/,
+							exclude: /\.module\.scss$/,
 							use: getStyleLoaders(
 								{
 									importLoaders: 2,
-									sourceMap: isEnvProduction && shouldUseSourceMap
+									sourceMap: isEnvProduction
 								},
 								'sass-loader'
 							),
@@ -305,11 +239,11 @@ module.exports = function(webpackEnv) {
 						// Adds support for CSS Modules, but using SASS
 						// using the extension .module.scss or .module.sass
 						{
-							test: sassModuleRegex,
+							test: /\.module\.scss$/,
 							use: getStyleLoaders(
 								{
 									importLoaders: 2,
-									sourceMap: isEnvProduction && shouldUseSourceMap,
+									sourceMap: isEnvProduction,
 									modules: {
 										localIdentName: '[name]__[local]___[hash:base64:5]'
 									}
@@ -334,8 +268,6 @@ module.exports = function(webpackEnv) {
 								name: 'static/media/[name].[hash:8].[ext]'
 							}
 						}
-						// ** STOP ** Are you adding a new loader?
-						// Make sure to add the new loader(s) before the "file" loader.
 					]
 				}
 			]
@@ -382,24 +314,23 @@ module.exports = function(webpackEnv) {
 					filename: 'static/css/[name].[contenthash:8].css',
 					chunkFilename: 'static/css/[name].[contenthash:8].chunk.css'
 				}),
-			// TypeScript type checking
-			useTypeScript &&
-				new ForkTsCheckerWebpackPlugin({
-					typescript: resolve.sync('typescript', {
-						basedir: paths.appNodeModules
-					}),
-					async: isEnvDevelopment,
-					useTypescriptIncrementalApi: true,
-					checkSyntacticErrors: true,
-					tsconfig: paths.appTsConfig,
-					reportFiles: [
-						'**',
-						'!**/*.json',
-						'!**/src/setupProxy.*'
-					],
-					watch: paths.appSrc,
-					silent: true
+
+			new ForkTsCheckerWebpackPlugin({
+				typescript: resolve.sync('typescript', {
+					basedir: paths.appNodeModules
 				}),
+				async: isEnvDevelopment,
+				useTypescriptIncrementalApi: true,
+				checkSyntacticErrors: true,
+				tsconfig: paths.appTsConfig,
+				reportFiles: [
+					'**',
+					'!**/*.json',
+					'!**/src/setupProxy.*'
+				],
+				watch: paths.appSrc,
+				silent: true
+			}),
 
 			new webpack.DefinePlugin({
 				__DEV__: false,
@@ -409,17 +340,12 @@ module.exports = function(webpackEnv) {
 				}
 			})
 		].filter(Boolean),
-		// Some libraries import Node modules but don't use them in the browser.
-		// Tell Webpack to provide empty mocks for them so importing them works.
+
+
 		node: {
-			module: 'empty',
-			dgram: 'empty',
-			dns: 'mock',
-			fs: 'empty',
-			net: 'empty',
-			tls: 'empty',
-			child_process: 'empty'
+			fs: 'empty'
 		},
+
 		// Turn off performance processing because we utilize
 		// our own hints via the FileSizeReporter
 		performance: false
