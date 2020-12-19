@@ -1,0 +1,23 @@
+{
+	"compilerOptions": {
+		"allowJs": true,
+		"allowSyntheticDefaultImports": true,
+		"baseUrl": "./src",
+		"declaration": true,
+		"esModuleInterop": true,
+		"inlineSourceMap": true,
+		"jsx": "react",
+		"jsxFactory": "React.createElement",
+		"lib": ["esnext", "dom"],
+		"module": "ESNext",
+		"moduleResolution": "Node",
+		"noImplicitAny": true,
+		"outDir": "build",
+		"sourceMap": true,
+		"strict": false,
+		"target": "ES2018",
+		"typeRoots": ["node_modules/@types", "src/@types"],
+		"types": ["node"]
+	},
+	"include": ["src"]
+}
