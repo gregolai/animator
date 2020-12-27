@@ -1,5 +1,6 @@
 import { React, cx } from 'common';
 import { roundToInterval, startDrag, PlaybackController } from 'utils';
+import { Box } from 'pu2';
 
 import { AnimationStore, UIStore, StageStore } from 'stores';
 import { Canvas, Hover } from 'components/shared';
@@ -18,7 +19,7 @@ const StageCanvas = () => {
 
 	return (
 		<Canvas
-			onMouseDown={e => {
+			onMouseDown={(e) => {
 				const { x, y } = offset;
 				startDrag(e, {
 					distance: 1,
@@ -27,7 +28,7 @@ const StageCanvas = () => {
 					}
 				});
 			}}
-			onFrame={ctx => {
+			onFrame={(ctx) => {
 				const { width, height } = ctx.canvas;
 
 				ctx.clearRect(0, 0, width, height);
@@ -103,13 +104,13 @@ const Instance = ({ instance }) => {
 					}, {})}
 					time={time}
 				>
-					{interpolatedStyles => (
+					{(interpolatedStyles) => (
 						<div
 							ref={hoverRef}
 							className={cx(styles.instance, {
 								[styles.dragging]: isDragging
 							})}
-							onMouseDown={e => {
+							onMouseDown={(e) => {
 								if (e.button !== 0) return;
 
 								setSelectedInstance(instance.id);
@@ -133,15 +134,12 @@ const Instance = ({ instance }) => {
 								});
 							}}
 							style={{
-								...Object.keys(instance.definitionValues).reduce(
-									(style, definitionId) => {
-										const definition = getStyleProp(definitionId);
-										const value = instance.definitionValues[definitionId];
-										style[definition.styleName] = definition.format(value);
-										return style;
-									},
-									{}
-								),
+								...Object.keys(instance.definitionValues).reduce((style, definitionId) => {
+									const definition = getStyleProp(definitionId);
+									const value = instance.definitionValues[definitionId];
+									style[definition.styleName] = definition.format(value);
+									return style;
+								}, {}),
 
 								...interpolatedStyles
 							}}
@@ -160,14 +158,14 @@ export default ({ className }) => {
 	const { offset } = StageStore.use();
 
 	return (
-		<div className={cx(styles.container, className)}>
+		<Box flex="1" className={cx(styles.container, className)}>
 			<StageCanvas />
 			<div className={styles.instances} style={{ left: -offset.x, top: -offset.y }}>
-				{getInstances().map(instance => (
+				{getInstances().map((instance) => (
 					<Instance key={instance.id} instance={instance} />
 				))}
 			</div>
 			<Controls />
-		</div>
+		</Box>
 	);
 };

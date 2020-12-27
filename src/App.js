@@ -14,7 +14,7 @@ import MediaControls from './components/media/MediaControls';
 import Animations from './components/animations/Animations';
 import Instances from './components/instances/Instances';
 
-import styles from './App.module.scss';
+import { Box } from 'pu2';
 
 // getCss = animations => {
 //   const css = this.state.animations.map(anim => {
@@ -48,142 +48,129 @@ import styles from './App.module.scss';
 // }
 
 const ImportButton = () => {
-  const { setOpen } = ImporterStore.use();
-  return (
-    <div className={styles.menuItem}>
-      <ButtonField
-        size="small"
-        color="warning"
-        onClick={() => setOpen(true)}
-        label="Import"
-      />
-    </div>
-  );
+	const { setOpen } = ImporterStore.use();
+	return (
+		<Box flex="1">
+			<ButtonField size="small" color="warning" onClick={() => setOpen(true)} label="Import" />
+		</Box>
+	);
 };
 
 const AddAnimationButton = () => {
-  const { createAnimation } = AnimationStore.use();
-  return (
-    <div className={styles.menuItem}>
-      <ButtonField
-        size="small"
-        color="primary"
-        label="Create Animation"
-        onClick={() => createAnimation()}
-      />
-    </div>
-  );
+	const { createAnimation } = AnimationStore.use();
+	return (
+		<Box flex="1">
+			<ButtonField
+				size="small"
+				color="primary"
+				label="Create Animation"
+				onClick={() => createAnimation()}
+			/>
+		</Box>
+	);
 };
 
 const App = withStores(() => {
-  const [debug, toggleDebug] = React.useState(true);
-  const [showExportModal, setShowExportModal] = React.useState(false);
+	const [debug, toggleDebug] = React.useState(true);
+	const [showExportModal, setShowExportModal] = React.useState(false);
 
-  const { getInstances, getInstanceDefinitionValue } = AnimationStore.use();
+	const { getInstances, getInstanceDefinitionValue } = AnimationStore.use();
 
-  const maxDuration = getInstances().reduce((max, instance) => {
-    const delay = getInstanceDefinitionValue(instance.id, 'animationDelay');
-    const duration = getInstanceDefinitionValue(
-      instance.id,
-      'animationDuration'
-    );
-    return Math.max(delay + duration, max);
-  }, 0);
+	const maxDuration = getInstances().reduce((max, instance) => {
+		const delay = getInstanceDefinitionValue(instance.id, 'animationDelay');
+		const duration = getInstanceDefinitionValue(instance.id, 'animationDuration');
+		return Math.max(delay + duration, max);
+	}, 0);
 
-  return (
-    <PlaybackController duration={maxDuration}>
-      <div className={styles.container}>
-        {/* DEBUG */}
-        <label
-          style={{
-            userSelect: 'none',
-            position: 'fixed',
-            zIndex: 999,
-            top: 0,
-            left: 0
-          }}
-        >
-          Debug{' '}
-          <input
-            type="checkbox"
-            onChange={() => toggleDebug(!debug)}
-            checked={debug}
-          />
-        </label>
-        <button
-          style={{
-            userSelect: 'none',
-            position: 'fixed',
-            zIndex: 999,
-            top: 20,
-            left: 0
-          }}
-          onClick={() => {
-            localStorage.clear();
-            window.location.reload();
-          }}
-        >
-          Reset Cache
-        </button>
+	return (
+		<PlaybackController duration={maxDuration}>
+			<Box backgroundColor="#f2f2f2" /* $color-bg-1 */ height="100vh" overflow="hidden">
+				{/* DEBUG */}
+				<label
+					style={{
+						userSelect: 'none',
+						position: 'fixed',
+						zIndex: 999,
+						top: 0,
+						left: 0
+					}}
+				>
+					Debug <input type="checkbox" onChange={() => toggleDebug(!debug)} checked={debug} />
+				</label>
+				<button
+					style={{
+						userSelect: 'none',
+						position: 'fixed',
+						zIndex: 999,
+						top: 20,
+						left: 0
+					}}
+					onClick={() => {
+						localStorage.clear();
+						window.location.reload();
+					}}
+				>
+					Reset Cache
+				</button>
 
-        {/* MODALS */}
-        <ImportCSSModal />
-        {showExportModal && (
-          <Export onRequestClose={() => setShowExportModal(false)} />
-        )}
+				{/* MODALS */}
+				<ImportCSSModal />
+				{showExportModal && <Export onRequestClose={() => setShowExportModal(false)} />}
 
-        <SplitPane
-          split="horizontal"
-          minSize={300}
-          maxSize={-300}
-          defaultSize={window.innerHeight * 0.5}
-        >
-          {/* TOP REGION */}
-          <SplitPane
-            split="vertical"
-            minSize={300}
-            maxSize={1200}
-            defaultSize={window.innerWidth * 0.5}
-          >
-            <div className={styles.topLeft}>
-              <div className={styles.menu}>
-                {/* IMPORT */}
-                <ImportButton />
+				<SplitPane
+					split="horizontal"
+					minSize={300}
+					maxSize={-300}
+					defaultSize={window.innerHeight * 0.5}
+				>
+					{/* TOP REGION */}
+					<SplitPane
+						split="vertical"
+						minSize={300}
+						maxSize={1200}
+						defaultSize={window.innerWidth * 0.5}
+					>
+						{/* TOP LEFT */}
+						<Box display="flex" flexDirection="column">
+							<Box display="flex">
+								{/* IMPORT */}
+								<ImportButton />
 
-                {/* EXPORT */}
-                <div className={styles.menuItem}>
-                  <ButtonField
-                    size="small"
-                    color="warning"
-                    onClick={() => setShowExportModal(true)}
-                    label="Export"
-                  />
-                </div>
+								{/* EXPORT */}
+								<Box flex="1">
+									<ButtonField
+										size="small"
+										color="warning"
+										onClick={() => setShowExportModal(true)}
+										label="Export"
+									/>
+								</Box>
 
-                {/* ADD ANIMATION */}
-                <AddAnimationButton />
-              </div>
+								{/* ADD ANIMATION */}
+								<AddAnimationButton />
+							</Box>
 
-              {/* KEYFRAME ANIMATIONS */}
-              <Animations className={styles.timeline} />
-            </div>
+							{/* KEYFRAME ANIMATIONS */}
+							<Animations />
+						</Box>
 
-            {/* STAGE REGION */}
-            <div className={styles.topRight}>
-              <Stage className={styles.stage} />
-              <MediaControls />
-            </div>
-          </SplitPane>
+						{/* TOP RIGHT */}
+						<Box display="flex" flexDirection="column">
+							{/* STAGE */}
+							<Stage />
+							<MediaControls />
+						</Box>
+					</SplitPane>
 
-          {/* BOTTOM REGION */}
-          <div className={styles.bottom}>
-            {/* INSTANCE EDITING */}
-            <Instances />
-          </div>
-        </SplitPane>
-      </div>
-    </PlaybackController>
-  );
+					{/* BOTTOM REGION */}
+					<Box display="flex" flexDirection="column" height="100%">
+						{/* INSTANCE EDITING */}
+						<Instances />
+					</Box>
+				</SplitPane>
+			</Box>
+		</PlaybackController>
+	);
 });
 
 export default App;

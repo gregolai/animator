@@ -15,6 +15,7 @@
 		"mat4-decompose": "^1.0.4",
 		"mat4-interpolate": "^1.0.4",
 		"mat4-recompose": "^1.0.4",
+		"pu2": "0.0.47",
 		"randomcolor": "^0.5.4",
 		"react": "^16.14.0",
 		"react-dev-utils": "^8.0.0",

@@ -1,21 +1,23 @@
 import { React, cx } from 'common';
-
+import { Box } from 'pu2';
 import { AnimationStore, UIStore } from 'stores';
 import Animation from './Animation';
 
-import styles from './Animations.module.scss';
-
-const Animations = ({ className }) => {
-  const { getAnimations } = AnimationStore.use();
-  const { selectedInstanceId } = UIStore.use();
-  return (
-    <div
-      className={cx(styles.container, {
-        [styles.instanceFocused]: selectedInstanceId !== -1
-      }, className)}
-    >
-      {getAnimations().map(animation => <Animation key={animation.id} animation={animation} />)}
-    </div>
-  );
+const Animations = () => {
+	const { getAnimations } = AnimationStore.use();
+	const { selectedInstanceId } = UIStore.use();
+	return (
+		<Box
+			backgroundColor={selectedInstanceId !== -1 ? '#f2f2f2' : 'white'}
+			flex="1"
+			overflowY="scroll"
+			overflowX="hidden"
+			transition="background-color 200ms ease-in-out"
+		>
+			{getAnimations().map((animation) => (
+				<Animation key={animation.id} animation={animation} />
+			))}
+		</Box>
+	);
 };
 export default Animations;
