@@ -1,9 +1,6 @@
-import { React, cx } from 'common';
+import { React } from 'common';
+import { Box } from 'pu2';
 
-import styles from './ColorSquare.module.scss';
-
-const ColorSquare = ({ className, color }) => (
-  <div className={cx(styles.container, className)} style={{ backgroundColor: color }} />
-);
+const ColorSquare = ({ color }) => <Box height="11px" width="11px" style={{ backgroundColor: color }} />;
 
 export default ColorSquare;

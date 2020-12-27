@@ -23,8 +23,6 @@ const MediaControls = () => {
 			{/* PLAY / PAUSE */}
 			<Box flex="1">
 				<ButtonField
-					inverted
-					size="small"
 					isDisabled={playhead === duration}
 					label={playhead === duration || isPlaying ? 'Pause' : 'Play'}
 					onClick={isPlaying ? setPaused : setPlaying}
@@ -33,17 +31,11 @@ const MediaControls = () => {
 
 			{/* RESET */}
 			<Box flex="1">
-				<ButtonField
-					inverted
-					size="small"
-					isDisabled={playhead === 0}
-					label="Reset"
-					onClick={setStopped}
-				/>
+				<ButtonField isDisabled={playhead === 0} label="Reset" onClick={setStopped} />
 			</Box>
 
-			<BooleanField label="Loop" onChange={setLooping} value={isLooping} underlined={false} />
-			<BooleanField label="Reverse" onChange={setReversed} value={isReversed} underlined={false} />
+			<BooleanField label="Loop" onChange={setLooping} value={isLooping} />
+			<BooleanField label="Reverse" onChange={setReversed} value={isReversed} />
 		</Box>
 	);
 };

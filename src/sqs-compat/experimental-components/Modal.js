@@ -75,6 +75,6 @@ Modal.Dialog.Body.Message = ({ children, is: Component = 'div' }) => {
 Modal.Dialog.Footer = ({ children }) => {
 	return <div>{children}</div>;
 };
-Modal.Dialog.Footer.Button = ({ children, color, onClick }) => {
-	return <ButtonField color={color} label={children} onClick={onClick} />;
+Modal.Dialog.Footer.Button = ({ children, onClick }) => {
+	return <ButtonField label={children} onClick={onClick} />;
 };

@@ -9,6 +9,7 @@ import { InterpolateProp } from 'utils/AnimationController';
 import styles from './TweenControls.module.scss';
 
 const TweenControls = ({ className, tween }) => {
+	const [buttonEl, setButtonEl] = React.useState(null);
 	const { easing, cursorTime } = CursorTime.use();
 	const {
 		deleteTween,
@@ -27,7 +28,7 @@ const TweenControls = ({ className, tween }) => {
 			keyframes={getKeyframes(tween.id)}
 			time={cursorTime}
 		>
-			{value => {
+			{(value) => {
 				const keyframeAtTime = getKeyframeAtTime(tween.id, cursorTime);
 
 				const definition = getStyleProp(tween.definitionId);
@@ -47,20 +48,14 @@ const TweenControls = ({ className, tween }) => {
 						<ValueButton
 							accessory={
 								canDelete && (
-									<IconButton
-										icon="Delete"
-										onClick={() => deleteTween(tween.id)}
-									/>
+									<IconButton icon="Delete" onClick={() => deleteTween(tween.id)} />
 								)
 							}
+							buttonRef={setButtonEl}
 							className={styles.btnValue}
 							definition={definition}
 							isToggled={isExpanded}
-							onClick={
-								canExpand
-									? () => setTweenExpanded(tween.id, !isExpanded)
-									: undefined
-							}
+							onClick={canExpand ? () => setTweenExpanded(tween.id, !isExpanded) : undefined}
 							value={value}
 						/>
 
@@ -79,9 +74,7 @@ const TweenControls = ({ className, tween }) => {
 						{/* ADD/CLEAR KEYFRAME BUTTON */}
 						<IconButton
 							className={cx(styles.btnAddKeyframe, {
-								[styles.hidden]: keyframeAtTime
-									? hideKeyframeDelete
-									: hideKeyframeAdd
+								[styles.hidden]: keyframeAtTime ? hideKeyframeDelete : hideKeyframeAdd
 							})}
 							icon={keyframeAtTime ? 'SubtractOutline' : 'Add'}
 							onClick={() => {
@@ -94,12 +87,15 @@ const TweenControls = ({ className, tween }) => {
 						/>
 
 						{/* VALUE EDITOR */}
-						{isExpanded && (
-							<Popover anchor="down-left" className={styles.editor}>
+						{isExpanded && buttonEl && (
+							<Popover
+								referenceElement={buttonEl}
+								/*className={styles.editor}*/ placement="bottom-start"
+							>
 								<ValueEditor
 									definitionId={tween.definitionId}
 									value={value}
-									onChange={value =>
+									onChange={(value) =>
 										setKeyframeValueAtTime(tween.id, cursorTime || 0, value)
 									}
 								/>

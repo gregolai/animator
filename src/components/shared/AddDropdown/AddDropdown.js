@@ -4,20 +4,12 @@ import { IconButton, Popover } from 'components/shared';
 
 import styles from './AddDropdown.module.scss';
 
-const AddDropdown = ({
-	anchor = 'down-left',
-	className,
-	icon = 'Add',
-	label,
-	label2,
-	onSelect,
-	options,
-	value
-}) => {
+const AddDropdown = ({ className, icon = 'Add', label, label2, onSelect, options, value }) => {
+	const [containerEl, setContainerEl] = React.useState(null);
 	const [isOpen, onOpen] = React.useState(false);
 
 	return (
-		<div className={cx(styles.container, className)}>
+		<div ref={setContainerEl} className={cx(styles.container, className)}>
 			<div
 				role="button"
 				onClick={() => onOpen(!isOpen)}
@@ -34,8 +26,11 @@ const AddDropdown = ({
 				<IconButton icon={icon} />
 			</div>
 			{isOpen && (
-				<Popover anchor={anchor} className={styles.dropdown}>
-					{options.map(opt => (
+				<Popover
+					placement="bottom-start"
+					referenceElement={containerEl} /*className={styles.dropdown}*/
+				>
+					{options.map((opt) => (
 						<CheckField
 							key={opt.value}
 							flush

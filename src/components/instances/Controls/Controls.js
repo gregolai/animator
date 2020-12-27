@@ -17,6 +17,41 @@ import styles from './Controls.module.scss';
 
 const ANIMATION_PROPS = ['animationDelay', 'animationDuration', 'animationTimingFunction'];
 
+const AnimationButton = ({ definitionId, expandedDefinitionId, instance, setExpandedDefinition }) => {
+	const [buttonEl, setButtonEl] = React.useState(null);
+	const { getInstanceDefinitionValue, setInstanceDefinitionValue } = AnimationStore.use();
+	const { setSelectedInstance } = UIStore.use();
+	return (
+		<>
+			<ValueButton
+				key={definitionId}
+				buttonRef={setButtonEl}
+				definition={getStyleProp(definitionId)}
+				isToggled={expandedDefinitionId === definitionId}
+				onClick={() => {
+					const wasExpanded = expandedDefinitionId === definitionId;
+					setExpandedDefinition(wasExpanded ? '' : definitionId); // toggle
+					if (!wasExpanded) {
+						setSelectedInstance(instance.id);
+					}
+				}}
+				value={getInstanceDefinitionValue(instance.id, definitionId)}
+			/>
+			{expandedDefinitionId === definitionId && buttonEl && (
+				<Popover placement="bottom-start" referenceElement={buttonEl}>
+					<ValueEditor
+						definitionId={expandedDefinitionId}
+						onChange={(value) =>
+							setInstanceDefinitionValue(instance.id, expandedDefinitionId, value)
+						}
+						value={getInstanceDefinitionValue(instance.id, expandedDefinitionId)}
+					/>
+				</Popover>
+			)}
+		</>
+	);
+};
+
 const Controls = ({ className, instance }) => {
 	const [expandedDefinitionId, setExpandedDefinition] = React.useState('');
 	const [showBaseProps, setShowBaseProps] = React.useState(false);
@@ -43,7 +78,7 @@ const Controls = ({ className, instance }) => {
 						<IconButton
 							icon="Delete"
 							onClick={() => {
-								setSelectedInstance(-1);
+								setSelectedInstance('');
 								deleteInstance(instance.id);
 							}}
 						/>
@@ -52,7 +87,7 @@ const Controls = ({ className, instance }) => {
 					className={styles.title}
 					isExpanded={isSelected}
 					label={instance.name}
-					onClick={() => setSelectedInstance(isSelected ? -1 : instance.id)}
+					onClick={() => setSelectedInstance(isSelected ? '' : instance.id)}
 				/>
 
 				{/* VISIBLE BUTTON */}
@@ -89,18 +124,12 @@ const Controls = ({ className, instance }) => {
 				<div className={styles.row}>
 					{ANIMATION_PROPS.map((definitionId) => {
 						return (
-							<ValueButton
+							<AnimationButton
 								key={definitionId}
-								definition={getStyleProp(definitionId)}
-								isToggled={expandedDefinitionId === definitionId}
-								onClick={() => {
-									const wasExpanded = expandedDefinitionId === definitionId;
-									setExpandedDefinition(wasExpanded ? '' : definitionId); // toggle
-									if (!wasExpanded) {
-										setSelectedInstance(instance.id);
-									}
-								}}
-								value={getInstanceDefinitionValue(instance.id, definitionId)}
+								definitionId={definitionId}
+								expandedDefinitionId={expandedDefinitionId}
+								instance={instance}
+								setExpandedDefinition={setExpandedDefinition}
 							/>
 						);
 					})}
@@ -113,18 +142,6 @@ const Controls = ({ className, instance }) => {
 						isToggled={showBaseProps}
 						onClick={() => setShowBaseProps(!showBaseProps)}
 					/>
-
-					{expandedDefinitionId && (
-						<Popover anchor="down-left" className={styles.editor}>
-							<ValueEditor
-								definitionId={expandedDefinitionId}
-								onChange={(value) =>
-									setInstanceDefinitionValue(instance.id, expandedDefinitionId, value)
-								}
-								value={getInstanceDefinitionValue(instance.id, expandedDefinitionId)}
-							/>
-						</Popover>
-					)}
 				</div>
 
 				{isSelected && showBaseProps && (

@@ -61,8 +61,6 @@ const Head = () => {
 				)}
 
 				<StepperField
-					flush
-					underlined={false}
 					className={styles.spacing}
 					label="Spacing"
 					min={2}

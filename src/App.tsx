@@ -51,7 +51,7 @@ const ImportButton = () => {
 	const { setOpen } = ImporterStore.use();
 	return (
 		<Box flex="1">
-			<ButtonField size="small" color="warning" onClick={() => setOpen(true)} label="Import" />
+			<ButtonField onClick={() => setOpen(true)} label="Import" />
 		</Box>
 	);
 };
@@ -60,12 +60,7 @@ const AddAnimationButton = () => {
 	const { createAnimation } = AnimationStore.use();
 	return (
 		<Box flex="1">
-			<ButtonField
-				size="small"
-				color="primary"
-				label="Create Animation"
-				onClick={() => createAnimation()}
-			/>
+			<ButtonField label="Create Animation" onClick={() => createAnimation()} />
 		</Box>
 	);
 };
@@ -138,12 +133,7 @@ const App = withStores(() => {
 
 								{/* EXPORT */}
 								<Box flex="1">
-									<ButtonField
-										size="small"
-										color="warning"
-										onClick={() => setShowExportModal(true)}
-										label="Export"
-									/>
+									<ButtonField onClick={() => setShowExportModal(true)} label="Export" />
 								</Box>
 
 								{/* ADD ANIMATION */}

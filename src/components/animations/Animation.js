@@ -2,6 +2,7 @@ import { React, cx } from 'common';
 
 import { AnimationStore, UIStore } from 'stores';
 import { AddDropdown, ExpandingTitle, IconButton, Ticks } from 'components/shared';
+import { Box } from 'pu2';
 
 import CursorTime from './CursorTime';
 import PlayheadCursor from './PlayheadCursor';
@@ -13,29 +14,22 @@ import styles from './Animation.module.scss';
 const TWEEN_HEIGHT_PX = 33;
 
 const HeadLeft = ({ animation }) => {
-	const {
-		createTween,
-		deleteAnimation,
-		setAnimationName,
-		getUnusedStyleProps
-	} = AnimationStore.use();
+	const { createTween, deleteAnimation, setAnimationName, getUnusedStyleProps } = AnimationStore.use();
 	return (
 		<div className={styles.left}>
 			<ExpandingTitle
-				accessory={
-					<IconButton icon="Delete" onClick={() => deleteAnimation(animation.id)} />
-				}
-				onEdit={name => setAnimationName(animation.id, name)}
+				accessory={<IconButton icon="Delete" onClick={() => deleteAnimation(animation.id)} />}
+				onEdit={(name) => setAnimationName(animation.id, name)}
 				color={animation.color}
 				label={animation.name}
 			/>
 			<AddDropdown
 				className={styles.btnAddTween}
 				label="Add Tween"
-				onSelect={stylePropId => {
+				onSelect={(stylePropId) => {
 					createTween(animation.id, stylePropId);
 				}}
-				options={getUnusedStyleProps(animation.id).map(styleProp => ({
+				options={getUnusedStyleProps(animation.id).map((styleProp) => ({
 					label: styleProp.id,
 					value: styleProp.id
 				}))}
@@ -46,14 +40,10 @@ const HeadLeft = ({ animation }) => {
 
 const Tween = ({ tween }) => {
 	return (
-		<div className={styles.tween} style={{ height: TWEEN_HEIGHT_PX }}>
+		<Box display="flex" height={`${TWEEN_HEIGHT_PX}px`}>
 			<TweenControls tween={tween} />
-			<TweenTimeline
-				className={styles.tweenTimeline}
-				height={TWEEN_HEIGHT_PX}
-				tween={tween}
-			/>
-		</div>
+			<TweenTimeline className={styles.tweenTimeline} height={TWEEN_HEIGHT_PX} tween={tween} />
+		</Box>
 	);
 };
 
@@ -63,7 +53,7 @@ const Animation = ({ animation }) => {
 
 	const tweens = getTweens(animation.id);
 	const hasInstance =
-		getInstances(i => i.animationId === animation.id && i.id === selectedInstanceId).length > 0;
+		getInstances((i) => i.animationId === animation.id && i.id === selectedInstanceId).length > 0;
 
 	return (
 		<CursorTime animation={animation}>
@@ -97,17 +87,14 @@ const Animation = ({ animation }) => {
 							/>
 
 							{/* PLAYHEAD CURSOR (OVERLAY) */}
-							<PlayheadCursor
-								animation={animation}
-								height={tweens.length * TWEEN_HEIGHT_PX}
-							/>
+							<PlayheadCursor animation={animation} height={tweens.length * TWEEN_HEIGHT_PX} />
 						</div>
 					)}
 				</div>
 
 				{/* TWEENS */}
-				<div className={styles.tweens}>
-					{tweens.map(tween => (
+				<div>
+					{tweens.map((tween) => (
 						<Tween key={tween.id} tween={tween} />
 					))}
 				</div>

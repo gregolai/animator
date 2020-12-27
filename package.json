@@ -3,6 +3,7 @@
 	"version": "0.1.0",
 	"private": true,
 	"dependencies": {
+		"@popperjs/core": "^2.6.0",
 		"bezier-easing": "^2.1.0",
 		"carbon-components": "^10.9.3",
 		"carbon-components-react": "^7.9.3",
@@ -20,7 +21,9 @@
 		"react": "^16.14.0",
 		"react-dev-utils": "^8.0.0",
 		"react-dom": "^16.14.0",
+		"react-popper": "^2.2.4",
 		"react-split-pane": "^0.1.87",
+		"react-use": "^15.3.4",
 		"rework": "^1.0.1"
 	},
 	"scripts": {
