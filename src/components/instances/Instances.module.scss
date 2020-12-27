@@ -1,82 +1,35 @@
 @import '../../constants.scss';
 
 :local {
-	.container {
-		position: relative;
-		height: 100%;
+
+	.headLeft {
 		display: flex;
-		flex-direction: column;
-	}
+		align-items: center;
+		justify-content: flex-end;
+		width: $timeline-left-width + $grid-px;
+		padding-left: $grid-px;
+		padding-right: $grid-px;
 
-	.head {
-		display: flex;
-		background-color: $color-bg-0;
-		border-bottom: 1px solid $color-border-1;
-
-		.left {
-			display: flex;
-			align-items: center;
-			justify-content: flex-end;
-			width: $timeline-left-width + $grid-px;
-			padding-left: $grid-px;
-			padding-right: $grid-px;
-
-			.btnCreateInstance {
-				flex: 1;
-			}
-
-			.spacing {
-				[class^='Label-label-'] {
-					padding-right: 0;
-					width: auto;
-				}
-			}
-		}
-
-		.right {
-			position: relative;
+		.btnCreateInstance {
 			flex: 1;
 		}
+
+		.spacing {
+			[class^='Label-label-'] {
+				padding-right: 0;
+				width: auto;
+			}
+		}
 	}
 
-	.body {
+
+
+	.instanceControls {
+		width: $timeline-left-width;
+	}
+
+	.instanceTimeline {
 		position: relative;
 		flex: 1;
-		overflow-y: auto;
-
-		.bodyInner {
-			position: absolute;
-			top: 0;
-			left: 0;
-			width: 100%;
-		}
-
-		.cursor {
-			z-index: $z-index-low-priority;
-		}
-	}
-
-	.instance {
-		padding-top: $grid-px;
-		padding-bottom: $grid-px;
-		display: flex;
-		border-radius: $border-radius-px;
-
-		transition: all 200ms linear;
-		margin: $grid-px;
-
-		&.selected {
-			background-color: $color-bg-0;
-			box-shadow: inset 6px 0 0 0 black;
-		}
-
-		.controls {
-			width: $timeline-left-width;
-		}
-
-		.timeline {
-			position: relative;
-			flex: 1;
-		}
 	}
 }

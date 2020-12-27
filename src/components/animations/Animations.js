@@ -8,7 +8,7 @@ const Animations = () => {
 	const { selectedInstanceId } = UIStore.use();
 	return (
 		<Box
-			backgroundColor={selectedInstanceId !== -1 ? '#f2f2f2' : 'white'}
+			backgroundColor={selectedInstanceId ? '#f2f2f2' : 'white'}
 			flex="1"
 			overflowY="scroll"
 			overflowX="hidden"

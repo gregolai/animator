@@ -25,7 +25,7 @@ const persist = {
 		expandedTweenId: -1,
 		hiddenTweens: {},
 		lockedTweens: {},
-		selectedInstanceId: -1,
+		selectedInstanceId: '',
 
 		// media
 		duration: 3000,
@@ -80,16 +80,16 @@ class Provider extends React.Component {
 	createAnimation = () => {
 		throw 'not implemented';
 	};
-	getAnimation = animationId => {
+	getAnimation = (animationId) => {
 		throw 'not implemented';
 	};
 	getAnimations = () => {
 		throw 'not implemented';
 	};
 
-	_deleteAnimation = animationId => db.deleteOne(this.state.animations, animationId);
-	_deleteAnimations = animationIds => db.deleteMany(this.state.animations, animationIds);
-	deleteAnimation = animationId => {
+	_deleteAnimation = (animationId) => db.deleteOne(this.state.animations, animationId);
+	_deleteAnimations = (animationIds) => db.deleteMany(this.state.animations, animationIds);
+	deleteAnimation = (animationId) => {
 		// const t = this.crud.animations.deleteOne(this.state.animations, animationId);
 		// t.execute();
 		// this.undoRedo.push(t);
@@ -99,14 +99,12 @@ class Provider extends React.Component {
 
 		new DeleteCommand(
 			() => {
-				const { list: animations, item: deletedAnimation } = this._deleteAnimation(
-					animationId
-				);
+				const { list: animations, item: deletedAnimation } = this._deleteAnimation(animationId);
 				const { list: tweens, items: deletedTweens } = this._deleteTweens(
-					t => t.animationId === animationId
+					(t) => t.animationId === animationId
 				);
 				const { list: keyframes, items: deletedKeyframes } = this._deleteKeyframes(
-					kf => kf.animationId === animationId
+					(kf) => kf.animationId === animationId
 				);
 
 				// re-assign instances w/anim
@@ -137,45 +135,45 @@ class Provider extends React.Component {
 	createTween = (animationId, definitionId) => {
 		throw 'not implemented';
 	};
-	getTween = tweenId => {
+	getTween = (tweenId) => {
 		throw 'not implemented';
 	};
-	getTweens = animationId => {
-		throw 'not implemented';
-	};
-
-	_deleteTween = tweenId => db.deleteOne(this.state.tweens, tweenId);
-	_deleteTweens = tweenIds => db.deleteMany(this.state.tweens, tweenIds);
-	deleteTween = tweenId => {
+	getTweens = (animationId) => {
 		throw 'not implemented';
 	};
 
-	createKeyframe = tweenId => {
-		throw 'not implemented';
-	};
-	getKeyframe = keyframeId => {
-		throw 'not implemented';
-	};
-	getKeyframes = tweenId => {
+	_deleteTween = (tweenId) => db.deleteOne(this.state.tweens, tweenId);
+	_deleteTweens = (tweenIds) => db.deleteMany(this.state.tweens, tweenIds);
+	deleteTween = (tweenId) => {
 		throw 'not implemented';
 	};
 
-	_deleteKeyframe = keyframeId => db.deleteOne(this.state.keyframes, keyframeId);
-	_deleteKeyframes = keyframeIds => db.deleteMany(this.state.keyframes, keyframeIds);
-	deleteKeyframe = keyframeId => {
+	createKeyframe = (tweenId) => {
+		throw 'not implemented';
+	};
+	getKeyframe = (keyframeId) => {
+		throw 'not implemented';
+	};
+	getKeyframes = (tweenId) => {
 		throw 'not implemented';
 	};
 
-	createInstance = animationId => {
+	_deleteKeyframe = (keyframeId) => db.deleteOne(this.state.keyframes, keyframeId);
+	_deleteKeyframes = (keyframeIds) => db.deleteMany(this.state.keyframes, keyframeIds);
+	deleteKeyframe = (keyframeId) => {
 		throw 'not implemented';
 	};
-	getInstance = instanceId => {
+
+	createInstance = (animationId) => {
 		throw 'not implemented';
 	};
-	getInstances = instanceIds => {
+	getInstance = (instanceId) => {
+		throw 'not implemented';
+	};
+	getInstances = (instanceIds) => {
 		return db.getMany(this.state.instances, instanceIds).items;
 	};
-	deleteInstance = instanceId => {
+	deleteInstance = (instanceId) => {
 		throw 'not implemented';
 	};
 

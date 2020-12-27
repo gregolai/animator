@@ -5,7 +5,7 @@ const persist = createPersist('UIStore', {
 	expandedTweenId: -1,
 	hiddenInstances: {},
 	lockedTweens: {},
-	selectedInstanceId: -1,
+	selectedInstanceId: '',
 	tickSpacing: 4
 });
 
@@ -35,7 +35,7 @@ export default class UIStore extends React.Component {
 		//document.removeEventListener('keydown', this.onKeyDown);
 	}
 
-	onKeyDown = e => {
+	onKeyDown = (e) => {
 		const excludeTags = ['INPUT', 'TEXTAREA', 'SELECT'];
 		if (e.target && excludeTags.indexOf(e.target.tagName) !== -1) {
 			return;
@@ -102,14 +102,12 @@ export default class UIStore extends React.Component {
 		}
 	};
 
-	setSelectedInstance = instanceId => {
-		const selectedInstanceId = instanceId;
-
+	setSelectedInstance = (selectedInstanceId) => {
 		this.setState({ selectedInstanceId });
 		persist.selectedInstanceId.write(selectedInstanceId);
 	};
 
-	isTweenExpanded = tweenId => {
+	isTweenExpanded = (tweenId) => {
 		return this.state.expandedTweenId === tweenId;
 	};
 
@@ -120,7 +118,7 @@ export default class UIStore extends React.Component {
 		persist.expandedTweenId.write(expandedTweenId);
 	};
 
-	isTweenLocked = tweenId => {
+	isTweenLocked = (tweenId) => {
 		return !!this.state.lockedTweens[tweenId];
 	};
 
@@ -137,7 +135,7 @@ export default class UIStore extends React.Component {
 		persist.lockedTweens.write(lockedTweens);
 	};
 
-	isInstanceHidden = instanceId => {
+	isInstanceHidden = (instanceId) => {
 		return !!this.state.hiddenInstances[instanceId];
 	};
 
@@ -154,7 +152,7 @@ export default class UIStore extends React.Component {
 		persist.hiddenInstances.write(hiddenInstances);
 	};
 
-	setTickSpacing = tickSpacing => {
+	setTickSpacing = (tickSpacing) => {
 		tickSpacing = Math.max(1, tickSpacing);
 
 		this.setState({ tickSpacing });

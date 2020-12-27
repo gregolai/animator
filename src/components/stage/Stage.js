@@ -9,8 +9,6 @@ import Controls from './components/Controls';
 import { getStyleProp } from 'utils/cc/styleProps';
 import AnimationController from 'utils/AnimationController';
 
-import styles from './Stage.module.scss';
-
 const GRID_COLOR = '#f2f2f2';
 const AXIS_COLOR = '#d2d2d2';
 
@@ -105,11 +103,10 @@ const Instance = ({ instance }) => {
 					time={time}
 				>
 					{(interpolatedStyles) => (
-						<div
+						<Box
 							ref={hoverRef}
-							className={cx(styles.instance, {
-								[styles.dragging]: isDragging
-							})}
+							position="relative"
+							cursor={isDragging ? 'grabbing' : 'grab'}
 							onMouseDown={(e) => {
 								if (e.button !== 0) return;
 
@@ -144,8 +141,17 @@ const Instance = ({ instance }) => {
 								...interpolatedStyles
 							}}
 						>
-							{isHovering && <div className={styles.name}>{instance.name}</div>}
-						</div>
+							{isHovering && (
+								<Box
+									position="absolute"
+									right="100%"
+									bottom="100%"
+									fontSize="10px" /* $font-size-xs */
+								>
+									{instance.name}
+								</Box>
+							)}
+						</Box>
 					)}
 				</AnimationController>
 			)}
@@ -158,13 +164,13 @@ export default () => {
 	const { offset } = StageStore.use();
 
 	return (
-		<Box flex="1" className={styles.container}>
+		<Box backgroundColor="white" /* $color-bg-0 */ flex="1" position="relative" overflow="hidden">
 			<StageCanvas />
-			<div className={styles.instances} style={{ left: -offset.x, top: -offset.y }}>
+			<Box position="absolute" style={{ left: -offset.x, top: -offset.y }}>
 				{getInstances().map((instance) => (
 					<Instance key={instance.id} instance={instance} />
 				))}
-			</div>
+			</Box>
 			<Controls />
 		</Box>
 	);

@@ -30,12 +30,7 @@ const Controls = ({ className, instance }) => {
 		getInstanceDefinitionValue,
 		setInstanceDefinitionValue
 	} = AnimationStore.use();
-	const {
-		isInstanceHidden,
-		setInstanceHidden,
-		selectedInstanceId,
-		setSelectedInstance
-	} = UIStore.use();
+	const { isInstanceHidden, setInstanceHidden, selectedInstanceId, setSelectedInstance } = UIStore.use();
 
 	const isHidden = isInstanceHidden(instance.id);
 	const isSelected = selectedInstanceId === instance.id;
@@ -45,9 +40,15 @@ const Controls = ({ className, instance }) => {
 			<div className={styles.head}>
 				<ExpandingTitle
 					accessory={
-						<IconButton icon="Delete" onClick={() => deleteInstance(instance.id)} />
+						<IconButton
+							icon="Delete"
+							onClick={() => {
+								setSelectedInstance(-1);
+								deleteInstance(instance.id);
+							}}
+						/>
 					}
-					onEdit={name => setInstanceName(instance.id, name)}
+					onEdit={(name) => setInstanceName(instance.id, name)}
 					className={styles.title}
 					isExpanded={isSelected}
 					label={instance.name}
@@ -69,17 +70,15 @@ const Controls = ({ className, instance }) => {
 					label2={
 						<div style={{ display: 'flex' }}>
 							<ColorSquare color={getAnimation(instance.animationId).color} />
-							<div style={{ paddingLeft: 11 }}>
-								{getAnimation(instance.animationId).name}
-							</div>
+							<div style={{ paddingLeft: 11 }}>{getAnimation(instance.animationId).name}</div>
 						</div>
 					}
-					options={getAnimations().map(anim => ({
+					options={getAnimations().map((anim) => ({
 						icon: <ColorSquare color={anim.color} />,
 						label: anim.name,
 						value: anim.id
 					}))}
-					onSelect={animationId => {
+					onSelect={(animationId) => {
 						setInstanceAnimation(instance.id, animationId);
 					}}
 					value={instance.animationId}
@@ -88,7 +87,7 @@ const Controls = ({ className, instance }) => {
 
 			<div className={styles.body}>
 				<div className={styles.row}>
-					{ANIMATION_PROPS.map(definitionId => {
+					{ANIMATION_PROPS.map((definitionId) => {
 						return (
 							<ValueButton
 								key={definitionId}
@@ -119,17 +118,10 @@ const Controls = ({ className, instance }) => {
 						<Popover anchor="down-left" className={styles.editor}>
 							<ValueEditor
 								definitionId={expandedDefinitionId}
-								onChange={value =>
-									setInstanceDefinitionValue(
-										instance.id,
-										expandedDefinitionId,
-										value
-									)
+								onChange={(value) =>
+									setInstanceDefinitionValue(instance.id, expandedDefinitionId, value)
 								}
-								value={getInstanceDefinitionValue(
-									instance.id,
-									expandedDefinitionId
-								)}
+								value={getInstanceDefinitionValue(instance.id, expandedDefinitionId)}
 							/>
 						</Popover>
 					)}
@@ -141,7 +133,7 @@ const Controls = ({ className, instance }) => {
 						<BaseProps
 							instance={instance}
 							definitions={getStyleProps(
-								definition => ANIMATION_PROPS.indexOf(definition.id) === -1
+								(definition) => ANIMATION_PROPS.indexOf(definition.id) === -1
 							)}
 						/>
 					</>
