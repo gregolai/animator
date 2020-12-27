@@ -153,12 +153,12 @@ const Instance = ({ instance }) => {
 	);
 };
 
-export default ({ className }) => {
+export default () => {
 	const { getInstances } = AnimationStore.use();
 	const { offset } = StageStore.use();
 
 	return (
-		<Box flex="1" className={cx(styles.container, className)}>
+		<Box flex="1" className={styles.container}>
 			<StageCanvas />
 			<div className={styles.instances} style={{ left: -offset.x, top: -offset.y }}>
 				{getInstances().map((instance) => (
