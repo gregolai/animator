@@ -1,5 +1,5 @@
 import { React, clamp } from 'common';
-import { createPersist } from 'utils';
+import { createPersist } from 'pu2';
 
 const persist = createPersist('PlaybackController', {
 	isLooping: true,
@@ -7,16 +7,27 @@ const persist = createPersist('PlaybackController', {
 	playhead: 0
 });
 
-const Context = React.createContext();
+const Context = React.createContext(null);
 
-export default class PlaybackController extends React.Component {
+interface Props {
+	duration: number;
+}
+
+interface State {
+	isPlaying: boolean;
+	isLooping: boolean;
+	isReversed: boolean;
+	playhead: number;
+}
+
+export default class PlaybackController extends React.Component<Props, State> {
 	static use = () => React.useContext(Context);
 
 	static defaultProps = {
 		duration: 1000
 	};
 
-	static getDerivedStateFromProps(nextProps, prevState) {
+	static getDerivedStateFromProps(nextProps: Props, prevState: State) {
 		// keep playhead within duration
 		const playhead = clamp(prevState.playhead, 0, nextProps.duration);
 
@@ -35,7 +46,7 @@ export default class PlaybackController extends React.Component {
 		playhead: persist.playhead.read()
 	};
 
-	playLoop = null;
+	playLoop: number = null;
 
 	setPlaying = () => {
 		if (this.state.isPlaying) {
@@ -100,7 +111,7 @@ export default class PlaybackController extends React.Component {
 		persist.playhead.write(0);
 	};
 
-	setPlayhead = playhead => {
+	setPlayhead = (playhead: number) => {
 		playhead = clamp(playhead, 0, this.props.duration);
 		this.setState({
 			playhead
@@ -108,12 +119,12 @@ export default class PlaybackController extends React.Component {
 		persist.playhead.write(playhead);
 	};
 
-	setLooping = isLooping => {
+	setLooping = (isLooping: boolean) => {
 		this.setState({ isLooping });
 		persist.isLooping.write(isLooping);
 	};
 
-	setReversed = isReversed => {
+	setReversed = (isReversed: boolean) => {
 		this.setState({ isReversed });
 		persist.isReversed.write(isReversed);
 	};

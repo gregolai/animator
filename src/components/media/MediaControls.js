@@ -1,64 +1,51 @@
 import { React } from 'common';
 import { PlaybackController } from 'utils';
 import { ButtonField, BooleanField } from 'components/core';
-
-import styles from './MediaControls.module.scss';
+import { Box } from 'pu2';
 
 // PLAY PAUSE CONTROLS
 const MediaControls = () => {
-  const {
-    duration,
-    isPlaying,
-    playhead,
-    setPlaying,
-    setPaused,
-    setStopped,
-    isLooping,
-    setLooping,
-    isReversed,
-    setReversed
-  } = PlaybackController.use();
+	const {
+		duration,
+		isPlaying,
+		playhead,
+		setPlaying,
+		setPaused,
+		setStopped,
+		isLooping,
+		setLooping,
+		isReversed,
+		setReversed
+	} = PlaybackController.use();
 
-  return (
-    <div className={styles.container}>
-      {/* PLAY / PAUSE */}
-      <div style={{ flex: 1 }}>
-        <ButtonField
-          inverted
-          size="small"
-          isDisabled={playhead === duration}
-          label={playhead === duration || isPlaying ? 'Pause' : 'Play'}
-          onClick={isPlaying ? setPaused : setPlaying}
-        />
-      </div>
+	return (
+		<Box display="flex" alignItems="center" p="11px">
+			{/* PLAY / PAUSE */}
+			<Box flex="1">
+				<ButtonField
+					inverted
+					size="small"
+					isDisabled={playhead === duration}
+					label={playhead === duration || isPlaying ? 'Pause' : 'Play'}
+					onClick={isPlaying ? setPaused : setPlaying}
+				/>
+			</Box>
 
-      {/* RESET */}
-      <div style={{ flex: 1 }}>
-        <ButtonField
-          inverted
-          size="small"
-          isDisabled={playhead === 0}
-          label="Reset"
-          onClick={setStopped}
-        />
-      </div>
+			{/* RESET */}
+			<Box flex="1">
+				<ButtonField
+					inverted
+					size="small"
+					isDisabled={playhead === 0}
+					label="Reset"
+					onClick={setStopped}
+				/>
+			</Box>
 
-      <BooleanField
-        className={styles.loop}
-        label="Loop"
-        onChange={setLooping}
-        value={isLooping}
-        underlined={false}
-      />
-      <BooleanField
-        className={styles.reverse}
-        label="Reverse"
-        onChange={setReversed}
-        value={isReversed}
-        underlined={false}
-      />
-    </div>
-  );
+			<BooleanField label="Loop" onChange={setLooping} value={isLooping} underlined={false} />
+			<BooleanField label="Reverse" onChange={setReversed} value={isReversed} underlined={false} />
+		</Box>
+	);
 };
 
 export default MediaControls;

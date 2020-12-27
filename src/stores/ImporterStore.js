@@ -1,11 +1,11 @@
 import React from 'react';
 import { CSSLint } from 'csslint';
-import { createPersist } from 'utils/persist';
+import { createPersist } from 'pu2';
 
-const lint = cssString => {
+const lint = (cssString) => {
 	const { messages } = CSSLint.verify(cssString);
-	const warnings = messages.filter(v => v.type === 'warning');
-	const errors = messages.filter(v => v.type === 'error');
+	const warnings = messages.filter((v) => v.type === 'warning');
+	const errors = messages.filter((v) => v.type === 'error');
 	return { warnings, errors };
 };
 
@@ -27,17 +27,17 @@ export default class ImporterStore extends React.Component {
 		warnings: []
 	};
 
-	setReplace = replace => {
+	setReplace = (replace) => {
 		this.setState({ replace });
 		persist.replace.write(replace);
 	};
 
-	setOpen = isOpen => {
+	setOpen = (isOpen) => {
 		this.setState({ isOpen });
 		persist.isOpen.write(isOpen);
 	};
 
-	setValue = value => {
+	setValue = (value) => {
 		const { errors, warnings } = lint(value);
 		this.setState({
 			canImport: errors.length === 0,

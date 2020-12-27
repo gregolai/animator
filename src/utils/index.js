@@ -3,7 +3,6 @@ import clamp from 'lodash/clamp';
 
 export { default as createUniqueName } from './createUniqueName';
 export { startDrag } from './mouse';
-export { createPersist } from './persist';
 export { default as PlaybackController } from './PlaybackController';
 
 // for grid snap

@@ -27,7 +27,7 @@ const Instance = ({ instance }) => {
 			boxShadow={`inset ${isSelected ? 6 : 0}px 0 0 0 black`}
 		>
 			<Controls className={styles.instanceControls} instance={instance} />
-			<InstanceTimeline className={styles.timeline} instance={instance} />
+			<InstanceTimeline instance={instance} />
 		</Box>
 	);
 };

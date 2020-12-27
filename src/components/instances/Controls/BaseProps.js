@@ -1,4 +1,5 @@
 import { React, chunk } from 'common';
+import { Box } from 'pu2';
 
 import { AnimationStore } from 'stores';
 import { IconButton, ValueButton, ValueEditor } from 'components/shared';
@@ -17,9 +18,7 @@ const EditButton = ({ definition, isToggled, onClick, instance }) => {
 				canClear && (
 					<IconButton
 						icon="Delete"
-						onClick={() =>
-							setInstanceDefinitionValue(instance.id, definition.id, undefined)
-						}
+						onClick={() => setInstanceDefinitionValue(instance.id, definition.id, undefined)}
 					/>
 				)
 			}
@@ -35,7 +34,7 @@ const EditButton = ({ definition, isToggled, onClick, instance }) => {
 const BaseProps = ({ definitions, instance }) => {
 	const [expandedDefinitionId, setExpandedDefinition] = React.useState('');
 
-	const toggleExpanded = definitionId =>
+	const toggleExpanded = (definitionId) =>
 		setExpandedDefinition(expandedDefinitionId === definitionId ? -1 : definitionId);
 
 	const rows = chunk(definitions, 2);
@@ -43,11 +42,11 @@ const BaseProps = ({ definitions, instance }) => {
 	const { getInstanceDefinitionValue, setInstanceDefinitionValue } = AnimationStore.use();
 
 	return (
-		<div className={styles.container}>
+		<div>
 			{rows.map(([definition1, definition2]) => (
 				<React.Fragment key={definition1.id}>
 					{/* ROW */}
-					<div className={styles.row}>
+					<Box display="flex">
 						<EditButton
 							definition={definition1}
 							isToggled={expandedDefinitionId === definition1.id}
@@ -62,7 +61,7 @@ const BaseProps = ({ definitions, instance }) => {
 								instance={instance}
 							/>
 						)}
-					</div>
+					</Box>
 
 					{/* VALUE EDITOR */}
 					{(expandedDefinitionId === definition1.id ||
@@ -70,7 +69,7 @@ const BaseProps = ({ definitions, instance }) => {
 						<ValueEditor
 							definitionId={expandedDefinitionId}
 							value={getInstanceDefinitionValue(instance.id, expandedDefinitionId)}
-							onChange={value =>
+							onChange={(value) =>
 								setInstanceDefinitionValue(instance.id, expandedDefinitionId, value)
 							}
 						/>

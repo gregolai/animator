@@ -31,7 +31,7 @@ export default class Canvas extends React.Component {
 	}
 
 	componentDidMount() {
-		this.observer = new ResizeObserver(els => {
+		this.observer = new ResizeObserver((els) => {
 			const { width, height } = els[0].contentRect;
 			this.setState({ width, height });
 		});
@@ -58,7 +58,7 @@ export default class Canvas extends React.Component {
 		}
 	}
 
-	captureRef = ref => {
+	captureRef = (ref) => {
 		this.cvs = ref;
 	};
 

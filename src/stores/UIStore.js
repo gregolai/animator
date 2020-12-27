@@ -1,5 +1,6 @@
 import { React, INTERVAL_MS } from 'common';
-import { createPersist, normalizeRatio } from 'utils';
+import { normalizeRatio } from 'utils';
+import { createPersist } from 'pu2';
 
 const persist = createPersist('UIStore', {
 	expandedTweenId: -1,

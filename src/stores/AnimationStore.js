@@ -1,5 +1,6 @@
 import { React, isNumber } from 'common';
-import { createPersist, createUniqueName, getRandomColor, normalizeRatio } from 'utils';
+import { createUniqueName, getRandomColor, normalizeRatio } from 'utils';
+import { createPersist } from 'pu2';
 import rework from 'rework';
 import difference from 'lodash/difference';
 
@@ -62,7 +63,7 @@ const createKeyframe = ({ animationId, tweenId, time, value }) => {
 	};
 };
 
-const fromCSSString = cssString => {
+const fromCSSString = (cssString) => {
 	// mutable lists
 	const animations = [];
 	const instances = [];
@@ -75,28 +76,25 @@ const fromCSSString = cssString => {
 		parseValue: true,
 		parseCustomProperty: true
 	}).use((node, fn) => {
-		node.rules.forEach(rule => {
+		node.rules.forEach((rule) => {
 			// @keyframes
 			if (rule.type === 'keyframes') {
-				const anim = db.createOne(animations, createAnimation({ name: rule.name }), true)
-					.item;
+				const anim = db.createOne(animations, createAnimation({ name: rule.name }), true).item;
 
 				// each percent declaration
-				rule.keyframes.forEach(keyframe => {
+				rule.keyframes.forEach((keyframe) => {
 					// get ratios from percent strings
-					const times = keyframe.values.map(v => {
+					const times = keyframe.values.map((v) => {
 						if (v === 'from') return 0;
 						if (v === 'to') return 1;
 						return parseFloat(v) / 100;
 					});
 
 					// each "prop: value" pair
-					keyframe.declarations.forEach(decl => {
+					keyframe.declarations.forEach((decl) => {
 						const definition = getCssProp(decl.property);
 						if (!definition) {
-							console.warn(
-								`Definition for CSS prop not yet supported: ${decl.property}`
-							);
+							console.warn(`Definition for CSS prop not yet supported: ${decl.property}`);
 							return; // EARLY EXIT
 						}
 
@@ -106,7 +104,7 @@ const fromCSSString = cssString => {
 						const value = definition.parse(decl.value);
 
 						// get tween with definition
-						let tween = db.getOne(tweens, t => t.definitionId === definitionId).item;
+						let tween = db.getOne(tweens, (t) => t.definitionId === definitionId).item;
 						if (!tween) {
 							// create tween with definition
 							tween = db.createOne(
@@ -119,10 +117,10 @@ const fromCSSString = cssString => {
 							).item;
 						}
 
-						times.forEach(time => {
+						times.forEach((time) => {
 							const keyframe = db.getOne(
 								keyframes,
-								kf => kf.tweenId === tween.id && kf.time === time
+								(kf) => kf.tweenId === tween.id && kf.time === time
 							).item;
 							if (!keyframe) {
 								db.createOne(
@@ -142,12 +140,12 @@ const fromCSSString = cssString => {
 			}
 
 			if (rule.type === 'rule') {
-				rule.selectors.forEach(selector => {
+				rule.selectors.forEach((selector) => {
 					let animation;
 					const instanceName = selector;
 					const definitionValues = {};
 
-					rule.declarations.forEach(decl => {
+					rule.declarations.forEach((decl) => {
 						if (decl.property === 'animation') {
 							// PARSE ANIMATION
 							const parts = decl.value.split(' ');
@@ -156,13 +154,11 @@ const fromCSSString = cssString => {
 							// const repeat = parts[2]; // TODO
 
 							// FIND ANIMATION BY NAME
-							animation = animations.find(anim => anim.name === animName);
+							animation = animations.find((anim) => anim.name === animName);
 						} else {
 							const definition = getCssProp(decl.property);
 							if (!definition) {
-								console.warn(
-									`Definition for CSS prop not yet supported: ${decl.property}`
-								);
+								console.warn(`Definition for CSS prop not yet supported: ${decl.property}`);
 								return; // EARLY EXIT
 							}
 							definitionValues[definition.id] = definition.parse(decl.value);
@@ -227,13 +223,9 @@ export default class AnimationStore extends React.Component {
 	};
 
 	setAnimationName = (animationId, name) => {
-		const { list: animations, item: animation } = db.setOne(
-			this.state.animations,
-			animationId,
-			{
-				name
-			}
-		);
+		const { list: animations, item: animation } = db.setOne(this.state.animations, animationId, {
+			name
+		});
 
 		this.setState({ animations });
 		persist.animations.write(animations);
@@ -242,22 +234,19 @@ export default class AnimationStore extends React.Component {
 	};
 
 	// DELETE - Animation
-	deleteAnimation = animationId => {
-		const { list: animations, item: animation } = db.deleteOne(
-			this.state.animations,
-			animationId
-		);
+	deleteAnimation = (animationId) => {
+		const { list: animations, item: animation } = db.deleteOne(this.state.animations, animationId);
 		const { list: instances } = db.deleteMany(
 			this.state.instances,
-			instance => instance.animationId === animationId
+			(instance) => instance.animationId === animationId
 		);
 		const { list: tweens } = db.deleteMany(
 			this.state.tweens,
-			tween => tween.animationId === animationId
+			(tween) => tween.animationId === animationId
 		);
 		const { list: keyframes } = db.deleteMany(
 			this.state.keyframes,
-			kf => kf.animationId === animationId
+			(kf) => kf.animationId === animationId
 		);
 
 		this.setState({
@@ -349,7 +338,7 @@ export default class AnimationStore extends React.Component {
 		persist.instances.write(instances);
 	};
 
-	deleteInstance = instanceId => {
+	deleteInstance = (instanceId) => {
 		const { list: instances, item: instance } = db.deleteOne(this.state.instances, instanceId);
 
 		this.setState({ instances });
@@ -367,7 +356,7 @@ export default class AnimationStore extends React.Component {
 			!definition ||
 			db.getOne(
 				this.state.tweens,
-				t => t.animationId === animationId && t.definitionId === definitionId
+				(t) => t.animationId === animationId && t.definitionId === definitionId
 			).item
 		) {
 			return null;
@@ -388,12 +377,9 @@ export default class AnimationStore extends React.Component {
 	};
 
 	// DELETE - Tween
-	deleteTween = tweenId => {
+	deleteTween = (tweenId) => {
 		const { list: tweens, item: tween } = db.deleteOne(this.state.tweens, tweenId);
-		const { list: keyframes } = db.deleteMany(
-			this.state.keyframes,
-			kf => kf.tweenId === tweenId
-		);
+		const { list: keyframes } = db.deleteMany(this.state.keyframes, (kf) => kf.tweenId === tweenId);
 
 		this.setState({ keyframes, tweens });
 		persist.keyframes.write(keyframes);
@@ -473,7 +459,7 @@ export default class AnimationStore extends React.Component {
 			: this.createKeyframe(tweenId, time, value);
 	};
 
-	deleteKeyframe = keyframeId => {
+	deleteKeyframe = (keyframeId) => {
 		const { list: keyframes, item: keyframe } = db.deleteOne(this.state.keyframes, keyframeId);
 
 		this.setState({ keyframes });
@@ -491,18 +477,18 @@ export default class AnimationStore extends React.Component {
 		return interpolateKeyframes(this.getKeyframes(tweenId), time, definition.lerp, easing);
 	};
 
-	getUnusedStyleProps = animationId => {
+	getUnusedStyleProps = (animationId) => {
 		if (animationId === -1) {
 			return [];
 		}
 
 		return difference(
-			getStyleProps(styleProp => canInterpolate(styleProp.id)),
-			this.getTweens(animationId).map(t => getStyleProp(t.definitionId))
+			getStyleProps((styleProp) => canInterpolate(styleProp.id)),
+			this.getTweens(animationId).map((t) => getStyleProp(t.definitionId))
 		);
 	};
 
-	getAnimation = animationId => {
+	getAnimation = (animationId) => {
 		return db.getOne(this.state.animations, animationId).item;
 	};
 
@@ -510,25 +496,25 @@ export default class AnimationStore extends React.Component {
 		return [...this.state.animations];
 	};
 
-	getInstance = instanceId => {
+	getInstance = (instanceId) => {
 		return db.getOne(this.state.instances, instanceId).item;
 	};
 
-	getInstances = ids => {
+	getInstances = (ids) => {
 		if (ids === undefined) return [...this.state.instances];
 
 		return db.getMany(this.state.instances, ids).items;
 	};
 
-	getTween = tweenId => {
+	getTween = (tweenId) => {
 		return db.getOne(this.state.tweens, tweenId).item;
 	};
 
-	getTweens = animationId => {
-		return db.getMany(this.state.tweens, t => t.animationId === animationId).items;
+	getTweens = (animationId) => {
+		return db.getMany(this.state.tweens, (t) => t.animationId === animationId).items;
 	};
 
-	getKeyframe = keyframeId => {
+	getKeyframe = (keyframeId) => {
 		return db.getOne(this.state.keyframes, keyframeId).item;
 	};
 
@@ -537,13 +523,12 @@ export default class AnimationStore extends React.Component {
 
 		time = normalizeRatio(time);
 
-		return db.getOne(this.state.keyframes, kf => kf.tweenId === tweenId && kf.time === time)
-			.item;
+		return db.getOne(this.state.keyframes, (kf) => kf.tweenId === tweenId && kf.time === time).item;
 	};
 
-	getKeyframes = tweenId => {
+	getKeyframes = (tweenId) => {
 		return db
-			.getMany(this.state.keyframes, kf => kf.tweenId === tweenId)
+			.getMany(this.state.keyframes, (kf) => kf.tweenId === tweenId)
 			.items.sort((a, b) => (a.time < b.time ? -1 : 1)); // sort by time
 	};
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { createPersist } from 'utils/persist';
+import { createPersist } from 'pu2';
 import db from 'utils/db';
 import UndoRedo, { UndoCommand } from 'utils/UndoRedo';
 

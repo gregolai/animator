@@ -16,7 +16,7 @@ const drawKeyframe = (ctx, x, y) => {
 	ctx.fillRect(x - 2, y - 2, 6, 6);
 };
 
-const InstanceTimeline = ({ className, instance }) => {
+const InstanceTimeline = ({ instance }) => {
 	const { getTweens, getKeyframes, getInstanceDefinitionValue } = AnimationStore.use();
 	const { isInstanceHidden, tickSpacing } = UIStore.use();
 
@@ -29,6 +29,7 @@ const InstanceTimeline = ({ className, instance }) => {
 
 	return (
 		<Box
+			flex="1"
 			height={`${height}px`}
 			position="relative"
 			opacity={isHidden ? '0.2' : '1'}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { createPersist } from 'utils/persist';
+import { createPersist } from 'pu2';
 
 const persist = createPersist('StageStore', {
 	gridSize: 22,
@@ -19,17 +19,17 @@ export default class StageStore extends React.Component {
 		offset: persist.offset.read()
 	};
 
-	setGridSize = gridSize => {
+	setGridSize = (gridSize) => {
 		this.setState({ gridSize });
 		persist.gridSize.write(gridSize);
 	};
 
-	setShowGrid = showGrid => {
+	setShowGrid = (showGrid) => {
 		this.setState({ showGrid });
 		persist.showGrid.write(showGrid);
 	};
 
-	setGridSnap = gridSnap => {
+	setGridSnap = (gridSnap) => {
 		this.setState({ gridSnap });
 		persist.gridSnap.write(gridSnap);
 	};
