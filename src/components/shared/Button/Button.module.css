@@ -1,0 +1,19 @@
+@import '../../../constants.css';
+
+.container {
+	display: flex;
+	align-items: center;
+	user-select: none;
+	cursor: pointer;
+	border-radius: var(--border-radius-px);
+
+	transition: background-color 250ms ease-in-out;
+	background-color: transparent;
+}
+
+.toggled {
+	background-color: var(--color-bg-3);
+}
+.toggled:hover {
+	background-color: var(--color-bg-3);
+}

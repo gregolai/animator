@@ -1,0 +1,27 @@
+@import '../../constants.css';
+
+.choices {
+	display: flex;
+}
+.choices .choice {
+	cursor: pointer;
+	flex: 1;
+	text-align: center;
+	padding-top: calc(6 * var(--grid-px));
+	padding-bottom: calc(6 * var(--grid-px));
+}
+.choices .choice:hover {
+	background-color: var(--color-bg-1);
+}
+
+.choices .img {
+	height: calc(10 * var(--grid-px));
+}
+.choices .img.jsf {
+	margin-left: var(--grid-px);
+}
+.textarea,
+textarea * {
+	/* apply to children too, ewww */
+	font-family: Courier;
+}

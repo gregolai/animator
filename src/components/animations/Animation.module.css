@@ -1,0 +1,37 @@
+@import '../../constants.css';
+
+.container {
+	border-radius: var(--border-radius-px) 0 0 var(--border-radius-px);
+	margin-left: 6px;
+	margin-top: var(--grid-px);
+	margin-bottom: var(--grid-px);
+}
+.container.focused {
+	background-color: var(--color-bg-0);
+	box-shadow: inset 6px 0 0 0 black;
+}
+
+.head {
+	display: flex;
+}
+.head .left {
+	display: flex;
+	justify-content: space-between;
+	width: var(--animations-left-width);
+	padding-left: var(--grid-px);
+	padding-right: 6px;
+}
+.head .right {
+	position: relative;
+	flex: 1;
+}
+.playheadCursor {
+	z-index: var(--z-index-medium-priority);
+	position: absolute;
+	left: 0;
+	width: 100%;
+	top: 100%;
+}
+.tweenTimeline {
+	flex: 1;
+}

@@ -1,0 +1,23 @@
+@import '../../constants.css';
+
+.headLeft {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	width: calc(var(--timeline-left-width) + var(--grid-px));
+	padding-left: var(--grid-px);
+	padding-right: var(--grid-px);
+}
+
+.headLeft .btnCreateInstance {
+	flex: 1;
+}
+
+.headLeft .spacing [class^='Label-label-']  {
+	padding-right: 0;
+	width: auto;
+}
+
+.instanceControls {
+	width: var(--timeline-left-width);
+}

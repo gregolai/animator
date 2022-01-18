@@ -9,7 +9,7 @@ import PlayheadCursor from './PlayheadCursor';
 import TweenControls from './TweenControls';
 import TweenTimeline from './TweenTimeline';
 
-import styles from './Animation.module.scss';
+import styles from './Animation.module.css';
 
 const TWEEN_HEIGHT_PX = 33;
 

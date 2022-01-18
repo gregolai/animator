@@ -4,7 +4,7 @@ import { Box } from 'pu2';
 import { AnimationStore } from 'stores';
 import { IconButton, ValueButton, ValueEditor } from 'components/shared';
 
-import styles from './BaseProps.module.scss';
+import styles from './BaseProps.module.css';
 
 const EditButton = ({ definition, isToggled, onClick, instance }) => {
 	const { setInstanceDefinitionValue, getInstanceDefinitionValue } = AnimationStore.use();

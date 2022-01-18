@@ -9,7 +9,7 @@ import Controls from './Controls';
 import InstanceTimeline from './InstanceTimeline';
 import PlayheadCursor from './PlayheadCursor';
 
-import styles from './Instances.module.scss';
+import styles from './Instances.module.css';
 
 const Instance = ({ instance }) => {
 	const { selectedInstanceId } = UIStore.use();

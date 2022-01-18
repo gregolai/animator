@@ -1,0 +1,28 @@
+@import '../../constants.css';
+
+.container {
+	position: relative;
+	display: flex;
+	width: var(--animations-left-width);
+	padding-left: var(--grid-px);
+	padding-right: 6px;
+}
+
+.btnValue {
+	flex: 1;
+}
+
+.btnAddKeyframe {
+	visibility: visible;
+}
+.btnAddKeyframe.hidden {
+	visibility: hidden;
+}
+
+.editor {
+	width: 100%;
+	padding: var(--grid-px);
+	background-color: var(--color-bg-1);
+	border-radius: var(--border-radius-px);
+	border: 1px solid var(--color-border-0);
+}

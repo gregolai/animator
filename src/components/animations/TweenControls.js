@@ -6,7 +6,7 @@ import { IconButton, Popover, ValueButton, ValueEditor } from 'components/shared
 import { getStyleProp } from 'utils/cc/styleProps';
 import { InterpolateProp } from 'utils/AnimationController';
 
-import styles from './TweenControls.module.scss';
+import styles from './TweenControls.module.css';
 
 const TweenControls = ({ className, tween }) => {
 	const [buttonEl, setButtonEl] = React.useState(null);

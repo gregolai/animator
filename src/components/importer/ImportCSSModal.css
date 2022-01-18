@@ -1,0 +1,15 @@
+@import '../../constants.css';
+
+.dialog {
+	width: 600px;
+}
+
+.textarea,
+.textarea * {
+	/* apply to children too, ewww */
+	font-family: Courier;
+}
+
+.btnImport {
+	flex: 1;
+}

@@ -1,6 +1,6 @@
 import { React, cx } from 'common';
 
-import styles from './Canvas.module.scss';
+import styles from './Canvas.module.css';
 
 export default class Canvas extends React.Component {
 	static defaultProps = {

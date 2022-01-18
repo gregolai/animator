@@ -4,7 +4,7 @@ import { Box } from 'pu2';
 import { useHover } from 'react-use';
 import { ColorSquare, IconButton } from 'components/shared';
 
-import styles from './ExpandingTitle.module.scss';
+import styles from './ExpandingTitle.module.css';
 
 const ExpandingTitle = ({ accessory, className, color, onEdit, isExpanded, label, onClick }) => {
 	const [editLabel, setEditLabel] = React.useState(label);

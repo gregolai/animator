@@ -1,0 +1,53 @@
+@import '../../constants.css';
+
+:root {
+	--diamond-size: 12px;
+	--half-diamond-size: calc(var(--diamond-size) / 2);
+
+	--bar-height: 2px;
+	--half-bar-height: calc(var(--bar-height) / 2);
+
+	--hover-color-bg: dodgerblue;
+	--drag-color-bg: red;
+
+	--bar-color-bg: black;
+	--keyframe-color-bg: var(--color-bg-0);
+	--keyframe-color-border: black;
+}
+.container {
+	position: relative;
+	display: flex;
+	align-items: center;
+}
+
+.bar {
+	z-index: var(--z-index-lowest-priority);
+	position: absolute;
+	height: var(--bar-height);
+	background-color: var(--bar-color-bg);
+}
+.bar:hover {
+	background-color: var(--hover-color-bg);
+}
+
+.keyframe {
+	z-index: var(--z-index-low-priority);
+	position: absolute;
+	width: var(--diamond-size);
+	height: var(--diamond-size);
+	transform: translateX(calc(-1 * var(--half-diamond-size))) rotate(-45deg);
+
+	background-color: var(--keyframe-color-bg);
+	border: 1px solid var(--keyframe-color-border);
+}
+.keyframe:hover {
+	cursor: none;
+	background-color: var(--hover-color-bg);
+}
+.keyframe.dragging {
+	cursor: none;
+	background-color: var(--drag-color-bg);
+}
+.keyframe.atPlayhead {
+	background-color: var(--hover-color-bg);
+}

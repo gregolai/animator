@@ -4,7 +4,7 @@ import { UIStore } from 'stores';
 import { Box } from 'pu2';
 
 import { pixelsToTime, timeToPixels } from './utils';
-import styles from './PlayheadCursor.module.scss';
+import styles from './PlayheadCursor.module.css';
 
 const PlayheadCursor = () => {
 	const { tickSpacing } = UIStore.use();

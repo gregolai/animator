@@ -13,7 +13,7 @@ import { getStyleProp, getStyleProps } from 'utils/cc/styleProps';
 
 import BaseProps from './BaseProps';
 
-import styles from './Controls.module.scss';
+import styles from './Controls.module.css';
 
 const ANIMATION_PROPS = ['animationDelay', 'animationDuration', 'animationTimingFunction'];
 

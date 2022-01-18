@@ -1,0 +1,10 @@
+@import '../../../constants.css';
+
+.container {
+	justify-content: center;
+	height: var(--common-height-px);
+	width: var(--common-height-px);
+}
+.container:hover {
+	background-color: var(--color-bg-1);
+}

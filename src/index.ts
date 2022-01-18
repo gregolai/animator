@@ -1,5 +1,5 @@
 // global styles
-import './split-pane.scss';
+import './split-pane.css';
 
 import React from 'react';
 import ReactDOM from 'react-dom';

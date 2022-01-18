@@ -1,0 +1,9 @@
+@import '../../../constants.css';
+
+.dialog {
+	width: 600px;
+}
+
+.btnConfirm {
+	flex: 1;
+}

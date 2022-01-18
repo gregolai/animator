@@ -1,0 +1,58 @@
+@import '../../../constants.css';
+
+.container {
+	position: relative;
+}
+
+.inner {
+	cursor: pointer;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	border-radius: var(--border-radius-px);
+	height: var(--common-height-px);
+}
+.inner:hover,
+.inner.open {
+	background-color: var(--color-bg-3);
+}
+.labels {
+	text-align: right;
+	margin-left: var(--grid-px);
+	font-size: var(--font-size-sm);
+}
+
+.label2 {
+	color: var(--color-bg-4);
+	font-size: var(--font-size-xs);
+}
+
+.dropdown {
+	background-color: var(--color-bg-0);
+	border-radius: var(--border-radius-px);
+	border: 1px solid var(--color-border-0);
+}
+.item {
+	white-space: nowrap;
+
+	/* hacks */
+	padding: 0 var(--grid-px) !important;
+	min-height: auto !important;
+}
+
+/* hacks */
+.item > * {
+	/* Cell-innerContainer- */
+	padding-top: 0;
+	padding-bottom: 0;
+}
+
+/* hacks */
+.item > * [class^='Icon-icon-'] {
+	width: auto;
+	height: auto;
+}
+
+.item:hover {
+	background-color: var(--color-bg-1);
+}

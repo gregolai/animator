@@ -1,0 +1,5 @@
+@import '../../constants.css';
+
+.container {
+	left: calc(var(--timeline-left-width) + var(--grid-px));
+}

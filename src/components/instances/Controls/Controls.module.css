@@ -1,0 +1,41 @@
+@import '../../../constants.css';
+
+.container {
+	position: relative;
+	padding-left: var(--grid-px);
+	padding-right: calc(var(--grid-px) - 6px);
+}
+
+.head {
+	display: flex;
+	justify-content: space-between;
+}
+
+.body {
+	padding-top: 6px;
+}
+
+.row {
+	position: relative;
+	display: flex;
+}
+
+.title {
+	flex: 1;
+}
+
+.btnShowBaseProps {
+	margin-left: 6px;
+	visibility: visible;
+}
+.btnShowBaseProps.hidden {
+	visibility: hidden;
+}
+
+.editor {
+	width: 100%;
+	padding: var(--grid-px);
+	background-color: var(--color-bg-0);
+	border-radius: var(--border-radius-px);
+	border: 1px solid var(--color-border-0);
+}

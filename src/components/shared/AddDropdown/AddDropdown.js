@@ -2,7 +2,7 @@ import { React, cx } from 'common';
 import { CheckField } from 'components/core';
 import { IconButton, Popover } from 'components/shared';
 
-import styles from './AddDropdown.module.scss';
+import styles from './AddDropdown.module.css';
 
 const AddDropdown = ({ className, icon = 'Add', label, label2, onSelect, options, value }) => {
 	const [containerEl, setContainerEl] = React.useState(null);

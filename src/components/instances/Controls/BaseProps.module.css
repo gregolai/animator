@@ -1,0 +1,6 @@
+@import '../../../constants.css';
+
+.button {
+	flex: 1;
+	width: 50%;
+}

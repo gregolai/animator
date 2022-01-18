@@ -9,7 +9,7 @@ const getClientEnvironment = require('./env');
 
 // This is the production and development configuration.
 // It is focused on developer experience, fast rebuilds, and a minimal bundle.
-module.exports = function(webpackEnv) {
+module.exports = function (webpackEnv) {
 	const isEnvDevelopment = webpackEnv === 'development';
 	const isEnvProduction = webpackEnv === 'production';
 
@@ -34,10 +34,7 @@ module.exports = function(webpackEnv) {
 			isEnvDevelopment && require.resolve('style-loader'),
 			isEnvProduction && {
 				loader: MiniCssExtractPlugin.loader,
-				options: Object.assign(
-					{},
-					shouldUseRelativeAssetPaths ? { publicPath: '../../' } : undefined
-				)
+				options: Object.assign({}, shouldUseRelativeAssetPaths ? { publicPath: '../../' } : undefined)
 			},
 			{
 				loader: require.resolve('css-loader'),
@@ -99,9 +96,8 @@ module.exports = function(webpackEnv) {
 			publicPath: publicPath,
 			// Point sourcemap entries to original disk location (format as URL on Windows)
 			devtoolModuleFilenameTemplate: isEnvProduction
-				? info => path.relative(paths.appSrc, info.absoluteResourcePath).replace(/\\/g, '/')
-				: isEnvDevelopment &&
-				  (info => path.resolve(info.absoluteResourcePath).replace(/\\/g, '/'))
+				? (info) => path.relative(paths.appSrc, info.absoluteResourcePath).replace(/\\/g, '/')
+				: isEnvDevelopment && ((info) => path.resolve(info.absoluteResourcePath).replace(/\\/g, '/'))
 		},
 		optimization: {
 			minimize: isEnvProduction,
@@ -192,19 +188,25 @@ module.exports = function(webpackEnv) {
 						},
 
 						{
-							test: /\.scss$/,
+							test: /\.css$/,
 							include: paths.appSrc,
-							use: getStyleLoaders(
-								{
-									importLoaders: 1,
-									sourceMap: isEnvProduction,
-									modules: {
-										localIdentName: '[name]__[local]___[hash:base64:5]'
-									}
-								},
-								'sass-loader'
-							)
+							use: getStyleLoaders()
 						},
+
+						// {
+						// 	test: /\.scss$/,
+						// 	include: paths.appSrc,
+						// 	use: getStyleLoaders(
+						// 		{
+						// 			importLoaders: 1,
+						// 			sourceMap: isEnvProduction,
+						// 			modules: {
+						// 				localIdentName: '[name]__[local]___[hash:base64:5]'
+						// 			}
+						// 		},
+						// 		'sass-loader'
+						// 	)
+						// },
 
 						// "file" loader makes sure those assets get served by WebpackDevServer.
 						// When you `import` an asset, you get its (virtual) filename.
@@ -277,7 +279,6 @@ module.exports = function(webpackEnv) {
 				}
 			})
 		].filter(Boolean),
-
 
 		node: {
 			fs: 'empty'

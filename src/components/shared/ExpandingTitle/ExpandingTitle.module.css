@@ -1,0 +1,57 @@
+@import '../../../constants.css';
+
+.container {
+	position: relative;
+	display: flex;
+	align-items: center;
+}
+.container.hasAccessory {
+	padding-left: var(--grid-px) * 3;
+}
+
+.accessory {
+	position: absolute;
+	left: 0;
+	top: 0;
+	bottom: 0;
+}
+
+.btnEdit {
+	margin-left: var(--grid-px);
+	visibility: visible;
+}
+.btnEdit {
+	visibility: hidden;
+}
+
+.clickable {
+	cursor: pointer;
+}
+.clickable .title {
+	transition: all 250ms ease-out;
+}
+.clickable .title:hover {
+	color: var(--color-font-0);
+}
+
+.title,
+.title * {
+	height: var(--common-height-px);
+	line-height: var(--common-height-px);
+
+	padding-left: 0;
+	padding-right: 0;
+
+	transition: all 250ms ease-out;
+
+	/*
+     &:hover,
+     &:hover * {
+       color: $color-font-0;
+	 } */
+}
+.title.expanded,
+.title.expanded * {
+	color: var(--color-font-0);
+	font-size: var(--font-size-xl);
+}

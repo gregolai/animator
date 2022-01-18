@@ -1,5 +1,4 @@
 {
-	"parser": "typescript",
 	"printWidth": 110,
 	"singleQuote": true,
 	"tabWidth": 4,

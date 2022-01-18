@@ -1,0 +1,63 @@
+@import '../../../constants.css';
+
+:root {
+	--value-width: calc(6 * var(--grid-px));
+}
+
+.container {
+	position: relative;
+	height: var(--common-height-px);
+	border: 1px solid transparent;
+}
+
+.container .clear {
+	position: absolute;
+	font-size: var(--font-size-xs);
+	right: 0;
+	bottom: 0;
+	width: var(--value-width);
+	height: var(--font-size-xs);
+	text-align: center;
+	background-color: var(--color-bg-2);
+	display: none;
+}
+
+.container .clear:hover {
+	background-color: var(--color-bg-0);
+}
+
+.container:hover {
+	border-color: var(--color-border-0);
+}
+.container:hover .clear {
+	display: block;
+}
+
+.disabled:hover {
+	background-color: transparent;
+}
+
+.accessory {
+	position: absolute;
+	left: 0;
+	top: 0;
+	bottom: 0;
+}
+
+.label {
+	flex: 1;
+	text-align: right;
+	font-size: var(--font-size-sm);
+	padding-right: var(--grid-px);
+}
+
+.value {
+	position: relative;
+	text-align: center;
+	font-size: var(--font-size-sm);
+	width: var(--value-width);
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}

@@ -1,0 +1,55 @@
+@import 'constants.css';
+
+:root {
+	--size-px: 1px;
+	--hover-size-px: 4px;
+	--hover-color: var(--color-border-2);
+}
+
+/* https://github.com/tomkp/react-split-pane */
+.Pane {
+	display: flex;
+}
+.Pane > * {
+	flex: 1;
+}
+.Resizer {
+    background-color: var(--color-border-1);
+    z-index: 1;
+    box-sizing: content-box;
+    background-clip: padding-box;
+}
+.Resizer:hover {
+	transition: all 200ms ease;
+}
+.Resizer.horizontal {
+	height: var(--size-px);
+	cursor: row-resize;
+	width: 100%;
+
+	border-top: var(--hover-size-px) solid transparent;
+	border-bottom: var(--hover-size-px) solid transparent;
+	margin: calc(-1 * var(--hover-size-px)) 0;
+}
+.Resizer.horizontal:hover {
+	border-top-color: var(--hover-color);
+    border-bottom-color: var(--hover-color);
+}
+.Resizer.vertical {
+	width: var(--size-px);
+	cursor: col-resize;
+
+	border-left: var(--hover-size-px) solid transparent;
+	border-right: var(--hover-size-px) solid transparent;
+	margin: 0 calc(-1 * var(--hover-size-px));
+}
+.Resizer.Resizer.vertical:hover {
+	border-left-color: var(--hover-color);
+    border-right-color: var(--hover-color);
+}
+.Resizer.disabled {
+	cursor: not-allowed;
+}
+.Resizer.disabled:hover {
+	border-color: transparent;
+}

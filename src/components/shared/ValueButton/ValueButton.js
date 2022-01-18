@@ -3,7 +3,7 @@ import classnames from 'classnames';
 import { useHover } from 'react-use';
 import { Button, Hover } from 'components/shared';
 
-import styles from './ValueButton.module.scss';
+import styles from './ValueButton.module.css';
 
 const ValueButton = ({
 	accessory,
