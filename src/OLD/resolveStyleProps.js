@@ -8,43 +8,43 @@
 import { toPx } from '../utils';
 
 const lookup = {
-	backgroundColor: v => ({
+	backgroundColor: (v) => ({
 		backgroundColor: v
 	}),
 
-	height: v => ({
+	height: (v) => ({
 		height: toPx(v)
 	}),
 
-	opacity: v => ({
+	opacity: (v) => ({
 		opacity: v
 	}),
 
-	rotateZ: v => ({
+	rotateZ: (v) => ({
 		transform: `rotateZ(${v}deg)`
 	}),
 
-	scale: v => ({
+	scale: (v) => ({
 		transform: `scale(${v.x}, ${v.y})`
 	}),
-	scaleX: v => ({
+	scaleX: (v) => ({
 		transform: `scaleX(${v})`
 	}),
-	scaleY: v => ({
+	scaleY: (v) => ({
 		transform: `scaleY(${v})`
 	}),
 
-	translate: v => ({
+	translate: (v) => ({
 		transform: `translate(${toPx(v.x)}, ${toPx(v.y)})`
 	}),
-	translateX: v => ({
+	translateX: (v) => ({
 		transform: `translateX(${toPx(v)})`
 	}),
-	translateY: v => ({
+	translateY: (v) => ({
 		transform: `translateY(${toPx(v)})`
 	}),
 
-	width: v => ({
+	width: (v) => ({
 		width: toPx(v)
 	})
 };
@@ -53,7 +53,7 @@ const lookup = {
  * Transform the API style object into a CSS style object
  * @param {Object} style an inline style object
  */
-export default apiStyle => {
+export default (apiStyle) => {
 	if (!apiStyle) {
 		return {};
 	}
@@ -63,7 +63,7 @@ export default apiStyle => {
 	// TODO: Ensure transform order: translate, rotate, scale
 	const transformValues = [];
 
-	Object.keys(apiStyle).forEach(propName => {
+	Object.keys(apiStyle).forEach((propName) => {
 		const transformer = lookup[propName];
 		if (transformer) {
 			const propValue = apiStyle[propName];

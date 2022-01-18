@@ -13,7 +13,7 @@
 	flex: 1;
 }
 
-.headLeft .spacing [class^='Label-label-']  {
+.headLeft .spacing [class^='Label-label-'] {
 	padding-right: 0;
 	width: auto;
 }

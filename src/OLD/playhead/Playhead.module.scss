@@ -1,31 +1,31 @@
-@import "../../constants.scss";
+@import '../../constants.scss';
 
 :local {
-  .container {
-    position: relative;
-    display: flex;
-    align-items: center;
-    height: $grid-px * 4;
-  }
+	.container {
+		position: relative;
+		display: flex;
+		align-items: center;
+		height: $grid-px * 4;
+	}
 
-  .left {
-    display: flex;
-    height: 100%;
-    width: $timeline-left-width;
-  }
+	.left {
+		display: flex;
+		height: 100%;
+		width: $timeline-left-width;
+	}
 
-  .tickSpacingButtons {
-    display: flex;
-  }
+	.tickSpacingButtons {
+		display: flex;
+	}
 
-  .timeDisplay {
-    flex: 1;
-    text-align: center;
-  }
+	.timeDisplay {
+		flex: 1;
+		text-align: center;
+	}
 
-  .right {
-    position: relative;
-    flex: 1;
-    height: 100%;
-  }
+	.right {
+		position: relative;
+		flex: 1;
+		height: 100%;
+	}
 }

@@ -1,5 +1,5 @@
 export const color = {
-	parseColor: str =>
+	parseColor: (str) =>
 		str
 			? {
 					red: 255,
@@ -10,5 +10,5 @@ export const color = {
 			  }
 			: null,
 	stringifyColor: (rgb, format) => '#ffff00',
-	isDark: obj => false
+	isDark: (obj) => false
 };

@@ -12,20 +12,23 @@ const EASING_MAP = {
 	'ease-in-out': [0.42, 0, 0.58, 1]
 };
 
-export const getEasingArray = easing => {
+export const getEasingArray = (easing) => {
 	return Array.isArray(easing) ? easing : EASING_MAP[easing] || EASING_MAP.linear;
 };
 
 export const getEasingOptions = () =>
-	Object.keys(EASING_MAP).map(name => ({
+	Object.keys(EASING_MAP).map((name) => ({
 		label: name,
 		value: name
 	}));
 
-const createCache = maxSize => {
-	let head, tail, size = 0, lookup = {};
+const createCache = (maxSize) => {
+	let head,
+		tail,
+		size = 0,
+		lookup = {};
 	return {
-		get: key => lookup[key],
+		get: (key) => lookup[key],
 		set: (key, value) => {
 			if (size < maxSize) {
 				const arr = [key, null];

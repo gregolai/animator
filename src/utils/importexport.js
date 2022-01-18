@@ -2,7 +2,7 @@ import { createUniqueName, getRandomColor } from 'utils';
 import { CSSLint } from 'csslint';
 import db from 'utils/db';
 
-export const lintJSF = jsfString => {
+export const lintJSF = (jsfString) => {
 	jsfString = jsfString.trim();
 
 	const warnings = [];
@@ -16,14 +16,14 @@ export const lintJSF = jsfString => {
 	return { warnings, errors };
 };
 
-export const lintCSS = cssString => {
+export const lintCSS = (cssString) => {
 	const { messages } = CSSLint.verify(cssString);
-	const warnings = messages.filter(v => v.type === 'warning');
-	const errors = messages.filter(v => v.type === 'error');
+	const warnings = messages.filter((v) => v.type === 'warning');
+	const errors = messages.filter((v) => v.type === 'error');
 	return { warnings, errors };
 };
 
-export const importJSF = jsfString => {
+export const importJSF = (jsfString) => {
 	const jsfObject = JSON.parse(jsfString);
 
 	const animations = [];
@@ -57,8 +57,7 @@ export const importJSF = jsfString => {
 
 			jsfKeyValuePairs.forEach(([time, value]) => {
 				// prevent duplicate keyframe times
-				if (db.getOne(keyframes, kf => kf.tweenId === tweenId && kf.time === time).item)
-					return;
+				if (db.getOne(keyframes, (kf) => kf.tweenId === tweenId && kf.time === time).item) return;
 
 				// create keyframe
 				db.createOne(
@@ -115,12 +114,12 @@ export const exportJSF = ({ animations, instances, keyframes, tweens }) => {
 			animations: animations.reduce((map, animation) => {
 				map[animation.id] = {
 					keyframes: tweens
-						.filter(t => t.animationId === animation.id)
+						.filter((t) => t.animationId === animation.id)
 						.reduce((map, tween) => {
 							map[tween.definitionId] = keyframes
-								.filter(kf => kf.tweenId === tween.id)
+								.filter((kf) => kf.tweenId === tween.id)
 								.sort((a, b) => (a.time < b.time ? -1 : 1))
-								.map(kf => [kf.time, kf.value]);
+								.map((kf) => [kf.time, kf.value]);
 
 							return map;
 						}, {}),

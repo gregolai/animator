@@ -18,7 +18,7 @@ class TableSideEffects {
 
 		let list = this._listeners[key];
 		if (list) {
-			list.forEach(callback => callback({ items, indices }));
+			list.forEach((callback) => callback({ items, indices }));
 		}
 	}
 

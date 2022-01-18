@@ -42,13 +42,10 @@ export const startDrag = (
 		return obj;
 	};
 
-	const _tryDragStart = e => {
+	const _tryDragStart = (e) => {
 		if (!isDragging) {
 			const { clientX, clientY } = e;
-			if (
-				distance <= 0 ||
-				!isLessThanDistance(clientX - startX, clientY - startY, distance)
-			) {
+			if (distance <= 0 || !isLessThanDistance(clientX - startX, clientY - startY, distance)) {
 				onDragStart(_createArgs(mouseDownEvent));
 				isDragging = true;
 			}
@@ -56,7 +53,7 @@ export const startDrag = (
 		return isDragging;
 	};
 
-	const _onMouseUp = mouseUpEvent => {
+	const _onMouseUp = (mouseUpEvent) => {
 		if (mouseUpEvent.button !== button) return;
 
 		document.removeEventListener('mousemove', _onMouseMove);
@@ -68,7 +65,7 @@ export const startDrag = (
 		mouseUpEvent.preventDefault();
 	};
 
-	const _onMouseMove = mouseMoveEvent => {
+	const _onMouseMove = (mouseMoveEvent) => {
 		if (mouseMoveEvent.button !== button) return;
 
 		if (!_tryDragStart(mouseMoveEvent)) {

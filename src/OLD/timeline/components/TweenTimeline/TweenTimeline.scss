@@ -1,75 +1,76 @@
-@import "../../../../constants.scss";
+@import '../../../../constants.scss';
 
 :local {
-  $diamond-size: 12px;
-  $half-diamond-size: $diamond-size / 2;
+	$diamond-size: 12px;
+	$half-diamond-size: $diamond-size / 2;
 
-  $bar-size: 4px;
-  $half-bar-size: $bar-size / 2;
+	$bar-size: 4px;
+	$half-bar-size: $bar-size / 2;
 
-  $hover-color-bg: dodgerblue;
-  $drag-color-bg: red;
+	$hover-color-bg: dodgerblue;
+	$drag-color-bg: red;
 
-  $bar-color-bg: black;
-  $keyframe-color-bg: $color-bg-0;
-  $keyframe-color-border: black;
+	$bar-color-bg: black;
+	$keyframe-color-bg: $color-bg-0;
+	$keyframe-color-border: black;
 
-  .container {
-    position: relative;
-    height: $timeline-tween-height;
-    flex: 1;
+	.container {
+		position: relative;
+		height: $timeline-tween-height;
+		flex: 1;
 
-    background-color: $color-bg-1;
+		background-color: $color-bg-1;
 
-    &.odd {
-      background-color: $color-bg-3;
-    }
-  }
+		&.odd {
+			background-color: $color-bg-3;
+		}
+	}
 
-  .ticks {
-    z-index: 1;
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    height: 100%;
-    width: 100%;
-  }
+	.ticks {
+		z-index: 1;
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		height: 100%;
+		width: 100%;
+	}
 
-  .bar {
-    z-index: 2;
-    position: absolute;
-    top: 50%;
-    height: $bar-size;
-    transform: translateY(-$half-bar-size);
-    background-color: $bar-color-bg;
+	.bar {
+		z-index: 2;
+		position: absolute;
+		top: 50%;
+		height: $bar-size;
+		transform: translateY(-$half-bar-size);
+		background-color: $bar-color-bg;
 
-    &:hover {
-      background-color: $hover-color-bg;
-    }
-  }
+		&:hover {
+			background-color: $hover-color-bg;
+		}
+	}
 
-  .keyframe {
-    z-index: 3;
-    position: absolute;
-    top: 50%;
-    width: $diamond-size;
-    height: $diamond-size;
-    transform: translate(-$half-diamond-size, -$half-diamond-size) rotate(-45deg);
-    cursor: col-resize;
+	.keyframe {
+		z-index: 3;
+		position: absolute;
+		top: 50%;
+		width: $diamond-size;
+		height: $diamond-size;
+		transform: translate(-$half-diamond-size, -$half-diamond-size) rotate(-45deg);
+		cursor: col-resize;
 
-    background-color: $keyframe-color-bg;
-    border: 2px solid $keyframe-color-border;
+		background-color: $keyframe-color-bg;
+		border: 2px solid $keyframe-color-border;
 
-    &:hover {
-      cursor: none;
-      background-color: $hover-color-bg;
-    }
+		&:hover {
+			cursor: none;
+			background-color: $hover-color-bg;
+		}
 
-    &.atPlayhead {}
+		&.atPlayhead {
+		}
 
-    &.dragging {
-      cursor: none;
-      background-color: $drag-color-bg;
-    }
-  }
+		&.dragging {
+			cursor: none;
+			background-color: $drag-color-bg;
+		}
+	}
 }

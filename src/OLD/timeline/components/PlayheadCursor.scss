@@ -1,35 +1,35 @@
-@import "../../../constants.scss";
+@import '../../../constants.scss';
 
 :local {
-  $playhead-color: black;
-  $diamond-size: 12px;
+	$playhead-color: black;
+	$diamond-size: 12px;
 
-  $half-diamond-size: $diamond-size / 2;
+	$half-diamond-size: $diamond-size / 2;
 
-  .container {
-    position: absolute;
-    pointer-events: none;
-    left: $timeline-left-width;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    overflow: hidden;
-  }
+	.container {
+		position: absolute;
+		pointer-events: none;
+		left: $timeline-left-width;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		overflow: hidden;
+	}
 
-  .playhead {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 1px;
-    background-color: $playhead-color;
-  }
+	.playhead {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		width: 1px;
+		background-color: $playhead-color;
+	}
 
-  .diamond {
-    position: absolute;
-    left: 0;
-    width: $diamond-size;
-    height: $diamond-size;
-    background-color: $playhead-color;
-    transform: translate(-$half-diamond-size, -$half-diamond-size) rotate(-45deg);
-  }
+	.diamond {
+		position: absolute;
+		left: 0;
+		width: $diamond-size;
+		height: $diamond-size;
+		background-color: $playhead-color;
+		transform: translate(-$half-diamond-size, -$half-diamond-size) rotate(-45deg);
+	}
 }

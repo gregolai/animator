@@ -1,25 +1,24 @@
-@import "../../../../constants.scss";
+@import '../../../../constants.scss';
 
 :local {
-  $head-height: $grid-px * 3;
+	$head-height: $grid-px * 3;
 
-  .container {
-    padding-top: $grid-px;
-    display: flex;
-    justify-content: space-between;
-    width: $timeline-left-width;
-  }
+	.container {
+		padding-top: $grid-px;
+		display: flex;
+		justify-content: space-between;
+		width: $timeline-left-width;
+	}
 
-  .definitions {
-    min-width: $grid-px * 11;
-  }
+	.definitions {
+		min-width: $grid-px * 11;
+	}
 
-  .title {
-    padding-left: $grid-px * 4;
-  }
+	.title {
+		padding-left: $grid-px * 4;
+	}
 
-  .btnAddTween {
-    margin-right: $grid-px;
-  }
-
+	.btnAddTween {
+		margin-right: $grid-px;
+	}
 }

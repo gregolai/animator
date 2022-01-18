@@ -12,7 +12,7 @@ export default ({
 			{label}
 			<textarea
 				className={className}
-				onChange={e => onChange(e.target.value)}
+				onChange={(e) => onChange(e.target.value)}
 				style={{ display: 'block', height: '500px', width: '100%', padding: 0 }}
 				value={value}
 			/>

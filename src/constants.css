@@ -2,7 +2,7 @@
 	--grid-px: 11px;
 
 	--border-radius-px: 4px;
-	
+
 	--color-bg-0: white;
 	--color-bg-1: #f2f2f2;
 	--color-bg-2: #d2d2d2;
@@ -16,23 +16,23 @@
 	--color-border-0: #d0d0d0;
 	--color-border-1: #a1a1a1;
 	--color-border-2: #e2e2e2;
-	
+
 	--color-font-0: black;
-	
+
 	--font-size-xs: 9.75px;
 	--font-size-sm: 12px;
 	--font-size-md: 14px;
 	--font-size-lg: 16px;
 	--font-size-xl: 18px;
-	
+
 	--z-index-lowest-priority: 1;
 	--z-index-low-priority: 2;
 	--z-index-medium-priority: 3;
 	--z-index-high-priority: 4;
 	--z-index-highest-priority: 5;
-	
+
 	--common-height-px: calc(3 * var(--grid-px));
-	
+
 	--animations-left-width: 340px;
 	--timeline-left-width: 460px;
 	--timeline-tween-height: calc(3 * var(--grid-px));

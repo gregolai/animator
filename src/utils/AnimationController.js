@@ -6,9 +6,7 @@ export const InterpolateProp = ({ children, definitionId, easing, keyframes, tim
 	const definition = getStyleProp(definitionId);
 	if (time === undefined) return children(undefined);
 
-	return children(
-		definition ? interpolateKeyframes(keyframes, time, definition.lerp, easing) : undefined
-	);
+	return children(definition ? interpolateKeyframes(keyframes, time, definition.lerp, easing) : undefined);
 };
 
 const AnimationController = ({

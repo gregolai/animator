@@ -1,44 +1,46 @@
-@import "../../../constants.scss";
+@import '../../../constants.scss';
 
 :local {
-  $keyframe-width-px: 8px;
+	$keyframe-width-px: 8px;
 
-  .container {}
+	.container {
+	}
 
-  .tweens {}
+	.tweens {
+	}
 
-  .tween {
-    position: relative;
-    height: $timeline-tween-height;
-    flex: 1;
+	.tween {
+		position: relative;
+		height: $timeline-tween-height;
+		flex: 1;
 
-    background-color: $color-bg-1;
+		background-color: $color-bg-1;
 
-    &.odd {
-      background-color: $color-bg-3;
-    }
+		&.odd {
+			background-color: $color-bg-3;
+		}
 
-    &.hidden {
-      display: none;
-    }
-  }
+		&.hidden {
+			display: none;
+		}
+	}
 
-  .keyframe {
-    position: absolute;
-    top: 0;
-    height: 100%;
-    width: $keyframe-width-px;
-    //transform: translateX(-$keyframe-width-px/2);
-    cursor: col-resize;
+	.keyframe {
+		position: absolute;
+		top: 0;
+		height: 100%;
+		width: $keyframe-width-px;
+		//transform: translateX(-$keyframe-width-px/2);
+		cursor: col-resize;
 
-    background-color: dodgerblue;
+		background-color: dodgerblue;
 
-    &.dragging {
-      background-color: red;
-    }
-  }
+		&.dragging {
+			background-color: red;
+		}
+	}
 
-  .valueEditor {
-    width: $timeline-left-width;
-  }
+	.valueEditor {
+		width: $timeline-left-width;
+	}
 }

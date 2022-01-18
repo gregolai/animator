@@ -13,12 +13,12 @@ const styleTo = {
 	backgroundColor: 'white'
 };
 
-const isAuto = value => value === 'auto';
-const isPercent = value => typeof value === 'string' && value.endsWith('%');
+const isAuto = (value) => value === 'auto';
+const isPercent = (value) => typeof value === 'string' && value.endsWith('%');
 
-const toPx = v => (typeof v === 'number' ? `${v}px` : v);
+const toPx = (v) => (typeof v === 'number' ? `${v}px` : v);
 
-const needsCalculation = value => isAuto(value) || isPercent(value);
+const needsCalculation = (value) => isAuto(value) || isPercent(value);
 
 export default class Expand extends React.Component {
 	static defaultProps = {
@@ -60,7 +60,7 @@ export default class Expand extends React.Component {
 			});
 		}
 
-		return new Promise(resolve => {
+		return new Promise((resolve) => {
 			const savedHeight = node.offsetHeight;
 			node.style.height = from; // FROM HEIGHT
 

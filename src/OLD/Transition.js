@@ -239,9 +239,7 @@ class Transition extends React.Component {
 
 	performEnter(node, mounting) {
 		const { enter } = this.props;
-		const appearing = this.context.transitionGroup
-			? this.context.transitionGroup.isMounting
-			: mounting;
+		const appearing = this.context.transitionGroup ? this.context.transitionGroup.isMounting : mounting;
 
 		const timeouts = this.getTimeouts();
 		const enterTimeout = appearing ? timeouts.appear : timeouts.enter;
@@ -314,7 +312,7 @@ class Transition extends React.Component {
 	setNextCallback(callback) {
 		let active = true;
 
-		this.nextCallback = event => {
+		this.nextCallback = (event) => {
 			if (active) {
 				active = false;
 				this.nextCallback = null;
@@ -348,7 +346,7 @@ class Transition extends React.Component {
 		}
 	}
 
-	captureRef = ref => {
+	captureRef = (ref) => {
 		this.node = ref;
 		if (this.props.captureRef) {
 			this.props.captureRef(ref);
@@ -407,8 +405,7 @@ Transition.propTypes = {
 	 * </Transition>
 	 * ```
 	 */
-	children: PropTypes.oneOfType([PropTypes.func.isRequired, PropTypes.element.isRequired])
-		.isRequired,
+	children: PropTypes.oneOfType([PropTypes.func.isRequired, PropTypes.element.isRequired]).isRequired,
 
 	/**
 	 * Show the component; triggers the enter or exit states

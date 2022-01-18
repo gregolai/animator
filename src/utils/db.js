@@ -1,12 +1,12 @@
 import isFunction from 'lodash/isFunction';
-import {uid} from './uid';
+import { uid } from './uid';
 
 /**
  * @param {Array<object>} list
  * @param {Function|string} id
  */
 const getOne = (list, id) => {
-	const index = list.findIndex(isFunction(id) ? id : item => item.id === id);
+	const index = list.findIndex(isFunction(id) ? id : (item) => item.id === id);
 	return {
 		index,
 		item: list[index] || null
@@ -21,7 +21,7 @@ const getMany = (list, ids) => {
 	const indices = [];
 	const items = [];
 
-	const filterFn = isFunction(ids) ? ids : item => ids.indexOf(item.id) !== -1;
+	const filterFn = isFunction(ids) ? ids : (item) => ids.indexOf(item.id) !== -1;
 
 	for (let i = 0, ii = list.length; i < ii; ++i) {
 		if (filterFn(list[i], i, list)) {
@@ -65,7 +65,7 @@ const db = {
 		const items = [];
 		const indices = [];
 
-		values.forEach(value => {
+		values.forEach((value) => {
 			const { item, index } = db.createOne(
 				list,
 				{

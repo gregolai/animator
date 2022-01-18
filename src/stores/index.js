@@ -4,7 +4,7 @@ import ImporterStore from './ImporterStore';
 import StageStore from './StageStore';
 import UIStore from './UIStore';
 
-export const withStores = Component => props => (
+export const withStores = (Component) => (props) => (
 	<ImporterStore>
 		<AnimationStore>
 			<UIStore>

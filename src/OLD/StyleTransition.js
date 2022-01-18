@@ -134,20 +134,20 @@ export default class StyleTransition extends React.Component {
 		return this.updateState(this.node, 'entered', this.props.onEntered);
 	};
 
-	handleExit = node => {
+	handleExit = (node) => {
 		return this.updateState(this.node, 'exit', this.props.onExit);
 	};
 
-	handleExiting = node => {
+	handleExiting = (node) => {
 		return this.updateState(this.node, 'exiting', this.props.onExiting);
 	};
 
-	handleExited = node => {
+	handleExited = (node) => {
 		return this.updateState(this.node, 'exited', this.props.onExited);
 	};
 
 	delayFrame() {
-		return new Promise(resolve => requestAnimationFrame(resolve));
+		return new Promise((resolve) => requestAnimationFrame(resolve));
 	}
 
 	async updateState(node, phase, callback) {
@@ -235,7 +235,7 @@ export default class StyleTransition extends React.Component {
 		}
 	}
 
-	captureRef = ref => {
+	captureRef = (ref) => {
 		this.node = ref;
 	};
 

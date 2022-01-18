@@ -17,7 +17,7 @@ export default class MouseOffset extends React.Component {
 		document.removeEventListener('mousemove', this.onMouseMove);
 	}
 
-	onMouseMove = e => {
+	onMouseMove = (e) => {
 		if (!this.ref) return;
 
 		const rect = this.ref.getBoundingClientRect();
@@ -29,7 +29,7 @@ export default class MouseOffset extends React.Component {
 		});
 	};
 
-	captureRef = ref => {
+	captureRef = (ref) => {
 		this.ref = ref;
 	};
 
