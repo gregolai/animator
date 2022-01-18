@@ -1,4 +1,4 @@
-import { React } from 'common';
+import React from 'react';
 import { PlaybackController } from 'utils';
 import { ButtonField, BooleanField } from 'components/core';
 import { Box } from 'pu2';

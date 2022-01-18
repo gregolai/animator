@@ -6,4 +6,4 @@
 # exclude everything except directory public/static
 !/public
 /public/*
-!/public/static
+!/public/img

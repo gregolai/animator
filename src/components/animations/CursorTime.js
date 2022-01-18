@@ -1,4 +1,5 @@
-import { React, noop } from 'common';
+import React from 'react';
+import noop from 'lodash/noop';
 import { normalizeRatio, PlaybackController } from 'utils';
 import { AnimationStore, UIStore } from 'stores';
 

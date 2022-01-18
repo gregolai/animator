@@ -1,4 +1,5 @@
-import { React, isNumber } from 'common';
+import React from 'react';
+import isNumber from 'lodash/isNumber';
 import { startDrag, PlaybackController } from 'utils';
 import { AnimationStore, UIStore } from 'stores';
 import { Canvas } from 'components/shared';

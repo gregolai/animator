@@ -1,4 +1,5 @@
-import { React, cx } from 'common';
+import React from 'react';
+import { cx } from 'pu2';
 import { CheckField } from 'components/core';
 import { IconButton, Popover } from 'components/shared';
 

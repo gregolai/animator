@@ -11,7 +11,6 @@ export { default as UrlParseField } from '@sqs/core-components/fields/UrlParseFi
 export { default as DropdownSelect } from '@sqs/core-components/components/DropdownSelect';
 
 export { default as ButtonPrimitive } from '@sqs/core-components/primitives/Button';
-export { default as ErrorText } from '@sqs/core-components/primitives/ErrorText';
 export { default as Icon } from '@sqs/core-components/primitives/Icon';
 
 export { Modal } from '@sqs/experimental-components';

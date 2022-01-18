@@ -1,4 +1,6 @@
-import { React, cx, isNumber } from 'common';
+import React from 'react';
+import { cx } from 'pu2';
+import isNumber from 'lodash/isNumber';
 
 import CursorTime from './CursorTime';
 import { AnimationStore, UIStore } from 'stores';

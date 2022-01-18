@@ -1,4 +1,5 @@
-import { React, isNumber } from 'common';
+import React from 'react';
+import isNumber from 'lodash/isNumber';
 import { createUniqueName, getRandomColor, normalizeRatio } from 'utils';
 import { createPersist } from 'pu2';
 import rework from 'rework';

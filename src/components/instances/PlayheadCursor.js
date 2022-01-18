@@ -1,4 +1,4 @@
-import { React } from 'common';
+import React from 'react';
 import { startDrag, PlaybackController } from 'utils';
 import { UIStore } from 'stores';
 import { Box } from 'pu2';

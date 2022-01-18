@@ -1,4 +1,4 @@
-import { noop } from 'common';
+import noop from 'lodash/noop';
 
 const isLessThanDistance = (deltaX, deltaY, distance) => {
 	return deltaX * deltaX + deltaY * deltaY < distance * distance;

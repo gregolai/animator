@@ -1,4 +1,4 @@
-import { INTERVAL_MS } from 'common';
+export const INTERVAL_MS = 10;
 
 export const timeToPixels = (milliseconds: number, spacing: number) => {
 	return Math.floor((milliseconds * spacing) / INTERVAL_MS);

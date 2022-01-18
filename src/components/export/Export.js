@@ -1,11 +1,8 @@
-import { React, cx } from 'common';
+import React from 'react';
+import { cx } from 'pu2';
 import { TextareaField } from 'components/core';
-import { IconButton, ImportExportModal } from 'components/shared';
+import { ImportExportModal } from 'components/shared';
 import { AnimationStore } from 'stores';
-
-import imgCSS from 'css3.svg';
-import imgSquarespace from 'squarespace.svg';
-import imgJSF from 'jsf.png';
 
 import styles from './Export.module.css';
 
@@ -23,11 +20,11 @@ const Export = ({ onRequestClose }) => {
 			>
 				<div className={styles.choices}>
 					<div className={styles.choice}>
-						<img className={styles.img} src={imgCSS} />
+						<img className={styles.img} src="img/css3.svg" />
 					</div>
 					<div className={styles.choice} onClick={() => setChoice('jsf')}>
-						<img className={styles.img} src={imgSquarespace} />
-						<img className={cx(styles.img, styles.jsf)} src={imgJSF} />
+						<img className={styles.img} src="img/squarespace.svg" />
+						<img className={cx(styles.img, styles.jsf)} src="img/jsf.png" />
 					</div>
 				</div>
 			</ImportExportModal>

@@ -1,4 +1,4 @@
-import { React } from 'common';
+import React from 'react';
 import { ColorSquare, DropdownCustom } from 'components/shared';
 import { DropdownSelect, ColorField, NumberField, RangeField, UrlParseField } from 'components/core';
 

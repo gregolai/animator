@@ -1,5 +1,6 @@
-import { React, chunk } from 'common';
+import React from 'react';
 import { Box } from 'pu2';
+import chunk from 'lodash/chunk';
 
 import { AnimationStore } from 'stores';
 import { IconButton, ValueButton, ValueEditor } from 'components/shared';

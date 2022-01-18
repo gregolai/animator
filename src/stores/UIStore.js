@@ -1,4 +1,5 @@
-import { React, INTERVAL_MS } from 'common';
+import React from 'react';
+import { INTERVAL_MS } from '../components/instances/utils';
 import { normalizeRatio } from 'utils';
 import { createPersist } from 'pu2';
 

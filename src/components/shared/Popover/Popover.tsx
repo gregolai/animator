@@ -1,4 +1,4 @@
-import { React } from 'common';
+import React from 'react';
 import { Box } from 'pu2';
 import { usePopper, Popper, PopperProps } from 'react-popper';
 

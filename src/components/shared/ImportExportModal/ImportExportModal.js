@@ -1,4 +1,4 @@
-import { React } from 'common';
+import React from 'react';
 import { ButtonPrimitive, Modal } from 'components/core';
 
 import styles from './ImportExportModal.module.css';

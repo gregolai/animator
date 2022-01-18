@@ -1,4 +1,5 @@
-import { React, cx } from 'common';
+import React from 'react';
+import { cx } from 'pu2';
 import { roundToInterval, startDrag, PlaybackController } from 'utils';
 import { Box } from 'pu2';
 

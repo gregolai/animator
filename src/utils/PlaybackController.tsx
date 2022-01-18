@@ -1,4 +1,5 @@
-import { React, clamp } from 'common';
+import React from 'react';
+import clamp from 'lodash/clamp';
 import { createPersist } from 'pu2';
 
 const persist = createPersist('PlaybackController', {

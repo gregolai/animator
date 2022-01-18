@@ -1,4 +1,5 @@
-import { React, isNumber } from 'common';
+import React from 'react';
+import isNumber from 'lodash/isNumber';
 import { normalizeRatio } from 'utils';
 import colorNames from 'css-color-names';
 import { color } from '@sqs/utils';

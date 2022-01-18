@@ -1,5 +1,5 @@
 import React from 'react';
-import { BooleanField, ButtonPrimitive, ErrorText, TextareaField, Modal } from 'components/core';
+import { BooleanField, ButtonPrimitive, TextareaField, Modal } from 'components/core';
 import { AnimationStore, ImporterStore } from 'stores';
 
 import styles from './ImportCSSModal.css';
@@ -26,7 +26,9 @@ const ImportCSSModal = () => {
 								value={value}
 							/>
 							{errors.map((msg, i) => (
-								<ErrorText key={i} errors={{ message: msg.message }} />
+								<div key={i} style={{ color: 'red' }}>
+									{msg.message}
+								</div>
 							))}
 						</Modal.Dialog.Body.Message>
 					</Modal.Dialog.Body>

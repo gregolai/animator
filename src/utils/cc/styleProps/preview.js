@@ -1,4 +1,4 @@
-import { React } from 'common';
+import React from 'react';
 
 import { color } from '@sqs/utils';
 import format from './format';

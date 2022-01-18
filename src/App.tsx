@@ -1,6 +1,5 @@
 import React from 'react';
 import SplitPane from 'react-split-pane';
-// import cssbeautify from 'cssbeautify';
 
 import { ButtonField } from 'components/core';
 import { withStores, AnimationStore, UIStore, ImporterStore } from 'stores';
@@ -15,37 +14,6 @@ import Animations from './components/animations/Animations';
 import Instances from './components/instances/Instances';
 
 import { Box } from 'pu2';
-
-// getCss = animations => {
-//   const css = this.state.animations.map(anim => {
-//     if (anim.tweens.length === 0) return '';
-
-//     const percentGroups = {};
-
-//     const pushTimestamp = (name, time, value) => {
-//       const percent = Math.floor(time * 100);
-//       (percentGroups[percent] = percentGroups[percent] || []).push({ name, value });
-//     }
-
-//     anim.tweens.forEach(tween => {
-//       tween.keyframes.forEach(h => pushTimestamp(tween.cssName, h.time, h.value));
-//     });
-
-//     const sorted = Object.entries(percentGroups)
-//       .sort((a, b) => parseFloat(a[0]) - parseFloat(b[0]));
-
-//     const writeProp = ({ name, value }) => `${name}: ${value};`;
-
-//     const writePercentGroup = (percent, group) => `${percent}% { ${group.map(writeProp).join(' ') } }`;
-
-//     return `@keyframes anim_${anim.id} { ${sorted.map(([percent, group]) => writePercentGroup(percent, group)).join(' ') } }`;
-//   }).join(' ');
-
-//   return cssbeautify(css, {
-//     indent: '  ',
-//     autosemicolon: true
-//   });
-// }
 
 const ImportButton = () => {
 	const { setOpen } = ImporterStore.use();
@@ -65,7 +33,7 @@ const AddAnimationButton = () => {
 	);
 };
 
-const App = withStores(() => {
+export const App = withStores(() => {
 	const [debug, toggleDebug] = React.useState(true);
 	const [showExportModal, setShowExportModal] = React.useState(false);
 
@@ -162,5 +130,3 @@ const App = withStores(() => {
 		</PlaybackController>
 	);
 });
-
-export default App;
